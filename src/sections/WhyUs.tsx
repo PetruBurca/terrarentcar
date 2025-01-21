@@ -18,7 +18,7 @@ const WhyUs: React.FC = () => {
   ];
 
   return (
-    <section className="why-us">
+    <section className="why-us" id='about'>
       <div className="container">
         <h2 className="why-us__title">Why Choose Us?</h2>
         <div className="features">

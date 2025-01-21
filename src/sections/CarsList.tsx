@@ -24,7 +24,7 @@ const CarsList: React.FC = () => {
   ];
 
   return (
-    <section className="cars-list">
+    <section className="cars-list" id='gallery'>
       <h2>Часто арендуемые машины</h2>
       <div className="cars-container">
         {cars.map((car, index) => (

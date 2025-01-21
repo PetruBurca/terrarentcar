@@ -6,7 +6,7 @@ const ContactForm: React.FC = () => {
     <section className="contact-form">
       <h2>Contact Us</h2>
       <form>
-        <div className="form-group">
+        <div className="form-group" id='contact'>
           <input type="text" placeholder="Your Name" required />
           <input type="email" placeholder="Your Email" required />
         </div>
