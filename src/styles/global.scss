@@ -1,0 +1,40 @@
+@use './variables' as *;
+@use  './mixins' as *;
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $font-primary;
+  background-color: $primary-color;
+  color: $secondary-color;
+  line-height: 1.6;
+  justify-content: center;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-family: $font-primary;
+}
+
+body {
+  font-size: 1rem;
+
+  @media (min-width: 768px) {
+    font-size: 1.125rem; // Увеличиваем базовый шрифт на планшетах
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 1.25rem; // Для десктопов
+  }
+}

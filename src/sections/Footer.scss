@@ -1,0 +1,42 @@
+.footer {
+  background-color: #000;
+  color: #fff;
+  padding: 2rem 1rem;
+
+  .footer-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+
+    @media (min-width: 768px) {
+      flex-direction: row; // На планшетах элементы в строку
+      justify-content: space-around;
+      text-align: left;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+
+      @media (min-width: 768px) {
+        font-size: 2rem; // Увеличиваем на планшетах
+      }
+    }
+
+    .navigation a,
+    .social-media a {
+      display: block;
+      color: #fff;
+      text-decoration: none;
+      margin-bottom: 0.5rem;
+
+      &:hover {
+        color: #e63946;
+      }
+
+      @media (min-width: 768px) {
+        margin-bottom: 0; // Убираем отступы
+      }
+    }
+  }
+}

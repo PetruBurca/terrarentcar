@@ -1,0 +1,185 @@
+$animation-speed: 25s;
+$slide-width: 250px; // Ширина каждого слайда
+$slide-height: 150px; // Высота каждого слайда
+$slider-width: 960px; // Ширина видимой области
+
+.slider {
+  background: #000; // Черный фон
+  height: $slide-height;
+  margin: auto;
+  overflow: hidden;
+  position: relative;
+  width: $slider-width;
+
+  // Градиенты по бокам для эффекта исчезания
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    height: $slide-height;
+    z-index: 2;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+  }
+
+  &::before {
+    left: 0;
+    width: 200px;
+    background: linear-gradient(to left, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+  }
+
+  &::after {
+    right: 0;
+    width: 200px;
+  }
+
+  // Движущийся трек с логотипами
+  .slide-track {
+    display: flex;
+    width: calc(#{$slide-width} * #{6 * 2}); // Кол-во слайдов * 2 для дублирования
+    will-change: transform;
+    animation: marquee $animation-speed linear infinite;
+  }
+
+  // Логотипы
+  .slide {
+    width: $slide-width;
+    height: $slide-height;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+      width: 50%; // Размер логотипов
+      height: auto;
+      filter: brightness(0) invert(1); // Белый логотип на черном фоне
+    }
+  }
+
+  // Анимация бесконечной прокрутки
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%); // Прокручиваем весь контент
+    }
+  }
+}
+
+// Адаптивность
+@media (max-width: 1200px) {
+  $slider-width: 800px;
+  $slide-width: 200px;
+  $slide-height: 130px;
+
+  .slider {
+    width: $slider-width;
+    height: $slide-height;
+
+    &::before,
+    &::after {
+      height: $slide-height;
+    }
+
+    .slide-track {
+      width: calc(#{$slide-width} * #{6 * 2});
+    }
+
+    .slide {
+      width: $slide-width;
+      height: $slide-height;
+
+      img {
+        width: 65%;
+      }
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  $slider-width: 600px;
+  $slide-width: 160px;
+  $slide-height: 110px;
+
+  .slider {
+    width: $slider-width;
+    height: $slide-height;
+
+    &::before,
+    &::after {
+      height: $slide-height;
+    }
+
+    .slide-track {
+      width: calc(#{$slide-width} * #{6 * 2});
+    }
+
+    .slide {
+      width: $slide-width;
+      height: $slide-height;
+
+      img {
+        width: 60%;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  $slider-width: 480px;
+  $slide-width: 120px;
+  $slide-height: 90px;
+
+  .slider {
+    width: $slider-width;
+    height: $slide-height;
+
+    &::before,
+    &::after {
+      height: $slide-height;
+    }
+
+    .slide-track {
+      width: calc(#{$slide-width} * #{6 * 2});
+    }
+
+    .slide {
+      width: $slide-width;
+      height: $slide-height;
+
+      img {
+        width: 55%;
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  $slider-width: 360px;
+  $slide-width: 100px;
+  $slide-height: 75px;
+
+  .slider {
+    width: $slider-width;
+    height: $slide-height;
+
+    &::before,
+    &::after {
+      height: $slide-height;
+    }
+
+    .slide-track {
+      width: calc(#{$slide-width} * #{6 * 2});
+    }
+
+    .slide {
+      width: $slide-width;
+      height: $slide-height;
+
+      img {
+        width: 50%;
+      }
+    }
+  }
+}
