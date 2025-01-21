@@ -24,6 +24,7 @@ const WhyUs: React.FC = () => {
         <div className="features">
           {features.map((feature, index) => (
             <div key={index} className="feature">
+
               <h3 className="feature__title">{feature.title}</h3>
               <p className="feature__description">{feature.description}</p>
             </div>

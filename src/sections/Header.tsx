@@ -1,40 +1,34 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./Header.scss";
 
 const Header: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleScroll = () => {
-    if (window.scrollY > 100) {
-      setIsScrolled(true);
-    } else {
-      setIsScrolled(false);
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const toggleMenu = () => setMenuOpen(!menuOpen);
 
   return (
-    <nav className={`header ${isScrolled ? "header--scrolled" : ""}`}>
-      <div className="header__tabs">
-        <a href="#section1" className="header__tab">
-          Section 1
-        </a>
-        <a href="#section2" className="header__tab">
-          Section 2
-        </a>
-        <a href="#section3" className="header__tab">
-          Section 3
-        </a>
-        <a href="#section4" className="header__tab">
-          Section 4
-        </a>
+    <header className={`header ${menuOpen ? "menu-open" : ""}`}>
+      {/* Logo */}
+      <div className="logo">
+        <a href="#">Logo</a>
       </div>
-      <div className="header__slider"></div>
-    </nav>
+
+      {/* Burger Menu */}
+      <div className={`burger ${menuOpen ? "open" : ""}`} onClick={toggleMenu}>
+        <div className="burger-line"></div>
+        <div className="burger-line"></div>
+        <div className="burger-line"></div>
+      </div>
+
+      {/* Navigation */}
+      <nav className={`nav ${menuOpen ? "active" : ""}`}>
+        <ul>
+          <li><a href="#about" onClick={toggleMenu}>About</a></li>
+          <li><a href="#gallery" onClick={toggleMenu}>Gallery</a></li>
+          <li><a href="#contact" onClick={toggleMenu}>Contact</a></li>
+        </ul>
+      </nav>
+    </header>
   );
 };
 
