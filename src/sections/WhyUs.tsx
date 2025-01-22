@@ -1,37 +1,94 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './WhyUs.scss';
 
+gsap.registerPlugin(ScrollTrigger);
+
 const WhyUs: React.FC = () => {
-  const features = [
+  const rightTextRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const items = rightTextRef.current?.querySelectorAll('.whyus-item');
+
+    if (items) {
+      items.forEach((item) => {
+        gsap.fromTo(
+          item,
+          { opacity: 0.3 },
+          {
+            opacity: 1,
+            duration: 0.5,
+            scrollTrigger: {
+              trigger: item,
+              start: 'top 80%',
+              end: 'bottom top',
+              scrub: true,
+            },
+          }
+        );
+      });
+    }
+  }, []);
+
+  const whyUsPoints = [
     {
-      title: 'The security first platform',
-      description: 'Simplify your security with authentication services. Define access roles for the end-users, and extend your authorization capabilities to implement dynamic access control.',
+      icon: 'src/assets/whyusIcon/auto.svg', 
+      title: 'Широкий выбор автомобилей:',
+      description:
+        'Мы предлагаем разнообразные автомобили для любого случая – от экономичных моделей до комфортных и премиум-класса.',
     },
     {
-      title: 'Comprehensive authentication',
-      description: 'Enable seamless integration with third-party tools and ensure secure access with multi-factor authentication support.',
+      icon: 'src/assets/whyusIcon/rent.svg',
+      title: 'Гибкие условия аренды:',
+      description:
+        'У нас можно арендовать машину на любой срок – от нескольких часов до нескольких недель. Подбирайте удобный для вас вариант!',
     },
     {
-      title: 'Dynamic access control',
-      description: 'Easily manage user roles and permissions with flexible, scalable access control solutions.',
+      icon: 'src/assets/whyusIcon/security.svg',
+      title: 'Безопасность и надежность:',
+      description:
+        'Все наши автомобили проходят регулярное техническое обслуживание и находятся в отличном состоянии, что гарантирует безопасность на дороге.',
+    },
+    {
+      icon: 'src/assets/whyusIcon/simple.svg',
+      title: 'Простота оформления:',
+      description:
+        'Мы сделали процесс аренды максимально простым и быстрым, чтобы вы могли сосредоточиться на важном, а не на бумажной работе.',
+    },
+    {
+      icon: 'src/assets/whyusIcon/money.svg',
+      title: 'Конкурентоспособные цены:',
+      description:
+        'Мы предлагаем лучшие условия аренды по доступным ценам, без скрытых платежей.',
+    },
+   
+    {
+      icon: 'src/assets/whyusIcon/price.svg',
+      title: 'Гибкие тарифы:',
+      description:
+        'Мы предлагаем различные тарифы, включая аренду с водителем и без, чтобы вы могли выбрать подходящий вариант в зависимости от ваших потребностей.',
     },
   ];
 
   return (
-    <section className="why-us" id='about'>
-      <div className="container">
-        <h2 className="why-us__title">Why Choose Us?</h2>
-        <div className="features">
-          {features.map((feature, index) => (
-            <div key={index} className="feature">
-
-              <h3 className="feature__title">{feature.title}</h3>
-              <p className="feature__description">{feature.description}</p>
-            </div>
-          ))}
+    <div className="whyus-container">
+  <div className="whyus-left">
+    <h1>TERRA RENT CAR</h1>
+  </div>
+  <div className="whyus-right" ref={rightTextRef}>
+    {whyUsPoints.map((point, index) => (
+      <div className="whyus-item" key={index}>
+        {/* Круглая область с иконкой */}
+        <div className="icon-circle">
+          <img src={point.icon} alt={point.title} /> {/* Вставляем локальную SVG */}
         </div>
+        <h2 className="title">{point.title}</h2>
+        <p className="description">{point.description}</p>
       </div>
-    </section>
+    ))}
+  </div>
+</div>
   );
 };
 

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./Header.scss";
+import logo from '../assets/logo.png'
 
 const Header: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -7,10 +8,18 @@ const Header: React.FC = () => {
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
   return (
-    <header className={`header ${menuOpen ? "menu-open" : ""}`}>
+    <div className="main-heder">
+       {/* Call Button */}
+       <section className="call-button">
+          <button className="cc-calto-action-ripple" >
+            <i className="fa fa-phone"></i>
+          </button>
+        </section>
+        <header className={`header ${menuOpen ? "menu-open" : ""}`}>
+      
       {/* Logo */}
       <div className="logo">
-        <a href="#">Logo</a>
+        <img src={logo} alt="" />
       </div>
 
       {/* Burger Menu */}
@@ -19,6 +28,7 @@ const Header: React.FC = () => {
         <div className="burger-line"></div>
         <div className="burger-line"></div>
       </div>
+      
 
       {/* Navigation */}
       <nav className={`nav ${menuOpen ? "active" : ""}`}>
@@ -28,7 +38,12 @@ const Header: React.FC = () => {
           <li><a href="#contact" onClick={toggleMenu}>Contact</a></li>
         </ul>
       </nav>
+
+      
     </header>
+    </div>
+    
+    
   );
 };
 
