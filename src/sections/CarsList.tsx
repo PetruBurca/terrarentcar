@@ -22,7 +22,7 @@ const CarsList = () => {
 
   useEffect(() => {
     // Предположим, что данные JSON находятся локально
-    fetch('./public/carsData.json')
+    fetch('/public/carsData.json')
       .then((response) => response.json())
       .then((data) => setCars(data))
       .catch((error) => console.error('Error loading cars data:', error));
