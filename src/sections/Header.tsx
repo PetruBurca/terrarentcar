@@ -18,8 +18,9 @@ const Header: React.FC = () => {
         <header className={`header ${menuOpen ? "menu-open" : ""}`}>
       
       {/* Logo */}
-      <div className="logo">
-        <img src={logo} alt="" />
+      <div className="logo" >
+        
+        <a href="#" onClick={toggleMenu}><img src={logo} alt="" /></a>
       </div>
 
       {/* Burger Menu */}

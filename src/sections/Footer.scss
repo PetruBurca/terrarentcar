@@ -1,42 +1,75 @@
 .footer {
-  background-color: #000;
-  color: #fff;
-  padding: 2rem 1rem;
+  background-color: #000; /* Фон футера */
+  color: #fff; /* Цвет текста */
+  padding: 0.5rem 2rem;
+  font-family: Arial, sans-serif;
+  
 
-  .footer-container {
+  @media (min-width: 1200) {
+    .footer {
+      padding: 2rem 3rem;
+    }
+  }
+
+  .footer-content {
+    background-color: #fff; /* Белая планка */
+    border-radius: 50px;
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
     gap: 1rem;
-    text-align: center;
 
-    @media (min-width: 768px) {
-      flex-direction: row; // На планшетах элементы в строку
-      justify-content: space-around;
-      text-align: left;
-    }
-
-    .logo {
+    .footer-logo {
       font-size: 1.5rem;
+      font-weight: bold;
+      color: #000; /* Черный текст на белом фоне */
+      flex: 1;
+    }
 
-      @media (min-width: 768px) {
-        font-size: 2rem; // Увеличиваем на планшетах
+    .footer-contacts {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #000;
+      font-size: 1rem;
+      flex: 2;
+
+      span {
+        margin: 0.5rem 0;
       }
     }
 
-    .navigation a,
-    .social-media a {
-      display: block;
-      color: #fff;
-      text-decoration: none;
-      margin-bottom: 0.5rem;
-
-      &:hover {
-        color: #e63946;
+    .footer-social {
+      display: flex;
+      gap: 1rem;
+      
+      justify-content: flex-end;
+      @media (min-width:1200px) {
+        flex: none;
+        padding-right: 60px;
       }
+      a {
+        color: #000; /* Черный цвет иконок */
+        font-size: 1.5rem;
+        transition: color 0.3s;
 
-      @media (min-width: 768px) {
-        margin-bottom: 0; // Убираем отступы
+        &:hover {
+          color: #e63946; /* Красный цвет при наведении */
+        }
       }
+    }
+  }
+
+  .footer-bottom {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #ccc; /* Светлый текст */
+
+    p {
+      margin: 0.5rem 0;
     }
   }
 }
