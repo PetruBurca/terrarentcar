@@ -40,9 +40,9 @@ const TimeLine = () => {
           <span className="letter">R</span>
           <span className="letter">R</span>
           <span className="letter">A</span>
-          <span className="letter">ㅤ</span>
+          <span className="letter">&nbsp;</span>
           <span className="letter">RENT</span>
-          <span className="letter">ㅤ</span>
+          <span className="letter">&nbsp;</span>
           <span className="letter">CAR</span>
         </div>
       </div>
