@@ -17,8 +17,8 @@ const Footer: React.FC = () => {
           <a href="viber://chat?number=%2B37379013014" aria-label="Viber">
             <i className="fab fa-viber"></i>
           </a>
-          <a href="https://wa.me/37379013014"  aria-label="Twitter">
-            <i className="fab fa-twitter"></i>
+          <a href="https://wa.me/37379013014"  aria-label="Watsapp">
+            <i className="fab fa-whatsapp"></i>
           </a>
           <a href="https://www.facebook.com/TerraRentCar/" aria-label="Facebook">
             <i className="fab fa-facebook"></i>

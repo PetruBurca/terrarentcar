@@ -1,11 +1,28 @@
+
+
 .title-car {
   display: flex;
   text-align: center;
+  align-items: center;
+    justify-content: center;
   padding-top: 20px;
   text-transform: uppercase;
 }
 
+.car-layer {
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  border-radius: 30px;
+  object-fit: cover;
+}
+
+
+
 .cars-list {
+  position: relative; // Для правильного позиционирования псевдоэлемента
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
@@ -15,15 +32,38 @@
   max-height: 75vh;
   overflow-y: auto;
 
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px; // Высота затемнения
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.297), rgb(0, 0, 0));
+    pointer-events: none; // Чтобы псевдоэлемент не мешал взаимодействию
+    z-index: 10;
+  }
+
+  @media (min-width: 730px) {
+    &::after {
+      display: none; // Убираем затемнение на ширине экрана от 730px
+    }
+  }
+
   @media (min-width: 768px) {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     max-height: none;
   }
 
   @media (min-width: 1024px) {
     grid-template-columns: repeat(5, 1fr);
   }
+
+  
 }
+
+
+
 
 .car-card {
   position: relative;

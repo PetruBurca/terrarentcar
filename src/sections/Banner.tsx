@@ -87,7 +87,7 @@ const Banner: React.FC = () => {
       <img className="backgr-img" src="../src/assets/backgr.gif" alt="Background" />
       
       <div className="text-cont">
-        <h1 data-reflection="TerraRentCar Prim">TerraRentCar Prim</h1>
+        <h1 data-reflection="Terra rent car">Terra rent car</h1>
         <p>More than a car rental</p>
       </div>
 
