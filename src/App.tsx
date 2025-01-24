@@ -6,7 +6,7 @@ import CarsList from "./sections/CarsList";
 import ContactForm from "./sections/ContactForm";
 import Footer from "./sections/Footer";
 import LogoMarquee from "./sections/LogoMarquee";
-import TimelineComponent from "./sections/TimeLine";
+import Timeline from "./sections/TimeLine";
 
 
 
@@ -18,7 +18,7 @@ const App: React.FC = () => {
       <Banner />
       <WhyUs />
       <LogoMarquee />
-      <TimelineComponent/>
+      <Timeline/>
       <CarsList />
 
       <ContactForm />
