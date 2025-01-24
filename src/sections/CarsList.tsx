@@ -3,6 +3,10 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './CarsList.scss';
 
+// img 
+import bmw from '../assets/bmw.jpg'
+
+
 gsap.registerPlugin(ScrollTrigger);
 
 interface Car {
@@ -80,7 +84,7 @@ const CarsList = () => {
   return (
     <div className="main-cars-list">
       <h1 className="title-car">Широкий выбор автомобилей</h1>
-      <img className="car-layer" src="src/assets/bmw.jpg" alt="Car Layer" />
+      <img className="car-layer" src={bmw} alt="Car Layer" />
       <div className="cars-list">
         {cars.map((car, index) => (
           <div className="car-card" key={car.id} onClick={() => openModal(index)}>
