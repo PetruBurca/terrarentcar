@@ -3,6 +3,8 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import "./Timeline.scss";
 
+import background from "../assets/video.mp4"
+
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -32,7 +34,7 @@ const TimeLine = () => {
   return (
     <div className="video-container">
       <video className="background-video" autoPlay loop muted>
-        <source src="src/assets/video.mp4" type="video/mp4" />
+        <source src={background} type="video/mp4" />
       </video>
       <div className="overlay">
         <div className="text">
