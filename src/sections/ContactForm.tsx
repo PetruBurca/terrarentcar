@@ -1,5 +1,6 @@
 import React from "react";
 import "./ContactForm.scss";
+import "font-awesome/css/font-awesome.min.css"; // Добавьте Font Awesome
 
 const ContactForm: React.FC = () => {
   return (
@@ -8,7 +9,6 @@ const ContactForm: React.FC = () => {
         <h1>связаться с нами</h1>
       </section>
       <section className="contact-section">
-       
         {/* iphone  */}
         <div className="iphone-container">
           <div className="contact-form">
@@ -64,14 +64,13 @@ const ContactForm: React.FC = () => {
             </form>
           </div>
         </div>
-        {/* googlle map */}
+        {/* google map */}
         <div className="contact-map-container">
           <iframe
-          className="custom-google-map"
+            className="custom-google-map"
             src="https://www.google.com/maps/d/u/0/embed?mid=1yCN4l8lW61kg-TyIkhGP1cnQXSzuFKs&ehbc=2E312F&noprof=1"
             width="100%"
             height="100%"
-           
           ></iframe>
         </div>
       </section>

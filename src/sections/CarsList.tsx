@@ -17,6 +17,7 @@ const CarsList = () => {
   const [currentCarIndex, setCurrentCarIndex] = useState<number>(0);
 
   useEffect(() => {
+    // Предположим, что данные JSON находятся локально
     fetch('src/components/carsData.json')
       .then((response) => response.json())
       .then((data) => setCars(data))
