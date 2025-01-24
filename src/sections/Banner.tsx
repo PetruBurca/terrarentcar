@@ -84,7 +84,7 @@ const Banner: React.FC = () => {
 
   return (
     <section className="banner" ref={bannerRef}>
-      <img className="backgr-img" src="../src/assets/backgr.gif" alt="Background" />
+      <img className="backgr-img" src="/src/assets/backgr.gif" alt="Background" />
       
       <div className="text-cont">
         <h1 data-reflection="Terra rent car">Terra rent car</h1>
