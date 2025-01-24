@@ -10,6 +10,9 @@ import lexus from "../assets/lexus.png";
 import mustang from "../assets/mustang.png";
 import appstore from "../assets/appstore.svg";
 
+
+import background from "../assets/backgr.gif"
+
 gsap.registerPlugin(ScrollTrigger);
 
 const Banner: React.FC = () => {
@@ -84,7 +87,7 @@ const Banner: React.FC = () => {
 
   return (
     <section className="banner" ref={bannerRef}>
-      <img className="backgr-img" src="./src/assets/backgr.gif" alt="Background" />
+      <img className="backgr-img" src={background} alt="Background" />
       
       <div className="text-cont">
         <h1 data-reflection="Terra rent car">Terra rent car</h1>
