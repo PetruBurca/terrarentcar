@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import './TimeLine.scss';
+import "./Timeline.scss";
+
 
 gsap.registerPlugin(ScrollTrigger);
 
