@@ -1,29 +1,23 @@
 import React, { useEffect, useRef } from "react";
+import { useTranslation } from 'react-i18next';
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./Banner.scss";
 
-import audi from "../assets/audi.png";
-import mercedes from "../assets/mercedes.png";
-import bmw from "../assets/bmw.png";
-import lexus from "../assets/lexus.png";
-import mustang from "../assets/mustang.png";
-import appstore from "../assets/appstore.svg";
-
-
-import background from "../assets/backgr.gif"
+import background from "../assets/video.mp4";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Banner: React.FC = () => {
+  const { t } = useTranslation();
   const bannerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const banner = bannerRef.current;
-  
+
     if (!banner) return;
-  
-    // Анимация текста
+
+    // Анимация текста (h1, p)
     const textTimeline = gsap.timeline({
       scrollTrigger: {
         trigger: banner,
@@ -32,7 +26,7 @@ const Banner: React.FC = () => {
         toggleActions: "play reverse play reverse",
       },
     });
-  
+
     textTimeline
       .fromTo(
         banner.querySelector("h1"),
@@ -44,70 +38,32 @@ const Banner: React.FC = () => {
         { opacity: 0, y: 50 },
         { opacity: 1, y: 0, duration: 0.5 },
         "-=0.5"
+      )
+      .fromTo(
+        banner.querySelector("h2"),
+        { opacity: 0, y: 50 }, // Начальное состояние
+        { opacity: 1, y: 0, duration: 1, ease: "power2.out", delay: 1 } // Плавная анимация
       );
-  
-    // Анимация кнопки App Store
-    gsap.fromTo(
-      banner.querySelector(".app-store-button"),
-      { opacity: 0, scale: 0.8 }, // Начальное состояние
-      {
-        opacity: 1,
-        scale: 1, // Конечное состояние
-        duration: 1.2,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: banner,
-          start: "top center",
-          end: "bottom center",
-          toggleActions: "play reverse play reverse",
-        },
-      }
-    );
-  
-    // Анимация машин
-    const cars = banner.querySelectorAll(".cars-container img");
-    gsap.fromTo(
-      cars,
-      { opacity: 0, y: 30 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        stagger: 0.3,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: banner,
-          start: "top center",
-          end: "bottom center",
-          toggleActions: "play reverse play reverse",
-        },
-      }
-    );
   }, []);
 
   return (
     <section className="banner" ref={bannerRef}>
-      <img className="backgr-img" src={background} alt="Background" />
-      
+      <video
+        className="background-video"
+        autoPlay
+        loop
+        muted
+        playsInline
+        tabIndex={-1}
+        aria-hidden="true"
+      >
+        <source src={background} type="video/mp4" />
+      </video>
+
       <div className="text-cont">
         <h1 data-reflection="Terra rent car">Terra rent car</h1>
-        <p>More than a car rental</p>
-      </div>
-
-      <div className="app-store-button">
-        <a
-          href="https://apps.apple.com/md/app/terrarent/id1661556785"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src={appstore} alt="App Store" />
-        </a>
-      </div>
-
-      <div className="cars-container">
-        {[audi, mercedes, bmw, lexus, mustang].map((src, index) => (
-          <img key={index} src={src} alt={`Car ${index + 1}`} />
-        ))}
+        <p>{t('banner.subtitle')}</p>
+        <h2>{t('banner.slogan')}</h2>
       </div>
     </section>
   );

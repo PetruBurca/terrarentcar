@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 
 .whyus-container {
   display: flex;
@@ -15,7 +15,7 @@
   font-size: 20px;
   font-weight: bold;
   color: #ccc;
-  font-family: 'Oswald', serif;
+  font-family: "Oswald", serif;
 }
 
 .whyus-right {
@@ -97,8 +97,8 @@
   font-family: 'Oswald', serif;
   font-size: 50px;
   font-weight: bold;
-  color: #ffffff00;
-  -webkit-text-stroke: 1px rgb(255, 255, 255);
+  color: #ffffff;
+  // -webkit-text-stroke: 1px rgb(255, 255, 255);
 }
 
 @media (max-width: 768px) {

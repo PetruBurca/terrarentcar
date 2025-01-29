@@ -20,17 +20,14 @@ const logos = [
 
 const LogoMarquee: React.FC = () => {
   return (
-    <div className="slider">
-      <div className="slide-track">
+    <div className="logo-marquee-container">
+      <div className="logo-marquee">
         {logos.map((logo, index) => (
-          <div className="slide" key={`original-${index}`}>
-            <img src={logo} alt={`Logo ${index + 1}`} />
-          </div>
+          <img key={index} src={logo} alt="logo" className="logo-marquee-item" />
         ))}
+        {/* Дублируем логотипы для бесконечного эффекта */}
         {logos.map((logo, index) => (
-          <div className="slide" key={`duplicate-${index}`}>
-            <img src={logo} alt={`Logo Duplicate ${index + 1}`} />
-          </div>
+          <img key={index + logos.length} src={logo} alt="logo" className="logo-marquee-item" />
         ))}
       </div>
     </div>

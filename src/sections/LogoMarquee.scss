@@ -1,185 +1,128 @@
-$animation-speed: 25s;
-$slide-width: 250px; // Ширина каждого слайда
-$slide-height: 150px; // Высота каждого слайда
-$slider-width: 960px; // Ширина видимой области
-
-.slider {
-  background: #000; // Черный фон
-  height: $slide-height;
-  margin: auto;
-  overflow: hidden;
+/* Основные стили контейнера */
+.logo-marquee-container {
   position: relative;
-  width: $slider-width;
+  overflow: hidden;
+  width: 100%;
+  padding: 20px 0;
+  margin: 5rem auto;
+  max-width: 1200px;
 
-  // Градиенты по бокам для эффекта исчезания
+  /* Градиентные маски для краёв */
   &::before,
   &::after {
     content: '';
     position: absolute;
     top: 0;
-    height: $slide-height;
+    bottom: 0;
+    width: 100px;
     z-index: 2;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+    pointer-events: none; /* Разрешает клики сквозь маски */
   }
 
   &::before {
     left: 0;
-    width: 200px;
-    background: linear-gradient(to left, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 100%);
+    background: linear-gradient(
+      to right, 
+      rgb(0, 0, 0) 15%, 
+      rgba(45, 45, 45, 0) 100%
+    );
   }
 
   &::after {
     right: 0;
-    width: 200px;
+    background: linear-gradient(
+      to left, 
+      rgb(0, 0, 0) 15%, 
+      rgba(45, 45, 45, 0) 100%
+    );
   }
+}
 
-  // Движущийся трек с логотипами
-  .slide-track {
-    display: flex;
-    width: calc(#{$slide-width} * #{6 * 2}); // Кол-во слайдов * 2 для дублирования
-    will-change: transform;
-    animation: marquee $animation-speed linear infinite;
-  }
+/* Бегущая строка */
+.logo-marquee {
+  display: flex;
+  animation: marquee 20s linear infinite;
+  will-change: transform; /* Оптимизация анимации */
+  min-width: fit-content; /* Ключевое свойство для бесконечности */
 
-  // Логотипы
-  .slide {
-    width: $slide-width;
-    height: $slide-height;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  /* Стили для логотипов */
+  .logo-marquee-item {
+    flex-shrink: 0;
+    margin: 0 15px;
+    width: 80px;
+    height: auto;
+    transition: opacity 0.3s;
 
-    img {
-      width: 50%; // Размер логотипов
-      height: auto;
-      filter: brightness(0) invert(1); // Белый логотип на черном фоне
-    }
-  }
-
-  // Анимация бесконечной прокрутки
-  @keyframes marquee {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-100%); // Прокручиваем весь контент
+    /* Ховер-эффекты */
+    &:hover {
+      opacity: 0.8;
     }
   }
 }
 
-// Адаптивность
-@media (max-width: 1200px) {
-  $slider-width: 800px;
-  $slide-width: 200px;
-  $slide-height: 130px;
+/* Анимация */
+@keyframes marquee {
+  0% {
+    transform: translate3d(0, 0, 0); /* Используем 3D-трансформ для оптимизации */
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0); /* Сдвигаем ровно на половину ширины */
+  }
+}
 
-  .slider {
-    width: $slider-width;
-    height: $slide-height;
+/* Адаптация под планшеты */
+@media (min-width: 768px) {
+  .logo-marquee {
+    animation-duration: 25s;
 
+    .logo-marquee-item {
+      width: 100px;
+      margin: 0 25px;
+    }
+  }
+
+  .logo-marquee-container {
     &::before,
     &::after {
-      height: $slide-height;
-    }
-
-    .slide-track {
-      width: calc(#{$slide-width} * #{6 * 2});
-    }
-
-    .slide {
-      width: $slide-width;
-      height: $slide-height;
-
-      img {
-        width: 65%;
-      }
+      width: 150px;
     }
   }
 }
 
-@media (max-width: 992px) {
-  $slider-width: 600px;
-  $slide-width: 160px;
-  $slide-height: 110px;
+/* Адаптация под десктоп */
+@media (min-width: 1024px) {
+  .logo-marquee {
+    animation-duration: 30s;
 
-  .slider {
-    width: $slider-width;
-    height: $slide-height;
+    .logo-marquee-item {
+      width: 120px;
+      margin: 0 35px;
+    }
+  }
 
+  .logo-marquee-container {
     &::before,
     &::after {
-      height: $slide-height;
-    }
-
-    .slide-track {
-      width: calc(#{$slide-width} * #{6 * 2});
-    }
-
-    .slide {
-      width: $slide-width;
-      height: $slide-height;
-
-      img {
-        width: 60%;
-      }
+      width: 200px;
     }
   }
 }
 
-@media (max-width: 768px) {
-  $slider-width: 480px;
-  $slide-width: 120px;
-  $slide-height: 90px;
+/* Оптимизация для мобильных */
+@media (max-width: 480px) {
+  .logo-marquee {
+    animation-duration: 15s;
 
-  .slider {
-    width: $slider-width;
-    height: $slide-height;
-
-    &::before,
-    &::after {
-      height: $slide-height;
-    }
-
-    .slide-track {
-      width: calc(#{$slide-width} * #{6 * 2});
-    }
-
-    .slide {
-      width: $slide-width;
-      height: $slide-height;
-
-      img {
-        width: 55%;
-      }
+    .logo-marquee-item {
+      width: 60px;
+      margin: 0 10px;
     }
   }
-}
 
-@media (max-width: 576px) {
-  $slider-width: 360px;
-  $slide-width: 100px;
-  $slide-height: 75px;
-
-  .slider {
-    width: $slider-width;
-    height: $slide-height;
-
+  .logo-marquee-container {
     &::before,
     &::after {
-      height: $slide-height;
-    }
-
-    .slide-track {
-      width: calc(#{$slide-width} * #{6 * 2});
-    }
-
-    .slide {
-      width: $slide-width;
-      height: $slide-height;
-
-      img {
-        width: 50%;
-      }
+      width: 50px;
     }
   }
 }

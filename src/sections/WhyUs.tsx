@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './WhyUs.scss';
 
-// icons as image paths
+// Иконки
 import auto from '../assets/whyusIcon/auto.svg';
 import rent from '../assets/whyusIcon/rent.svg';
 import security from '../assets/whyusIcon/security.svg';
@@ -14,6 +15,7 @@ import price from '../assets/whyusIcon/price.svg';
 gsap.registerPlugin(ScrollTrigger);
 
 const WhyUs: React.FC = () => {
+  const { t } = useTranslation();
   const rightTextRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,56 +44,49 @@ const WhyUs: React.FC = () => {
   const whyUsPoints = [
     {
       icon: auto,
-      title: 'Широкий выбор автомобилей:',
-      description:
-        'Мы предлагаем разнообразные автомобили для любого случая – от экономичных моделей до комфортных и премиум-класса.',
+      titleKey: 'whyUs.points.auto.title',
+      descriptionKey: 'whyUs.points.auto.description'
     },
     {
       icon: rent,
-      title: 'Гибкие условия аренды:',
-      description:
-        'У нас можно арендовать машину на любой срок – от нескольких часов до нескольких недель. Подбирайте удобный для вас вариант!',
+      titleKey: 'whyUs.points.rent.title',
+      descriptionKey: 'whyUs.points.rent.description'
     },
     {
       icon: security,
-      title: 'Безопасность и надежность:',
-      description:
-        'Все наши автомобили проходят регулярное техническое обслуживание и находятся в отличном состоянии, что гарантирует безопасность на дороге.',
+      titleKey: 'whyUs.points.security.title',
+      descriptionKey: 'whyUs.points.security.description'
     },
     {
       icon: simple,
-      title: 'Простота оформления:',
-      description:
-        'Мы сделали процесс аренды максимально простым и быстрым, чтобы вы могли сосредоточиться на важном, а не на бумажной работе.',
+      titleKey: 'whyUs.points.simple.title',
+      descriptionKey: 'whyUs.points.simple.description'
     },
     {
       icon: money,
-      title: 'Конкурентоспособные цены:',
-      description:
-        'Мы предлагаем лучшие условия аренды по доступным ценам, без скрытых платежей.',
+      titleKey: 'whyUs.points.money.title',
+      descriptionKey: 'whyUs.points.money.description'
     },
     {
       icon: price,
-      title: 'Гибкие тарифы:',
-      description:
-        'Мы предлагаем различные тарифы, включая аренду с водителем и без, чтобы вы могли выбрать подходящий вариант в зависимости от ваших потребностей.',
+      titleKey: 'whyUs.points.price.title',
+      descriptionKey: 'whyUs.points.price.description'
     },
   ];
 
   return (
-    <div className="whyus-container">
+    <div className="whyus-container" id='about'>
       <div className="whyus-left">
-        <h1>TERRA RENT CAR</h1>
+        <h1>{t('whyUs.title')}</h1>
       </div>
       <div className="whyus-right" ref={rightTextRef}>
         {whyUsPoints.map((point, index) => (
           <div className="whyus-item" key={index}>
-            {/* Круглая область с иконкой */}
             <div className="icon-circle">
-              <img src={point.icon} alt={point.title} /> {/* Вставляем SVG как изображение */}
+              <img src={point.icon} alt={t(point.titleKey)} />
             </div>
-            <h2 className="title">{point.title}</h2>
-            <p className="description">{point.description}</p>
+            <h2 className="title">{t(point.titleKey)}</h2>
+            <p className="description">{t(point.descriptionKey)}</p>
           </div>
         ))}
       </div>

@@ -1,0 +1,57 @@
+{
+  "header": {
+    "about": "About us",
+    "gallery": "Gallery",
+    "contacts": "Contacts"
+  },
+
+  "banner": {
+    "subtitle": "More than a car rental",
+    "slogan": "All roads lead to us, all paths start from us"
+  },
+  "whyUs": {
+    "title": "TERRA RENT CAR",
+    "points": {
+      "auto": {
+        "title": "Wide range of cars:",
+        "description": "We offer various cars for any occasion - from economy models to comfortable and premium class."
+      },
+      "rent": {
+        "title": "Flexible rental terms:",
+        "description": "You can rent a car for any period - from a few hours to several weeks. Choose the option that suits you!"
+      },
+      "security": {
+        "title": "Safety and reliability:",
+        "description": "All our cars undergo regular maintenance and are in excellent condition, ensuring road safety."
+      },
+      "simple": {
+        "title": "Easy registration:",
+        "description": "We have made the rental process as simple and fast as possible so you can focus on what's important."
+      },
+      "money": {
+        "title": "Competitive prices:",
+        "description": "We offer the best rental conditions at affordable prices, with no hidden fees."
+      },
+      "price": {
+        "title": "Flexible rates:",
+        "description": "We offer various rates, including rentals with and without a driver, so you can choose the right option."
+      }
+    }
+  },
+  "carCards": {
+    "title": "Frequently Rented Cars",
+    "description": "Want comfort, safety and confidence on the road? We offer car rentals suitable for any purpose - from city trips to country adventures. Trust us, as hundreds of customers choose us every day!"
+  },
+  "formContact": {
+    "title": "Get in touch with us",
+    "helpText": "Need help? Use the form to contact us!",
+    "nameLabel": "Name",
+    "namePlaceholder": "Enter your name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Enter your message",
+    "submitButton": "Send my message"
+  }
+
+}

@@ -1,192 +1,94 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
 
-/* Основные стили для хедера */
-.header {
-  position: fixed;
-  max-width: 1200px;
-  max-height: 60px;
-  top: 2%;
-  left: calc((100% - 1200px)/2);
-  right: 0;
-  z-index: 1000;
-  
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  
-  padding: 10px 32px;
-  background: linear-gradient(to right, #000000, #18181887);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.711);
-  transition: top 0.3s ease;
-  overflow: hidden;
-  // border: 1.3px solid #5d535347;
-  border-radius: 35px;
-
-  .logo img {
-    width: 100%;
+  /* Основные стили для хедера */
+  .header {
+    position: fixed;
+    max-width: 50rem;
+    max-height: 60px;
+    top: 2%;
+    left: calc((100% - 50rem)/2);
+    right: 0;
+    z-index: 1000;
+    
     display: flex;
-    padding-top: 10%;
-    justify-content: center;
-    max-width: 110px; /* Ограничиваем максимальную ширину */
-    height: auto; /* Поддерживаем пропорции */
-  }
-
-  /* Бургер меню */
-  .burger {
-    display: flex;
-    flex-direction: column;
     justify-content: space-between;
-    width: 24px;
-    height: 19px;
-    cursor: pointer;
-    z-index: 1100;
+    align-items: center;
+    
+    padding: 10px 32px;
+    background: linear-gradient(to right, #000000, #18181887);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.711);
+    transition: top 0.3s ease;
+    overflow: visible;
+    // border: 1.3px solid #5d535347;
+    border-radius: 35px;
 
-
-    .burger-line {
+    .logo img {
       width: 100%;
-      height: 3px;
-      background-color: #ffffff;
-      transition: all 0.3s ease;
-    }
-
-    &.open .burger-line:nth-child(1) {
-      transform: translateY(8px) rotate(45deg);
-    }
-
-    &.open .burger-line:nth-child(2) {
-      opacity: 0;
-    }
-
-    &.open .burger-line:nth-child(3) {
-      transform: translateY(-8px) rotate(-45deg);
-    }
-  }
-
-  /* Навигация */
-  .nav {
-    display: none;
-    ul {
       display: flex;
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      gap: 32px;
-      transition: all 0.3s ease;
-
-      li {
-        position: relative;
-        a {
-          font-family: "Oswald", serif;
-          text-decoration: none;
-          color: #ffffff;
-          font-size: 16px;
-          font-weight: 500;
-          padding: 4px 0;
-          transition: color 0.3s ease;
-          position: relative;
-
-          &:hover {
-            color: #ffffff9b;
-            
-          }
-
-          &::after {
-            content: "";
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background-color: #303234a3;
-            transition: width 0.3s ease;
-          }
-
-          &:hover::after {
-            width: 100%;
-          }
-        }
-      }
-    }
-  }
-
-  /* Для мобильной версии */
-  @media (max-width: 768px) {
-    left: 10px;  /* Убираем отступ слева для мобильной версии */
-    right: 10px;
-    max-width: 100%;  /* Делаем хедер по ширине экрана */
-
-    .nav {
-      display: flex;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, 0.8);
-      flex-direction: column;
+      padding-top: 10%;
       justify-content: center;
-      align-items: center;
-      transform: translateY(-100%);
-      transition: transform 0.3s ease;
-
-      &.active {
-        transform: translateY(0);
-      }
-
-      ul {
-        display: flex;
-        flex-direction: column;
-        padding: 0;
-        gap: 20px;
-
-        li {
-          margin-bottom: 16px;
-
-          a {
-            font-size: 24px;
-            color: #fff;
-            padding: 8px 0;
-            text-align: center;
-            display: block;
-
-            &:hover {
-              color: #ffffffe6;
-            }
-          }
-        }
-      }
+      max-width: 110px; /* Ограничиваем максимальную ширину */
+      height: auto; /* Поддерживаем пропорции */
     }
 
+    /* Бургер меню */
     .burger {
       display: flex;
-    }
-  }
+      flex-direction: column;
+      justify-content: space-between;
+      width: 24px;
+      height: 19px;
+      cursor: pointer;
+      z-index: 1100;
 
-  /* Для десктопа */
-  @media (min-width: 769px) {
-    .burger {
-      display: none;
+
+      .burger-line {
+        width: 100%;
+        height: 3px;
+        background-color: #ffffff;
+        transition: all 0.3s ease;
+      }
+
+      &.open .burger-line:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+      }
+
+      &.open .burger-line:nth-child(2) {
+        opacity: 0;
+      }
+
+      &.open .burger-line:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
+      }
     }
 
+    /* Навигация */
     .nav {
-      display: flex;
-      justify-content: flex-end;
-      flex-grow: 1;
-
+      overflow: visible;
+      display: none;
       ul {
         display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        gap: 32px;
+        transition: all 0.3s ease;
 
         li {
-          margin-right: 32px;
-
+          position: relative;
           a {
+            font-family: "Oswald", serif;
+            text-decoration: none;
+            color: #ffffffd2;
             font-size: 16px;
             font-weight: 500;
             padding: 4px 0;
+            transition: color 0.3s ease;
             position: relative;
 
             &:hover {
-              color: #ffffffe6;
+              color: #ffffff;
+              
             }
 
             &::after {
@@ -196,7 +98,7 @@
               left: 0;
               width: 0;
               height: 2px;
-              background-color: #ffffffe6;
+              background-color: #303234a3;
               transition: width 0.3s ease;
             }
 
@@ -207,54 +109,274 @@
         }
       }
     }
+
+    /* Для мобильной версии */
+    @media (max-width: 768px) {
+      left: 10px;  /* Убираем отступ слева для мобильной версии */
+      right: 10px;
+      max-width: 100%;  /* Делаем хедер по ширине экрана */
+      text-align: center;
+      .nav {
+        
+        display: flex;
+        position: fixed;
+        top: 0%;
+        left: 0;
+        right: 0;
+        border-radius: 0 0 25px 25px;
+        height: 35vh; /* 30% высоты экрана */
+        width: 100vw;
+
+        background-color: rgba(0, 0, 0, 0.85); /* Увеличим прозрачность */
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        
+        transform: translateY(-100%);
+        transition: transform 0.3s ease;
+        padding-top: 90px; /* Добавим отступ сверху */
+        border-radius: 0 0 20px 20px; /* Закруглим нижние углы */
+      
+        &.active {
+          transform: translateY(0);
+        }
+      
+        ul {
+          display: flex;
+          flex-direction: column;
+          padding: 0;
+          gap: 8px; /* Уменьшим расстояние между элементами */
+      
+          li {
+            margin-bottom: 8px; /* Уменьшим отступ снизу */
+      
+            a {
+              font-size: 18px; /* Сделаем шрифт немного меньше */
+              padding: 6px 0; /* Уменьшим вертикальные отступы */
+              
+              &::after {
+                display: none; /* Уберем подчеркивание для мобильной версии */
+              }
+            }
+          }
+        }
+      }
+
+      .burger {
+        display: flex;
+      }
+    }
+
+    /* Для десктопа */
+    @media (min-width: 769px) {
+      .burger {
+        display: none;
+      }
+
+      .nav {
+        display: flex;
+        justify-content: flex-end;
+        flex-grow: 1;
+        
+        ul {
+          display: flex;
+          margin-right: 30px;
+          li {
+            
+
+            a {
+              font-size: 16px;
+              font-weight: 500;
+              padding: 4px 0;
+              position: relative;
+
+              &:hover {
+                color: #ffffffe6;
+              }
+
+              &::after {
+                content: "";
+                position: absolute;
+                bottom: -4px;
+                left: 0;
+                width: 0;
+                height: 2px;
+                background-color: #ffffffe6;
+                transition: width 0.3s ease;
+              }
+
+              &:hover::after {
+                width: 100%;
+              }
+            }
+          }
+        }
+      }
+    }
   }
-}
 
-
-// call button 
-.call-button {
-
-  .cc-calto-action-ripple {
-    z-index: 1100;
+// call button with contacts 
+  .call-button-container {
     position: fixed;
     right: 1.5rem;
-    bottom: 4rem;
-    background: #000;
-    width: 4rem;
-    height: 4rem;
-    padding: 1rem;
-    border-radius: 50%;
-    color: #fff;
+    bottom: 2.5rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    animation: cc-calto-action-ripple 1.2s linear infinite;
+    flex-direction: column;
+    z-index: 1100;
 
-    i {
-      font-size: 2rem;
-      transition: 0.3s ease;
+    .cc-calto-action-ripple {
+      background: #000;
+      width: 4rem;
+      height: 4rem;
+      padding: 1rem;
+      z-index: 1201;
+      border-radius: 50%;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: cc-calto-action-ripple 1.2s linear infinite;
+
+      i {
+        font-size: 2rem;
+        transition: 0.3s ease;
+      }
+
+      &.active i {
+        transform: rotate(13 5deg);
+      }
     }
 
-    &:hover i {
-      transform: rotate(135deg);
+    .modal {
+      position: absolute;
+      bottom: 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      z-index: 1200;
+      padding:1rem;
+      background: linear-gradient(180deg, rgba(0,0,0,0.6489189425770308) 0%, rgba(0,0,0,0.18953518907563027) 75%, rgba(0,0,0,0) 100%);
+      border-radius:20px 20px 10px 10px;
+      padding-bottom: 50px;
+      animation: fadeInUp 0.3s ease forwards;
+    
+      a {
+        color: #fff;
+        font-size: 2rem;
+        transition: color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
+        opacity: 0; /* Изначально скрываем значки */
+        transform: translateY(20px); /* Сдвигаем значки вниз */
+        animation: fadeInUp 0.3s ease forwards;
+    
+        &:hover {
+          color: #828282;
+        }
+    
+        i {
+          font-size: 2.2rem;
+        }
+      }
+    
+      /* Добавляем задержку для анимации каждого значка */
+      a:nth-child(1) {
+        animation-delay: 0.27s;
+      }
+      a:nth-child(2) {
+        animation-delay: 0.23s;
+      }
+      a:nth-child(3) {
+        animation-delay: 0.17s;
+      }
+      a:nth-child(4) {
+        animation-delay: 0.15s;
+      }
+      a:nth-child(5) {
+        animation-delay: 0.1s;
+      }
+    }
+    
+    /* Ключевые кадры для анимации появления */
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   }
-}
 
-/* Анимация Call Button */
-@keyframes cc-calto-action-ripple {
-  0% {
-    box-shadow:
-      0 4px 10px rgba(128, 128, 128, 0.2),
-      0 0 0 0 rgba(128, 128, 128, 0.2),
-      0 0 0 5px rgba(128, 128, 128, 0.2),
-      0 0 0 10px rgba(128, 128, 128, 0.2);
+  /* Анимация для кнопки */
+  @keyframes cc-calto-action-ripple {
+    0% {
+      box-shadow:
+        0 4px 10px rgba(128, 128, 128, 0.2),
+        0 0 0 0 rgba(128, 128, 128, 0.2),
+        0 0 0 5px rgba(128, 128, 128, 0.2),
+        0 0 0 10px rgba(128, 128, 128, 0.2);
+    }
+    100% {
+      box-shadow:
+        0 4px 10px rgba(128, 128, 128, 0.2),
+        0 0 0 5px rgba(128, 128, 128, 0.2),
+        0 0 0 10px rgba(128, 128, 128, 0.2),
+        0 0 0 20px rgba(128, 128, 128, 0);
+    }
   }
-  100% {
-    box-shadow:
-      0 4px 10px rgba(128, 128, 128, 0.2),
-      0 0 0 5px rgba(128, 128, 128, 0.2),
-      0 0 0 10px rgba(128, 128, 128, 0.2),
-      0 0 0 20px rgba(128, 128, 128, 0);
+
+  // SWICH LANGUAGE BUTTON 
+  .language-switcher {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: "Oswald", serif;
+    
+    span {
+      transition: color 0.3s;
+    
+    }
+  
+    .active {
+      color: #929191;
+      font-weight: bold;
+    }
+  
+    span:hover {
+      color: #929191;
+    }
   }
-}
+
+
+  // app store button 
+  .app-store-button {
+    position: fixed; /* Фиксируем элемент относительно окна */
+    bottom: 20px; /* Расстояние от нижнего края экрана */
+    left: 50%; /* Центрируем по горизонтали относительно окна */
+    transform: translateX(-50%); /* Сдвигаем элемент на половину его ширины для точного центрирования */
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+  
+    img {
+      width: 200px;
+      object-fit: contain;
+      // animation: app-store-glow 1.5s infinite;
+  
+      @media (max-width: 1280px) {
+        width: 250px;
+      }
+  
+      @media (max-width: 480px) {
+        width: 150px;
+      }
+    }
+  }

@@ -6,6 +6,7 @@ $reflection-opacity: 0.135;
 
 .banner {
   top: 60px;
+  height: 100vh;
   position: relative;
   font-family: "Bebas Neue", serif;
   color: $white-color;
@@ -15,6 +16,16 @@ $reflection-opacity: 0.135;
   background-position: center center;
   padding: 3rem 1rem;
 
+
+  .background-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    object-fit: cover;
+  }
   .backgr-img {
     position: absolute;
     top: 0;
@@ -29,44 +40,52 @@ $reflection-opacity: 0.135;
     position: relative;
     z-index: 1;
     height: 200px;
-
+     
     h1 {
+      padding-top: 110px;
+      line-height: 40px; 
       font-size: 50px; // Базовый размер для мобильных
       @media (min-width: 768px) and (max-width: 1199px) { // Для планшетов
         font-size: 100px;
-        
+        line-height: 80px; 
       }
   
       @media (min-width: 1200px) { // Для ПК
         font-size: 100px;
+        line-height: 80px; 
+        
       }
+
+
 
       &::after {
         content: attr(data-reflection);
         position: absolute;
-        bottom: -110px; // Базовое значение для мобильных
+        bottom: -70px; // Базовое значение для мобильных
         left: 0;
         width: 100%;
+
         color: rgba($white-color, $reflection-opacity);
         transform: scaleY(-1);
         filter: blur(5px);
         transform-origin: top;
     
         @media (min-width: 768px) and (max-width: 1199px) { // Для планшетов
-          bottom: -220px;
+          bottom: -130px;
           
         }
     
         @media (min-width: 1200px) { // Для ПК
-          bottom: -220px;
+          bottom: -140px;
         }
+
       }
     }
     
 
     p {
       font-size: 18px; // Базовый размер для мобильных
-
+      font-family: "Oswald", serif;
       @media (min-width: 768px) and (max-width: 1199px) { // Для планшетов
         font-size: 22px;
       }
@@ -75,30 +94,38 @@ $reflection-opacity: 0.135;
         font-size: 24px;
       }
     }
-  }
 
-  .app-store-button {
-    margin: 2rem auto;
-    position: relative;
-    background: transparent;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
+    h2 {
+      display: flex;
+      margin-top: 75%;  
+      justify-content: center;
+      text-align: center;
+      font-family: "Oswald", serif;
+      text-transform: uppercase;
+      font-size: 13px;
+      
 
-    img {
-      width: 200px;
-      object-fit: contain;
-      animation: app-store-glow 1.5s infinite;
-
-      @media (max-width: 1280px) {
-        width: 250px;
+      @media (min-width: 430px) {
+        font-size: 15px;
+        margin-top: 90%;
       }
 
-      @media (max-width: 480px) {
-        width: 150px;
+      @media (min-width: 768px) and (max-width: 1199px) {
+        font-size: 15px;
+        margin-top: 25%;
       }
+
+      @media (min-width: 1200px) {
+        font-size: 15px;
+        margin-top: 20%;
+      }
+
+     
     }
+    
   }
+
+  
 
   .cars-container {
     display: flex;
@@ -124,7 +151,9 @@ $reflection-opacity: 0.135;
   @media (min-width: 1200px) {
     h1 {
       font-size: 100px;
+     
     }
+     
   }
 }
 

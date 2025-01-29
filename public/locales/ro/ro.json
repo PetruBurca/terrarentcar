@@ -1,0 +1,57 @@
+{
+  "header": {
+    "about": "Despre noi",
+    "gallery": "Galerie",
+    "contacts": "Contacte"
+  },
+
+  "banner": {
+    "subtitle": "Mai mult decât o închiriere de mașini",
+    "slogan": "Toate drumurile duc către noi, toate căile pornesc de la noi"
+  },
+  "whyUs": {
+    "title": "TERRA RENT CAR",
+    "points": {
+      "auto": {
+        "title": "Gamă largă de mașini:",
+        "description": "Oferim mașini diverse pentru orice ocazie - de la modele economice la cele confortabile și premium."
+      },
+      "rent": {
+        "title": "Condiții flexibile de închiriere:",
+        "description": "Puteți închiria o mașină pentru orice perioadă - de la câteva ore la câteva săptămâni. Alegeți opțiunea care vă convine!"
+      },
+      "security": {
+        "title": "Siguranță și fiabilitate:",
+        "description": "Toate mașinile noastre sunt întreținute regulat și sunt în stare excelentă, asigurând siguranța pe drum."
+      },
+      "simple": {
+        "title": "Proces simplu:",
+        "description": "Am făcut procesul de închiriere cât mai simplu și rapid, astfel încât să vă puteți concentra pe ce este important."
+      },
+      "money": {
+        "title": "Prețuri competitive:",
+        "description": "Oferim cele mai bune condiții de închiriere la prețuri accesibile, fără taxe ascunse."
+      },
+      "price": {
+        "title": "Tarife flexible:",
+        "description": "Oferim diverse tarife, inclusiv închiriere cu și fără șofer, astfel încât să puteți alege opțiunea potrivită."
+      }
+    }
+  },
+  
+  "carCards": {
+    "title": "Mașini frecvent închiriate",
+    "description": "Doriți confort, siguranță și încredere pe drum? Oferim închiriere de mașini potrivite pentru orice scop - de la călătorii în oraș până la aventuri în afara orașului. Aveți încredere în noi, sute de clienți ne aleg în fiecare zi!"
+  },
+  "formContact": {
+    "title": "Contactați-ne",
+    "helpText": "Aveți nevoie de ajutor? Folosiți formularul pentru a ne contacta!",
+    "nameLabel": "Nume",
+    "namePlaceholder": "Introduceți numele",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Introduceți email-ul",
+    "messageLabel": "Mesaj",
+    "messagePlaceholder": "Scrieți mesajul",
+    "submitButton": "Trimite mesajul"
+  }
+}
