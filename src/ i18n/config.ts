@@ -1,32 +1,31 @@
-import * as i18next from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import Backend from 'i18next-http-backend';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import i18next from "i18next"; 
+import { initReactI18next } from "react-i18next";
 
-const i18nInstance = i18next.createInstance({
-  lng: 'ro',
-  fallbackLng: 'ro',
-  debug: false,
-  interpolation: {
-    escapeValue: false,
-  },
-  backend: {
-    loadPath: '/locales/{{lng}}/{{lng}}.json',
-  },
-  detection: {
-    order: ['querystring', 'cookie', 'localStorage', 'navigator'],
-    lookupQuerystring: 'lng',
-    lookupCookie: 'i18next',
-    lookupLocalStorage: 'i18nextLng',
-    caches: ['localStorage', 'cookie'],
-    convertDetectedLanguage: (lng: string) => (lng === 'ru' ? 'ru' : 'ro'),
-  },
-});
+import LanguageDetector from "i18next-browser-languagedetector";
 
-i18nInstance
-  .use(Backend)
+
+
+i18next
   .use(LanguageDetector)
   .use(initReactI18next)
-  .init();
+  .init({
+    lng: "ro",
+    fallbackLng: "ro",
+    debug: false,
+    interpolation: {
+      escapeValue: false,
+    },
+    backend: {
+      loadPath: "/locales/{{lng}}/{{lng}}.json",
+    },
+    detection: {
+      order: ["querystring", "cookie", "localStorage", "navigator"],
+      lookupQuerystring: "lng",
+      lookupCookie: "i18next",
+      lookupLocalStorage: "i18nextLng",
+      caches: ["localStorage", "cookie"],
+      convertDetectedLanguage: (lng: string) => (lng === "ru" ? "ru" : "ro"),
+    },
+  });
 
-export default i18nInstance;
+export default i18next;
