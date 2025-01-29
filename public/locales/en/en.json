@@ -51,7 +51,9 @@
     "emailPlaceholder": "Enter your email",
     "messageLabel": "Message",
     "messagePlaceholder": "Enter your message",
-    "submitButton": "Send my message"
+    "submitButton": "Send my message",
+    "thankYouTitle": "Thank you for your message!",
+    "thankYouText": "We have received your message and will respond to you shortly."
   }
 
 }

@@ -222,3 +222,32 @@
     }
   }
 }
+
+
+.thank-you-message {
+  color: #ffffff;
+  padding: 2rem;
+  text-align: center;
+  animation: fadeIn 0.5s ease-in;
+
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

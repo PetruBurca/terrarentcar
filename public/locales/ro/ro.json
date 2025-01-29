@@ -52,6 +52,9 @@
     "emailPlaceholder": "Introduceți email-ul",
     "messageLabel": "Mesaj",
     "messagePlaceholder": "Scrieți mesajul",
-    "submitButton": "Trimite mesajul"
+    "submitButton": "Trimite mesajul",
+    "thankYouTitle": "Vă mulțumim pentru mesajul dumneavoastră!",
+    "thankYouText": "Am primit mesajul tau si te vom contacta in scurt timp."
+  
   }
 }

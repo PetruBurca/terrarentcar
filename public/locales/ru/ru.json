@@ -50,7 +50,11 @@
     "emailPlaceholder": "Введите ваш email",
     "messageLabel": "Сообщение",
     "messagePlaceholder": "Введите ваше сообщение",
-    "submitButton": "Отправить сообщение"
+    "submitButton": "Отправить сообщение",
+    "thankYouTitle": "Спасибо за ваше сообщение!",
+    "thankYouText": "Мы получили ваше сообщение и свяжемся с вами в ближайшее время."
+  
   }
+ 
 
   }
