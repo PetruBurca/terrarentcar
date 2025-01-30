@@ -6,27 +6,27 @@
   },
 
   "banner": {
-    "subtitle": "Mai mult decât o închiriere de mașini",
-    "slogan": "Toate drumurile duc către noi, toate căile pornesc de la noi"
+   
+    "slogan": "La noi aduc totate drumurile, de la noi pornesc toate căile"
   },
   "whyUs": {
     "title": "TERRA RENT CAR",
     "points": {
       "auto": {
-        "title": "Gamă largă de mașini:",
-        "description": "Oferim mașini diverse pentru orice ocazie - de la modele economice la cele confortabile și premium."
+        "title": "Gamă largă de automobile:",
+        "description": "Oferim  diverse automobile pentru orice ocazie - de la modele clasa econom  pana la clasa  premium."
       },
       "rent": {
         "title": "Condiții flexibile de închiriere:",
-        "description": "Puteți închiria o mașină pentru orice perioadă - de la câteva ore la câteva săptămâni. Alegeți opțiunea care vă convine!"
+        "description": "Puteți închiria un automobil pentru orice perioadă - de la câteva ore la câteva luni. Alegeți opțiunea care vă convine!"
       },
       "security": {
         "title": "Siguranță și fiabilitate:",
-        "description": "Toate mașinile noastre sunt întreținute regulat și sunt în stare excelentă, asigurând siguranța pe drum."
+        "description": "Toate automobilele noastre sunt întreținute regulat și sunt în stare excelentă, asigurând siguranța pe drum."
       },
       "simple": {
         "title": "Proces simplu:",
-        "description": "Am făcut procesul de închiriere cât mai simplu și rapid, astfel încât să vă puteți concentra pe ce este important."
+        "description": "Am făcut procesul de închiriere cit mai simplu și rapid, astfel încât să vă puteți concentra pe lucruri mai importante."
       },
       "money": {
         "title": "Prețuri competitive:",
@@ -40,8 +40,8 @@
   },
   
   "carCards": {
-    "title": "Mașini frecvent închiriate",
-    "description": "Doriți confort, siguranță și încredere pe drum? Oferim închiriere de mașini potrivite pentru orice scop - de la călătorii în oraș până la aventuri în afara orașului. Aveți încredere în noi, sute de clienți ne aleg în fiecare zi!"
+    "title": "Cele mai solicitate automobile",
+    "description": "Doriți confort, siguranță și încredere pe drum? Oferim închiriere de automobile potrivite pentru orice scop - de la călătorii în oraș până la aventuri în afara orașului. Aveți încredere în noi, sute de clienți ne aleg în fiecare zi!"
   },
   "formContact": {
     "title": "Contactați-ne",

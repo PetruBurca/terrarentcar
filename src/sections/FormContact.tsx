@@ -97,7 +97,7 @@ const FormContact: React.FC = () => {
         <div className="form-contact__container__right">
           <iframe
             className="map"
-            src="https://www.google.com/maps/d/u/0/embed?mid=1yCN4l8lW61kg-TyIkhGP1cnQXSzuFKs&ehbc=2E312F&noprof=1"
+           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d21750.90385838675!2d28.899720600000002!3d47.042919399999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40c97d1dbb350b0b%3A0xd4b3f55f787edf09!2sChirie%20auto%20-%20TerraRentCar!5e0!3m2!1sru!2s!4v1738263016307!5m2!1sru!2s"
             allowFullScreen
             loading="lazy"
             title="Google Maps"

@@ -1,119 +1,119 @@
 import "./CarCards.scss";
 import { useTranslation } from 'react-i18next';
-import bmw from '../assets/gallery/bmw.jpg'
+import audi from '../assets/gallery/audi.jpeg';
+import bmw from '../assets/gallery/bmw.jpeg';
+import bmw2 from '../assets/gallery/bmw2.jpeg';
+import bmw3 from '../assets/gallery/bmw3.jpeg';
+import bmwx6 from '../assets/gallery/bmwx6.jpeg';
+import hyundai from '../assets/gallery/hyundai.jpeg';
+import lexus from '../assets/gallery/lexus.jpeg';
+import mercedes from '../assets/gallery/mercedes.jpeg';
+import mercedes2 from '../assets/gallery/mercedes2.jpeg';
+import mercedes3 from '../assets/gallery/mercedes3.jpeg';
+import mercedes4 from '../assets/gallery/mercedes4.jpeg';
+import skoda from '../assets/gallery/skoda.jpeg';
+import toyota from '../assets/gallery/toyota.jpeg';
+import volvo from '../assets/gallery/volvo.jpeg';
+
 const cars = [
   {
-    title: "BMW X6 Competition",
+    title: "Audi",
+    price: "de la $400",
+    color: "Black",
+    discount: "HOT",
+    img: audi,
+  },
+  {
+    title: "BMW",
     price: "de la $400",
     color: "Black",
     discount: "HOT",
     img: bmw,
   },
   {
-    title: "Audi",
-    price: "$229.45",
-    color: "Black White",
+    title: "BMW",
+    price: "de la $400",
+    color: "Black",
     discount: "HOT",
-    img: bmw,
+    img: bmw2,
   },
   {
-    title: "Ford",
-    price: "$229.45",
-    color: "Black Gray",
+    title: "BMW",
+    price: "de la $400",
+    color: "Black",
     discount: "HOT",
-    img: bmw,
-  },
-  {
-    title: "Mercedes",
-    price: "$299.99",
-    color: "Blue Metallic",
-    discount: "HOT",
-    img: bmw,
+    img: bmw3,
   },
   {
     title: "BMW X6 Competition",
     price: "de la $400",
     color: "Black",
     discount: "HOT",
-    img: bmw,
+    img: bmwx6,
   },
   {
-    title: "Audi",
-    price: "$229.45",
-    color: "Black White",
+    title: "Hyundai",
+    price: "de la $400",
+    color: "White",
     discount: "HOT",
-    img: bmw,
+    img: hyundai,
   },
   {
-    title: "Ford",
-    price: "$229.45",
-    color: "Black Gray",
+    title: "Lexus",
+    price: "de la $400",
+    color: "White",
     discount: "HOT",
-    img: bmw,
+    img: lexus,
   },
   {
     title: "Mercedes",
-    price: "$299.99",
-    color: "Blue Metallic",
-    discount: "HOT",
-    img: bmw,
-  },
-  {
-    title: "BMW X6 Competition",
     price: "de la $400",
     color: "Black",
     discount: "HOT",
-    img: bmw,
-  },
-  {
-    title: "Audi",
-    price: "$229.45",
-    color: "Black White",
-    discount: "HOT",
-    img: bmw,
-  },
-  {
-    title: "Ford",
-    price: "$229.45",
-    color: "Black Gray",
-    discount: "HOT",
-    img: bmw,
+    img: mercedes,
   },
   {
     title: "Mercedes",
-    price: "$299.99",
-    color: "Blue Metallic",
+    price: "de la $400",
+    color: "Black ",
     discount: "HOT",
-    img: bmw,
+    img: mercedes2,
   },
   {
-    title: "BMW X6 Competition",
+    title: "Mercedes",
     price: "de la $400",
     color: "Black",
     discount: "HOT",
-    img: bmw,
-  },
-  {
-    title: "Audi",
-    price: "$229.45",
-    color: "Black White",
-    discount: "HOT",
-    img: bmw,
-  },
-  {
-    title: "Ford",
-    price: "$229.45",
-    color: "Black Gray",
-    discount: "HOT",
-    img: bmw,
+    img: mercedes3,
   },
   {
     title: "Mercedes",
-    price: "$299.99",
-    color: "Blue Metallic",
+    price: "de la $400",
+    color: "White",
     discount: "HOT",
-    img: bmw,
+    img: mercedes4,
   },
+  {
+    title: "Skoda",
+    price: "de la $400",
+    color: "White",
+    discount: "HOT",
+    img: skoda,
+  },
+  {
+    title: "Toyota",
+    price: "de la $400",
+    color: "White",
+    discount: "HOT",
+    img: toyota,
+  },
+  {
+    title: "Volvo",
+    price: "de la $400",
+    color: "Black",
+    discount: "HOT",
+    img: volvo,
+  }
 ];
 
 const CarCards = () => {

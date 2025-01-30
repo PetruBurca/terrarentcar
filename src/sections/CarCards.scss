@@ -28,7 +28,7 @@
     flex-wrap: nowrap;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    scroll-snap-align: start;  // Добавлено для выравнивания на первой карточке
+    scroll-snap-align: start; // Добавлено для выравнивания на первой карточке
     margin: 0;
     @media (min-width: 600px) {
       max-width: 650px;
@@ -71,10 +71,15 @@
 
       .card-image {
         position: relative;
+        height: 200px; /* Фиксированная высота для контейнера изображения */
+        width: 100%;
+        position: relative;
         img {
           width: 100%;
-          height: auto;
+          height: 100%; /* Занимает всю высоту контейнера */
           display: block;
+          object-fit: cover; /* Обрезает изображение для заполнения контейнера */
+          object-position: center; /* Центрирует изображение */
         }
 
         .discount {

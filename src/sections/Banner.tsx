@@ -62,7 +62,7 @@ const Banner: React.FC = () => {
 
       <div className="text-cont">
         <h1 data-reflection="Terra rent car">Terra rent car</h1>
-        <p>{t('banner.subtitle')}</p>
+        <p >More than a car rental</p>
         <h2>{t('banner.slogan')}</h2>
       </div>
     </section>

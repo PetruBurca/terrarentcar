@@ -86,6 +86,7 @@ $reflection-opacity: 0.135;
     p {
       font-size: 18px; // Базовый размер для мобильных
       font-family: "Oswald", serif;
+      text-transform: uppercase;
       @media (min-width: 768px) and (max-width: 1199px) { // Для планшетов
         font-size: 22px;
       }
