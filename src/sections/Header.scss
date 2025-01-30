@@ -15,7 +15,10 @@
     align-items: center;
     
     padding: 10px 32px;
-    background: linear-gradient(to right, #000000, #18181887);
+    background: rgba(0, 0, 0, 0.3); // Полупрозрачный фон
+backdrop-filter: blur(10px); // Размытие фона
+-webkit-backdrop-filter: blur(10px); // Поддержка для Safari
+// border: 1px solid rgba(255, 255, 255, 0.2); // Полупрозрачная граница  
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.711);
     transition: top 0.3s ease;
     overflow: visible;
