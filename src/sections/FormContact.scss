@@ -2,10 +2,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  margin: 3rem 0;
+  min-height: 100vh; // Заменяем height на min-height
+  padding: 2rem 0; // Убираем margin, используем только padding
   background-color: #000000;
-  padding: 2rem;
+  box-sizing: border-box; // Добавляем для корректного расчета размеров
 
 
   .form-contact__container {
@@ -18,6 +18,7 @@
     border-radius: 16px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    box-sizing: border-box;
 
     &__left {
       padding: 2rem;
@@ -214,11 +215,11 @@
 // MAP SIZE 
 @media (max-width: 767px) {
   .form-contact__container__right {
-    height: 400px; // Регулируйте значение по необходимости
+    min-height: 400px;
     
     .map {
       height: 100%;
-      min-height: 400px; // Гарантирует минимальную высоту
+      min-height: 400px;
     }
   }
 }
