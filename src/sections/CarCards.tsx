@@ -131,7 +131,7 @@ const CarCards = () => {
             </div>
             <div className="card-content">
               <h3>{car.title}</h3>
-              <p className="price">{car.price}</p>
+
               <p className="color">Color: {car.color}</p>
               {/* <button>See More Details</button> */}
             </div>
