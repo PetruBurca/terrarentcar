@@ -54,7 +54,7 @@ const cars = [
   {
     title: "Hyundai SantaFe",
     
-    color: "White",
+    color: "Grey",
     discount: "HOT",
     img: hyundai,
   },
