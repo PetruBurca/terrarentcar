@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import './FormContact.scss';
+import emailjs from 'emailjs-com';
 
 const FormContact: React.FC = () => {
   const { t } = useTranslation();
@@ -20,10 +21,19 @@ const FormContact: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Здесь должна быть логика отправки данных
+    
+    const serviceID = 'service_m5oxp4p'; // Ваш service ID
+    const templateID = 'template_vk9tspb'; // Ваш template ID
+    const userID = 'WnuZfg7d7PGVIp_dO'; // Ваш user ID из EmailJS
     try {
-      // Пример запроса:
-      // await fetch('your-api-endpoint', { method: 'POST', body: JSON.stringify(formData) });
+      // Отправка данных с использованием emailjs
+      const result = await emailjs.send(
+        serviceID,
+        templateID,
+        formData,
+        userID
+      );
+      console.log('Message sent: ', result.text);
       setIsSubmitted(true);
     } catch (error) {
       console.error('Ошибка отправки:', error);
