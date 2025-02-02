@@ -17,99 +17,99 @@ import volvo from '../assets/gallery/volvo.jpeg';
 
 const cars = [
   {
-    title: "Audi",
-    price: "de la $400",
+    title: "Audi A6",
+    
     color: "Black",
     discount: "HOT",
     img: audi,
   },
   {
-    title: "BMW",
-    price: "de la $400",
+    title: "BMW 530i",
+    
     color: "Black",
     discount: "HOT",
     img: bmw,
   },
   {
-    title: "BMW",
-    price: "de la $400",
+    title: "BMW x5 m50d",
+    
     color: "Black",
     discount: "HOT",
     img: bmw2,
   },
   {
-    title: "BMW",
-    price: "de la $400",
+    title: "BMW 530e",
+    
     color: "Black",
     discount: "HOT",
     img: bmw3,
   },
   {
-    title: "BMW X6 Competition",
-    price: "de la $400",
+    title: "BMW X6 MCompetition",
+    
     color: "Black",
     discount: "HOT",
     img: bmwx6,
   },
   {
-    title: "Hyundai",
-    price: "de la $400",
+    title: "Hyundai SantaFe",
+    
     color: "White",
     discount: "HOT",
     img: hyundai,
   },
   {
-    title: "Lexus",
-    price: "de la $400",
+    title: "Lexus ES300",
+    
     color: "White",
     discount: "HOT",
     img: lexus,
   },
   {
-    title: "Mercedes",
-    price: "de la $400",
+    title: "Mercedes E300",
+    
     color: "Black",
     discount: "HOT",
     img: mercedes,
   },
   {
-    title: "Mercedes",
-    price: "de la $400",
+    title: "Mercedes E220",
+    
     color: "Black ",
     discount: "HOT",
     img: mercedes2,
   },
   {
-    title: "Mercedes",
-    price: "de la $400",
+    title: "Mercedes GLE53",
+    
     color: "Black",
     discount: "HOT",
     img: mercedes3,
   },
   {
-    title: "Mercedes",
-    price: "de la $400",
+    title: "Mercedes GLE43",
+    
     color: "White",
     discount: "HOT",
     img: mercedes4,
   },
   {
-    title: "Skoda",
-    price: "de la $400",
+    title: "Skoda Octavia",
+    
     color: "White",
     discount: "HOT",
     img: skoda,
   },
   {
-    title: "Toyota",
-    price: "de la $400",
+    title: "Toyota Corolla",
+    
     color: "White",
     discount: "HOT",
     img: toyota,
   },
   {
-    title: "Volvo",
-    price: "de la $400",
+    title: "Volvo XC60",
+    
     color: "Black",
     discount: "HOT",
     img: volvo,
