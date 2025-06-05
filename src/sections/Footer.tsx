@@ -37,4 +37,3 @@ const Footer: React.FC = () => {
 
 export default Footer;
 
-// commit for change version 
