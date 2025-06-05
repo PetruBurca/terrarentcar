@@ -7,8 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
-    
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
+    "homepage": "https://PetruBurca.github.io/terrarentcar"
   },
   "dependencies": {
     "@types/react-router-dom": "^5.3.3",
