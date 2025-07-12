@@ -44,6 +44,9 @@ const featureReverseMap: Record<string, string> = {
   "Подогрев сидений": "seatHeating",
   "Подогрев руля": "steeringWheelHeating",
   Парктроник: "parktronic",
+  Парктроники: "parktronic",
+  Практроники: "parktronic",
+  Parktronic: "parktronic",
   "Климат-контроль": "climateControl",
 };
 
@@ -120,8 +123,9 @@ const CarCard = ({
               {(showAllFeatures ? safeFeatures : safeFeatures.slice(0, 3)).map(
                 (feature, index) => (
                   <Badge key={index} variant="outline" className="text-xs">
-                    {t(`cars.features.${featureReverseMap[feature]}`) ||
-                      feature}
+                    {featureReverseMap[feature]
+                      ? t(`cars.features.${featureReverseMap[feature]}`)
+                      : feature}
                   </Badge>
                 )
               )}
