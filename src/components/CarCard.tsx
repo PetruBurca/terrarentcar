@@ -22,6 +22,28 @@ export interface CarCardProps {
 const PLACEHOLDER_IMG =
   "https://i.pinimg.com/originals/7e/2e/2e7e2e2e2e2e2e2e2e2e2e2e2e2e2e2e.jpg";
 
+// Маппинг значений Airtable к ключам для перевода
+const transmissionReverseMap: Record<string, string> = {
+  Автомат: "automatic",
+  Механика: "manual",
+  Робот: "robot",
+  Вариатор: "variator",
+};
+const fuelReverseMap: Record<string, string> = {
+  Бензин: "petrol",
+  Дизель: "diesel",
+  Электро: "electric",
+  Гибрид: "hybrid",
+};
+const featureReverseMap: Record<string, string> = {
+  "GPS навигация": "gps",
+  Bluetooth: "bluetooth",
+  Кондиционер: "ac",
+  "Камера заднего вида": "rearCamera",
+  "Круиз-контроль": "cruise",
+  "Подогрев сидений": "seatHeating",
+};
+
 const CarCard = ({
   id,
   name,
@@ -75,11 +97,17 @@ const CarCard = ({
             </div>
             <div className="flex items-center space-x-2 text-muted-foreground">
               <Settings className="h-4 w-4" />
-              <span className="text-sm">{transmission}</span>
+              <span className="text-sm">
+                {t(
+                  `cars.transmission.${transmissionReverseMap[transmission]}`
+                ) || transmission}
+              </span>
             </div>
             <div className="flex items-center space-x-2 text-muted-foreground">
               <Fuel className="h-4 w-4" />
-              <span className="text-sm">{fuel}</span>
+              <span className="text-sm">
+                {t(`cars.fuel.${fuelReverseMap[fuel]}`) || fuel}
+              </span>
             </div>
           </div>
 
@@ -87,7 +115,7 @@ const CarCard = ({
             <div className="flex flex-wrap gap-1">
               {safeFeatures.slice(0, 3).map((feature, index) => (
                 <Badge key={index} variant="outline" className="text-xs">
-                  {feature}
+                  {t(`cars.features.${featureReverseMap[feature]}`) || feature}
                 </Badge>
               ))}
               {safeFeatures.length > 3 && (

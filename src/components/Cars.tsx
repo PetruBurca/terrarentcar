@@ -3,15 +3,17 @@ import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import CarCard from "./CarCard";
-import bmwImage from "@/assets/bmw-x5.jpg";
-import mercedesImage from "@/assets/mercedes-c-class.jpg";
-import audiImage from "@/assets/audi-a4.jpg";
 import { useTranslation } from "react-i18next";
-import { useEffect } from "react";
-import { fetchCars } from "@/lib/airtable";
-import type { CarCardProps } from "./CarCard";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
+import type { CarCardProps } from "./CarCard";
+import { fetchCars } from "@/lib/airtable";
+
+const categoryMap = {
+  sedan: "Седан",
+  suv: "Внедорожник",
+  // Добавьте другие категории по мере необходимости
+};
 
 const Cars = () => {
   const { t } = useTranslation();
@@ -21,13 +23,12 @@ const Cars = () => {
   const isMobile = useMediaQuery("(max-width: 767px)");
 
   const categories = [
-    { key: "all", label: t("cars.all"), value: null },
-    { key: "sedan", label: "Седан", value: "Седан" },
-    { key: "suv", label: "Внедорожник", value: "Внедорожник" },
-    // Добавь другие категории, если есть
+    { key: "all", label: t("cars.category.all"), value: null },
+    { key: "sedan", label: t("cars.category.sedan"), value: "sedan" },
+    { key: "suv", label: t("cars.category.suv"), value: "suv" },
+    // Добавьте другие категории по мере необходимости
   ];
 
-  // Кэшируем данные о машинах через react-query
   const {
     data: cars = [],
     isLoading,
@@ -35,7 +36,7 @@ const Cars = () => {
   } = useQuery({
     queryKey: ["cars"],
     queryFn: fetchCars,
-    staleTime: 1000 * 60 * 5, // 5 минут
+    staleTime: 1000 * 60 * 5,
     retry: 2,
   });
 
@@ -43,12 +44,9 @@ const Cars = () => {
     selectedCategory === "all"
       ? cars
       : cars.filter(
-          (car: CarCardProps) =>
-            car.category ===
-            categories.find((c) => c.key === selectedCategory)?.value
+          (car: CarCardProps) => car.category === categoryMap[selectedCategory]
         );
 
-  // Пагинация только на десктопе
   const totalPages = Math.ceil(filteredCars.length / carsPerPage);
   const paginatedCars = isMobile
     ? filteredCars
@@ -75,13 +73,9 @@ const Cars = () => {
         {/* Filter */}
         <div
           className={`flex justify-center mb-12 ${
-            isMobile
-              ? "sticky top-[100px] z-30   border-border/30"
-              : ""
+            isMobile ? "sticky top-[100px] z-30 border-border/30" : ""
           }`}
         >
-          {" "}
-          {/* sticky только на мобиле */}
           <div className="flex items-center space-x-4 bg-card/50 backdrop-blur border border-border/50 rounded-full p-2">
             <Filter className="h-4 w-4 text-muted-foreground ml-2" />
             {categories.map((cat) => (
@@ -118,7 +112,7 @@ const Cars = () => {
               {t("cars.notFound", {
                 category:
                   selectedCategory === "all"
-                    ? t("cars.all")
+                    ? t("cars.category.all")
                     : t(`cars.category.${selectedCategory}`),
               })}
             </p>

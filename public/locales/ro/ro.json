@@ -48,6 +48,7 @@
     "subtitle": "Alegeți mașina perfectă pentru nevoile dvs. din colecția noastră de automobile premium",
     "all": "Toate",
     "category": {
+      "all": "Toate",
       "sedan": "Sedan",
       "suv": "SUV"
     },
@@ -60,11 +61,15 @@
       "audiQ5": "Audi Q5"
     },
     "transmission": {
-      "automatic": "Automat"
+      "automatic": "Automată",
+      "manual": "Manuală",
+      "robot": "Robotizată",
+      "variator": "Variator"
     },
     "fuel": {
       "petrol": "Benzină",
       "diesel": "Motorină",
+      "electric": "Electric",
       "hybrid": "Hibrid"
     },
     "features": {

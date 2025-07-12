@@ -48,6 +48,7 @@
     "subtitle": "Choose the perfect car for your needs from our collection of premium vehicles",
     "all": "All",
     "category": {
+      "all": "All",
       "sedan": "Sedan",
       "suv": "SUV"
     },
@@ -60,11 +61,15 @@
       "audiQ5": "Audi Q5"
     },
     "transmission": {
-      "automatic": "Automatic"
+      "automatic": "Automatic",
+      "manual": "Manual",
+      "robot": "Robot",
+      "variator": "CVT"
     },
     "fuel": {
       "petrol": "Petrol",
       "diesel": "Diesel",
+      "electric": "Electric",
       "hybrid": "Hybrid"
     },
     "features": {
