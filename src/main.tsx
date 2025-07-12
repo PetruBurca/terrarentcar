@@ -1,5 +1,8 @@
-import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import { createRoot } from "react-dom/client";
+import App from "./App.tsx";
+import "./index.css";
+import i18n, { loadLocale } from "./lib/i18n";
 
-createRoot(document.getElementById("root")!).render(<App />);
+loadLocale("ro").then(() => {
+  createRoot(document.getElementById("root")!).render(<App />);
+});

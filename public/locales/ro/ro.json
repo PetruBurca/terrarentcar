@@ -1,0 +1,149 @@
+{
+  "header": {
+    "home": "Acasă",
+    "about": "Despre noi",
+    "cars": "Mașini",
+    "contact": "Contacte"
+  },
+  "hero": {
+    "slogan": "Mai mult decât închiriere auto",
+    "desc1": "Toate drumurile duc la noi, de la noi se deschid toate căile.",
+    "desc2": "Mașini premium pentru călătoriile tale în Moldova.",
+    "chooseCar": "Alege o mașină",
+    "learnMore": "Află mai mult",
+    "rating": "5.0 rating",
+    "clients": "500+ clienți mulțumiți",
+    "support": "Suport 24/7"
+  },
+  "about": {
+    "title": "Despre",
+    "slogan": "Am creat un serviciu premium de închiriere auto care combină servicii de înaltă calitate, siguranță și confort pentru clienții noștri.",
+    "safetyTitle": "Siguranță",
+    "safetyDesc": "Toate mașinile sunt asigurate și trec prin întreținere regulată",
+    "supportTitle": "Suport 24/7",
+    "supportDesc": "Asistență clienți non-stop și ajutor pe drum",
+    "qualityTitle": "Calitate premium",
+    "qualityDesc": "Doar mașini noi și bine întreținute de clasă premium",
+    "personalTitle": "Abordare personală",
+    "personalDesc": "Condiții individuale de închiriere pentru fiecare client",
+    "whyUs": "De ce să ne alegeți?",
+    "fleetTitle": "Parc auto mare",
+    "fleetDesc": "De la modele economice la mașini premium",
+    "pricesTitle": "Prețuri transparente",
+    "pricesDesc": "Fără taxe ascunse sau comisioane suplimentare",
+    "fastTitle": "Procesare rapidă",
+    "fastDesc": "Documente minime, viteză maximă",
+    "years": "ani pe piață",
+    "clients": "clienți",
+    "cars": "mașini",
+    "support": "suport",
+    "quality": "calitate"
+  },
+  "footer": {
+    "copyright": "© 2024 Toate drepturile rezervate"
+  },
+  "cars": {
+    "title": "Parcul nostru",
+    "titleAccent": "auto",
+    "subtitle": "Alegeți mașina perfectă pentru nevoile dvs. din colecția noastră de automobile premium",
+    "all": "Toate",
+    "category": {
+      "sedan": "Sedan",
+      "suv": "SUV"
+    },
+    "models": {
+      "bmwX5": "BMW X5",
+      "bmwX5Premium": "BMW X5 Premium",
+      "mercedesC": "Mercedes-Benz C-Class",
+      "mercedesE": "Mercedes-Benz E-Class",
+      "audiA4": "Audi A4",
+      "audiQ5": "Audi Q5"
+    },
+    "transmission": {
+      "automatic": "Automat"
+    },
+    "fuel": {
+      "petrol": "Benzină",
+      "diesel": "Motorină",
+      "hybrid": "Hibrid"
+    },
+    "features": {
+      "gps": "Navigație GPS",
+      "bluetooth": "Bluetooth",
+      "ac": "Aer condiționat",
+      "seatHeating": "Încălzire scaune",
+      "sunroof": "Trapă panoramică",
+      "leatherSeats": "Scaune din piele",
+      "cruise": "Cruise control",
+      "led": "Faruri LED",
+      "parktronic": "Parktronic",
+      "seatMassage": "Masaj scaune",
+      "harmanKardon": "Harman Kardon",
+      "360Camera": "Cameră 360°",
+      "climateControl": "Climatizare",
+      "adaptiveCruise": "Cruise adaptiv",
+      "premiumSound": "Sunet premium",
+      "quattro": "Quattro",
+      "virtualCockpit": "Virtual cockpit"
+    },
+    "notFound": "Nu au fost găsite mașini în categoria \"{{category}}\"",
+    "ctaTitle": "Nu ați găsit mașina potrivită?",
+    "ctaDesc": "Contactați-ne și vă vom ajuta să găsiți mașina perfectă pentru nevoile dvs.",
+    "ctaButton": "Contactați-ne",
+    "book": "Rezervă",
+    "perDay": "/zi"
+  },
+  "contact": {
+    "title": "Contactați",
+    "titleAccent": "ne",
+    "subtitle": "Suntem gata să vă ajutăm cu închirierea unei mașini. Contactați-ne în orice mod convenabil",
+    "howToContact": "Cum să ne contactați",
+    "phoneTitle": "Telefon",
+    "phoneDesc": "Sunați-ne oricând",
+    "emailTitle": "Email",
+    "emailDesc": "Răspundem în decurs de o oră",
+    "addressTitle": "Adresă",
+    "addressDetails": "Chișinău MD, Bulevardul Mircea cel Bătrîn 4",
+    "addressDesc": "Biroul nostru",
+    "hoursTitle": "Program de lucru",
+    "hoursDetails1": "Lun-Vin: 08:00 - 20:00",
+    "hoursDetails2": "Sâm-Dum: 09:00 - 18:00",
+    "hoursDesc": "Suport 24/7",
+    "socialTitle": "Rețele sociale",
+    "locationTitle": "Locația noastră",
+    "locationDesc": "Chișinău, Moldova",
+    "sendMessageTitle": "Trimite un mesaj",
+    "fullNameLabel": "Nume complet *",
+    "emailLabel": "Email *",
+    "phoneLabel": "Telefon",
+    "subjectLabel": "Subiect *",
+    "messageLabel": "Mesaj *",
+    "messagePlaceholder": "Spuneți-ne despre nevoile dvs. de închiriere auto...",
+    "sendMessageButton": "Trimite mesajul",
+    "messageSentTitle": "Mesaj trimis!",
+    "messageSentDesc": "Am primit mesajul dvs. și vă vom contacta în curând."
+  },
+  "reservation": {
+    "title": "Rezervare auto",
+    "sentTitle": "Cerere trimisă!",
+    "sentDesc": "Cererea dvs. pentru închirierea {{car}} a fost trimisă. Vă vom contacta în curând.",
+    "pricePerDay": "Preț pe zi:",
+    "days": "Număr de zile:",
+    "total": "Total:",
+    "firstName": "Prenume *",
+    "lastName": "Nume *",
+    "phone": "Telefon *",
+    "pickupDate": "Data preluării *",
+    "returnDate": "Data returnării *",
+    "pickupLocation": "Locul preluării",
+    "pickupLocationPlaceholder": "Aeroport, hotel, adresă...",
+    "wishes": "Cerințe suplimentare",
+    "wishesPlaceholder": "Specificați orice cerințe suplimentare...",
+    "send": "Trimite cererea",
+    "cancel": "Anulează"
+  },
+  "cookie": {
+    "message": "Acest site folosește cookie-uri pentru a vă îmbunătăți experiența. Continuând să utilizați site-ul, sunteți de acord cu utilizarea cookie-urilor.",
+    "accept": "Acceptă și continuă"
+  }
+}

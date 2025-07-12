@@ -6,67 +6,83 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import { createOrder } from "@/lib/airtable";
 
 const Contact = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     subject: "",
-    message: ""
+    message: "",
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Simulate form submission
-    toast({
-      title: "Сообщение отправлено!",
-      description: "Мы получили ваше сообщение и свяжемся с вами в ближайшее время.",
-    });
-    
-    // Reset form
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: ""
-    });
+    try {
+      await createOrder({
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        comment: formData.message,
+      });
+      toast({
+        title: t("contact.messageSentTitle"),
+        description: t("contact.messageSentDesc"),
+      });
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+      });
+    } catch (e) {
+      const error = e instanceof Error ? e : new Error(String(e));
+      toast({
+        title: t("contact.errorTitle"),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const contactInfo = [
     {
       icon: Phone,
-      title: "Телефон",
-      details: ["+373 68 123 456", "+373 69 654 321"],
-      description: "Звоните в любое время"
+      title: t("contact.phoneTitle"),
+      details: ["+37379013014"],
+      description: t("contact.phoneDesc"),
     },
     {
       icon: Mail,
-      title: "Email",
-      details: ["info@terrarentcar.md", "booking@terrarentcar.md"],
-      description: "Отвечаем в течение часа"
+      title: t("contact.emailTitle"),
+      details: ["terrarentcar@yahoo.com"],
+      description: t("contact.emailDesc"),
     },
     {
       icon: MapPin,
-      title: "Адрес",
-      details: ["ул. Штефан чел Маре 123", "Кишинев, Молдова"],
-      description: "Наш офис в центре города"
+      title: t("contact.addressTitle"),
+      details: [t("contact.addressDetails")],
+      description: t("contact.addressDesc"),
     },
     {
       icon: Clock,
-      title: "Режим работы",
-      details: ["Пн-Пт: 08:00 - 20:00", "Сб-Вс: 09:00 - 18:00"],
-      description: "Поддержка 24/7"
-    }
+      title: t("contact.hoursTitle"),
+      details: [t("contact.hoursDetails1"), t("contact.hoursDetails2")],
+      description: t("contact.hoursDesc"),
+    },
   ];
 
   return (
@@ -74,10 +90,11 @@ const Contact = () => {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Связаться <span className="gradient-text">с нами</span>
+            {t("contact.title")}{" "}
+            <span className="gradient-text">{t("contact.titleAccent")}</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Готовы помочь вам с арендой автомобиля. Свяжитесь с нами любым удобным способом
+            {t("contact.subtitle")}
           </p>
         </div>
 
@@ -85,12 +102,14 @@ const Contact = () => {
           {/* Contact Info */}
           <div className="space-y-6">
             <div className="animate-slide-in-left">
-              <h3 className="text-2xl font-bold mb-6">Как с нами связаться</h3>
-              
+              <h3 className="text-2xl font-bold mb-6">
+                {t("contact.howToContact")}
+              </h3>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {contactInfo.map((item, index) => (
-                  <Card 
-                    key={index} 
+                  <Card
+                    key={index}
                     className="group hover:glow-effect transition-all duration-500 bg-card/50 backdrop-blur border-border/50"
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
@@ -100,9 +119,14 @@ const Contact = () => {
                           <item.icon className="h-5 w-5 text-primary" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-semibold text-foreground mb-1">{item.title}</h4>
+                          <h4 className="font-semibold text-foreground mb-1">
+                            {item.title}
+                          </h4>
                           {item.details.map((detail, idx) => (
-                            <p key={idx} className="text-sm text-muted-foreground">
+                            <p
+                              key={idx}
+                              className="text-sm text-muted-foreground"
+                            >
                               {detail}
                             </p>
                           ))}
@@ -118,16 +142,51 @@ const Contact = () => {
 
               <Card className="mt-8 bg-card/30 backdrop-blur border-border/50">
                 <CardContent className="p-6">
-                  <h4 className="font-semibold text-foreground mb-4">Социальные сети</h4>
+                  <h4 className="font-semibold text-foreground mb-4">
+                    {t("contact.socialTitle")}
+                  </h4>
                   <div className="flex space-x-4">
-                    <Button variant="outline" size="sm" className="hover:glow-effect">
-                      Facebook
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="hover:glow-effect"
+                    >
+                      <a
+                        href="https://www.facebook.com/TerraRentCar/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Facebook
+                      </a>
                     </Button>
-                    <Button variant="outline" size="sm" className="hover:glow-effect">
-                      Instagram
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="hover:glow-effect"
+                    >
+                      <a
+                        href="https://www.instagram.com/terrarentcar/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Instagram
+                      </a>
                     </Button>
-                    <Button variant="outline" size="sm" className="hover:glow-effect">
-                      Telegram
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="hover:glow-effect"
+                    >
+                      <a
+                        href="https://t.me/TerraRentCar"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Telegram
+                      </a>
                     </Button>
                   </div>
                 </CardContent>
@@ -139,12 +198,14 @@ const Contact = () => {
           <div className="animate-slide-in-right">
             <Card className="bg-card/50 backdrop-blur border-border/50 glow-effect">
               <CardHeader>
-                <CardTitle className="text-2xl">Отправить сообщение</CardTitle>
+                <CardTitle className="text-2xl">
+                  {t("contact.sendMessageTitle")}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <Label htmlFor="name">Полное имя *</Label>
+                    <Label htmlFor="name">{t("contact.fullNameLabel")}</Label>
                     <Input
                       id="name"
                       name="name"
@@ -157,7 +218,7 @@ const Contact = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="email">Email *</Label>
+                      <Label htmlFor="email">{t("contact.emailLabel")}</Label>
                       <Input
                         id="email"
                         name="email"
@@ -169,7 +230,7 @@ const Contact = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="phone">Телефон</Label>
+                      <Label htmlFor="phone">{t("contact.phoneLabel")}</Label>
                       <Input
                         id="phone"
                         name="phone"
@@ -182,19 +243,7 @@ const Contact = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="subject">Тема сообщения *</Label>
-                    <Input
-                      id="subject"
-                      name="subject"
-                      value={formData.subject}
-                      onChange={handleInputChange}
-                      required
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="message">Сообщение *</Label>
+                    <Label htmlFor="message">{t("contact.messageLabel")}</Label>
                     <Textarea
                       id="message"
                       name="message"
@@ -203,13 +252,17 @@ const Contact = () => {
                       required
                       rows={5}
                       className="mt-1"
-                      placeholder="Расскажите нам о ваших потребностях в аренде автомобиля..."
+                      placeholder={t("contact.messagePlaceholder")}
                     />
                   </div>
 
-                  <Button type="submit" className="w-full glow-effect" size="lg">
+                  <Button
+                    type="submit"
+                    className="w-full glow-effect"
+                    size="lg"
+                  >
                     <Send className="mr-2 h-4 w-4" />
-                    Отправить сообщение
+                    {t("contact.sendMessageButton")}
                   </Button>
                 </form>
               </CardContent>
@@ -218,21 +271,24 @@ const Contact = () => {
         </div>
 
         {/* Map placeholder */}
-        <div className="mt-16 animate-fade-in">
-          <Card className="overflow-hidden bg-card/30 backdrop-blur border-border/50">
-            <CardContent className="p-0">
-              <div className="h-64 bg-gradient-to-r from-secondary to-accent flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="h-12 w-12 text-primary mx-auto mb-4" />
-                  <h4 className="text-lg font-semibold text-foreground mb-2">Наше расположение</h4>
-                  <p className="text-muted-foreground">Кишинев, Молдова</p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Интерактивная карта будет доступна в ближайшее время
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="mt-16 text-center animate-fade-in">
+          <h3 className="text-2xl font-bold mb-2 flex items-center justify-center gap-2">
+            <MapPin className="inline-block mr-2" />
+            {t("contact.locationTitle")}
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            {t("contact.locationDesc")}
+          </p>
+          <iframe
+            src="https://www.google.com/maps?q=Chișinău+MD,+Bulevardul+Mircea+cel+Bătrîn+4,+MD-2044,4&output=embed"
+            width="100%"
+            height="300"
+            style={{ border: 0 }}
+            allowFullScreen={true}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Google Map"
+          ></iframe>
         </div>
       </div>
     </section>

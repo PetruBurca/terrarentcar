@@ -6,125 +6,103 @@ import CarCard from "./CarCard";
 import bmwImage from "@/assets/bmw-x5.jpg";
 import mercedesImage from "@/assets/mercedes-c-class.jpg";
 import audiImage from "@/assets/audi-a4.jpg";
+import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
+import { fetchCars } from "@/lib/airtable";
+import type { CarCardProps } from "./CarCard";
+import { useMediaQuery } from "@/hooks/use-mobile";
+import { useQuery } from "@tanstack/react-query";
 
 const Cars = () => {
-  const [selectedCategory, setSelectedCategory] = useState("Все");
+  const { t } = useTranslation();
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const carsPerPage = 9;
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
-  const cars = [
-    {
-      id: "1",
-      name: "BMW X5",
-      image: bmwImage,
-      price: 120,
-      rating: 4.9,
-      passengers: 5,
-      transmission: "Автомат",
-      fuel: "Бензин",
-      category: "SUV",
-      features: ["GPS навигация", "Bluetooth", "Кондиционер", "Подогрев сидений", "Панорамная крыша"]
-    },
-    {
-      id: "2",
-      name: "Mercedes-Benz C-Class",
-      image: mercedesImage,
-      price: 100,
-      rating: 4.8,
-      passengers: 5,
-      transmission: "Автомат",
-      fuel: "Бензин",
-      category: "Седан",
-      features: ["GPS навигация", "Bluetooth", "Кондиционер", "Кожаные сиденья", "Круиз-контроль"]
-    },
-    {
-      id: "3",
-      name: "Audi A4",
-      image: audiImage,
-      price: 95,
-      rating: 4.7,
-      passengers: 5,
-      transmission: "Автомат",
-      fuel: "Бензин",
-      category: "Седан",
-      features: ["GPS навигация", "Bluetooth", "Кондиционер", "LED фары", "Парктроник"]
-    },
-    {
-      id: "4",
-      name: "BMW X5 Premium",
-      image: bmwImage,
-      price: 150,
-      rating: 5.0,
-      passengers: 7,
-      transmission: "Автомат",
-      fuel: "Дизель",
-      category: "SUV",
-      features: ["GPS навигация", "Bluetooth", "Кондиционер", "Массаж сидений", "Harman Kardon", "360° камера"]
-    },
-    {
-      id: "5",
-      name: "Mercedes-Benz E-Class",
-      image: mercedesImage,
-      price: 130,
-      rating: 4.9,
-      passengers: 5,
-      transmission: "Автомат",
-      fuel: "Гибрид",
-      category: "Седан",
-      features: ["GPS навигация", "Bluetooth", "Климат-контроль", "Adaptive cruise", "Premium звук"]
-    },
-    {
-      id: "6",
-      name: "Audi Q5",
-      image: audiImage,
-      price: 110,
-      rating: 4.8,
-      passengers: 5,
-      transmission: "Автомат",
-      fuel: "Бензин",
-      category: "SUV",
-      features: ["GPS навигация", "Bluetooth", "Кондиционер", "Quattro", "Virtual cockpit"]
-    }
+  const categories = [
+    { key: "all", label: t("cars.all"), value: null },
+    { key: "sedan", label: "Седан", value: "Седан" },
+    { key: "suv", label: "Внедорожник", value: "Внедорожник" },
+    // Добавь другие категории, если есть
   ];
 
-  const categories = ["Все", "Седан", "SUV"];
+  // Кэшируем данные о машинах через react-query
+  const {
+    data: cars = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["cars"],
+    queryFn: fetchCars,
+    staleTime: 1000 * 60 * 5, // 5 минут
+    retry: 2,
+  });
 
-  const filteredCars = selectedCategory === "Все" 
-    ? cars 
-    : cars.filter(car => car.category === selectedCategory);
+  const filteredCars =
+    selectedCategory === "all"
+      ? cars
+      : cars.filter(
+          (car: CarCardProps) =>
+            car.category ===
+            categories.find((c) => c.key === selectedCategory)?.value
+        );
+
+  // Пагинация только на десктопе
+  const totalPages = Math.ceil(filteredCars.length / carsPerPage);
+  const paginatedCars = isMobile
+    ? filteredCars
+    : filteredCars.slice(
+        (currentPage - 1) * carsPerPage,
+        currentPage * carsPerPage
+      );
+
+  if (isLoading) return <div>Загрузка...</div>;
+  if (isError) return <div>Ошибка загрузки машин</div>;
 
   return (
     <section id="cars" className="py-20 relative">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Наш <span className="gradient-text">автопарк</span>
+            {t("cars.title")}{" "}
+            <span className="gradient-text">{t("cars.titleAccent")}</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Выберите идеальный автомобиль для ваших потребностей из нашей коллекции 
-            премиальных автомобилей
+            {t("cars.subtitle")}
           </p>
         </div>
-
         {/* Filter */}
-        <div className="flex justify-center mb-12">
+        <div
+          className={`flex justify-center mb-12 ${
+            isMobile
+              ? "sticky top-[100px] z-30   border-border/30"
+              : ""
+          }`}
+        >
+          {" "}
+          {/* sticky только на мобиле */}
           <div className="flex items-center space-x-4 bg-card/50 backdrop-blur border border-border/50 rounded-full p-2">
             <Filter className="h-4 w-4 text-muted-foreground ml-2" />
-            {categories.map((category) => (
+            {categories.map((cat) => (
               <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "ghost"}
+                key={cat.key}
+                variant={selectedCategory === cat.key ? "default" : "ghost"}
                 size="sm"
-                onClick={() => setSelectedCategory(category)}
-                className={selectedCategory === category ? "glow-effect" : ""}
+                onClick={() => {
+                  setSelectedCategory(cat.key);
+                  setCurrentPage(1);
+                }}
+                className={selectedCategory === cat.key ? "glow-effect" : ""}
               >
-                {category}
+                {cat.label}
               </Button>
             ))}
           </div>
         </div>
-
         {/* Cars Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredCars.map((car, index) => (
+          {paginatedCars.map((car: CarCardProps, index: number) => (
             <div
               key={car.id}
               className="animate-fade-in"
@@ -134,28 +112,46 @@ const Cars = () => {
             </div>
           ))}
         </div>
-
         {filteredCars.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">
-              Автомобили в категории "{selectedCategory}" не найдены
+              {t("cars.notFound", {
+                category:
+                  selectedCategory === "all"
+                    ? t("cars.all")
+                    : t(`cars.category.${selectedCategory}`),
+              })}
             </p>
           </div>
         )}
-
+        {/* Pagination (desktop only) */}
+        {!isMobile && totalPages > 1 && (
+          <div className="flex justify-center mt-10 space-x-2">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border transition-all ${
+                  currentPage === i + 1
+                    ? "bg-primary text-white border-primary scale-110 shadow-lg"
+                    : "bg-card/70 text-primary border-border hover:bg-primary/10"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        )}
         {/* CTA */}
         <div className="text-center mt-16">
           <div className="bg-card/30 backdrop-blur border border-border/50 rounded-2xl p-8 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold mb-4">
-              Не нашли подходящий автомобиль?
-            </h3>
-            <p className="text-muted-foreground mb-6">
-              Свяжитесь с нами, и мы поможем найти идеальный автомобиль 
-              для ваших потребностей
-            </p>
-            <Button size="lg" className="glow-effect">
-              Связаться с нами
-            </Button>
+            <h3 className="text-2xl font-bold mb-4">{t("cars.ctaTitle")}</h3>
+            <p className="text-muted-foreground mb-6">{t("cars.ctaDesc")}</p>
+            <a href="tel:+37379013014">
+              <Button size="lg" className="glow-effect">
+                {t("cars.ctaButton")}
+              </Button>
+            </a>
           </div>
         </div>
       </div>

@@ -1,0 +1,149 @@
+{
+  "header": {
+    "home": "Home",
+    "about": "About",
+    "cars": "Cars",
+    "contact": "Contact"
+  },
+  "hero": {
+    "slogan": "More than just car rental",
+    "desc1": "All roads lead to us, from us all paths open.",
+    "desc2": "Premium cars for your travels in Moldova.",
+    "chooseCar": "Choose a car",
+    "learnMore": "Learn more",
+    "rating": "5.0 rating",
+    "clients": "500+ happy clients",
+    "support": "24/7 support"
+  },
+  "about": {
+    "title": "About",
+    "slogan": "We have created a premium car rental service that combines high quality service, safety and comfort for our clients.",
+    "safetyTitle": "Safety",
+    "safetyDesc": "All cars are insured and undergo regular maintenance",
+    "supportTitle": "24/7 Support",
+    "supportDesc": "Round-the-clock customer support and roadside assistance",
+    "qualityTitle": "Premium quality",
+    "qualityDesc": "Only new and well-maintained premium cars",
+    "personalTitle": "Personal approach",
+    "personalDesc": "Individual rental conditions for each client",
+    "whyUs": "Why choose us?",
+    "fleetTitle": "Large fleet",
+    "fleetDesc": "From economy models to premium cars",
+    "pricesTitle": "Transparent prices",
+    "pricesDesc": "No hidden fees or extra charges",
+    "fastTitle": "Fast processing",
+    "fastDesc": "Minimum paperwork, maximum speed",
+    "years": "years on the market",
+    "clients": "clients",
+    "cars": "cars",
+    "support": "support",
+    "quality": "quality"
+  },
+  "footer": {
+    "copyright": "© 2024 All rights reserved"
+  },
+  "cars": {
+    "title": "Our",
+    "titleAccent": "Fleet",
+    "subtitle": "Choose the perfect car for your needs from our collection of premium vehicles",
+    "all": "All",
+    "category": {
+      "sedan": "Sedan",
+      "suv": "SUV"
+    },
+    "models": {
+      "bmwX5": "BMW X5",
+      "bmwX5Premium": "BMW X5 Premium",
+      "mercedesC": "Mercedes-Benz C-Class",
+      "mercedesE": "Mercedes-Benz E-Class",
+      "audiA4": "Audi A4",
+      "audiQ5": "Audi Q5"
+    },
+    "transmission": {
+      "automatic": "Automatic"
+    },
+    "fuel": {
+      "petrol": "Petrol",
+      "diesel": "Diesel",
+      "hybrid": "Hybrid"
+    },
+    "features": {
+      "gps": "GPS navigation",
+      "bluetooth": "Bluetooth",
+      "ac": "Air conditioning",
+      "seatHeating": "Seat heating",
+      "sunroof": "Panoramic roof",
+      "leatherSeats": "Leather seats",
+      "cruise": "Cruise control",
+      "led": "LED headlights",
+      "parktronic": "Parktronic",
+      "seatMassage": "Seat massage",
+      "harmanKardon": "Harman Kardon",
+      "360Camera": "360° camera",
+      "climateControl": "Climate control",
+      "adaptiveCruise": "Adaptive cruise",
+      "premiumSound": "Premium sound",
+      "quattro": "Quattro",
+      "virtualCockpit": "Virtual cockpit"
+    },
+    "notFound": "No cars found in category \"{{category}}\"",
+    "ctaTitle": "Didn't find the right car?",
+    "ctaDesc": "Contact us and we will help you find the perfect car for your needs",
+    "ctaButton": "Contact us",
+    "book": "Book",
+    "perDay": "/day"
+  },
+  "contact": {
+    "title": "Contact",
+    "titleAccent": "us",
+    "subtitle": "We are ready to help you with car rental. Contact us in any convenient way",
+    "howToContact": "How to contact us",
+    "phoneTitle": "Phone",
+    "phoneDesc": "Call us anytime",
+    "emailTitle": "Email",
+    "emailDesc": "We reply within an hour",
+    "addressTitle": "Address",
+    "addressDetails": "Chișinău MD, Bulevardul Mircea cel Bătrîn 4",
+    "addressDesc": "Our office",
+    "hoursTitle": "Working hours",
+    "hoursDetails1": "Mon-Fri: 08:00 - 20:00",
+    "hoursDetails2": "Sat-Sun: 09:00 - 18:00",
+    "hoursDesc": "24/7 support",
+    "socialTitle": "Social networks",
+    "locationTitle": "Our location",
+    "locationDesc": "Chisinau, Moldova",
+    "sendMessageTitle": "Send a message",
+    "fullNameLabel": "Full name *",
+    "emailLabel": "Email *",
+    "phoneLabel": "Phone",
+    "subjectLabel": "Subject *",
+    "messageLabel": "Message *",
+    "messagePlaceholder": "Tell us about your car rental needs...",
+    "sendMessageButton": "Send message",
+    "messageSentTitle": "Message sent!",
+    "messageSentDesc": "We have received your message and will contact you soon."
+  },
+  "reservation": {
+    "title": "Car reservation",
+    "sentTitle": "Request sent!",
+    "sentDesc": "Your request for {{car}} rental has been sent. We will contact you soon.",
+    "pricePerDay": "Price per day:",
+    "days": "Number of days:",
+    "total": "Total:",
+    "firstName": "First name *",
+    "lastName": "Last name *",
+    "phone": "Phone *",
+    "pickupDate": "Pickup date *",
+    "returnDate": "Return date *",
+    "pickupLocation": "Pickup location",
+    "pickupLocationPlaceholder": "Airport, hotel, address...",
+    "wishes": "Additional wishes",
+    "wishesPlaceholder": "Specify any additional requirements...",
+    "send": "Send request",
+    "cancel": "Cancel"
+  },
+  "cookie": {
+    "message": "This website uses cookies to enhance your experience. By continuing to use the site, you agree to our use of cookies.",
+    "accept": "Accept & Continue"
+  }
+}
