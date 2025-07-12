@@ -77,6 +77,7 @@
       "bluetooth": "Bluetooth",
       "ac": "Air conditioning",
       "seatHeating": "Seat heating",
+      "steeringWheelHeating": "Steering wheel heating",
       "sunroof": "Panoramic roof",
       "leatherSeats": "Leather seats",
       "cruise": "Cruise control",
@@ -85,6 +86,7 @@
       "seatMassage": "Seat massage",
       "harmanKardon": "Harman Kardon",
       "360Camera": "360° camera",
+      "rearCamera": "Rear camera",
       "climateControl": "Climate control",
       "adaptiveCruise": "Adaptive cruise",
       "premiumSound": "Premium sound",
@@ -96,7 +98,9 @@
     "ctaDesc": "Contact us and we will help you find the perfect car for your needs",
     "ctaButton": "Contact us",
     "book": "Book",
-    "perDay": "/day"
+    "perDay": "/day",
+    "showMore": "Show more",
+    "hide": "Hide"
   },
   "contact": {
     "title": "Contact",

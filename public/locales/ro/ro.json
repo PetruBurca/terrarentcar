@@ -77,6 +77,7 @@
       "bluetooth": "Bluetooth",
       "ac": "Aer condiționat",
       "seatHeating": "Încălzire scaune",
+      "steeringWheelHeating": "Încălzire volan",
       "sunroof": "Trapă panoramică",
       "leatherSeats": "Scaune din piele",
       "cruise": "Cruise control",
@@ -85,6 +86,7 @@
       "seatMassage": "Masaj scaune",
       "harmanKardon": "Harman Kardon",
       "360Camera": "Cameră 360°",
+      "rearCamera": "Cameră spate",
       "climateControl": "Climatizare",
       "adaptiveCruise": "Cruise adaptiv",
       "premiumSound": "Sunet premium",
@@ -96,7 +98,9 @@
     "ctaDesc": "Contactați-ne și vă vom ajuta să găsiți mașina perfectă pentru nevoile dvs.",
     "ctaButton": "Contactați-ne",
     "book": "Rezervă",
-    "perDay": "/zi"
+    "perDay": "/zi",
+    "showMore": "Arată mai mult",
+    "hide": "Ascunde"
   },
   "contact": {
     "title": "Contactați",

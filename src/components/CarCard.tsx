@@ -5,6 +5,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import CarReservationModal from "./CarReservationModal";
 import { useTranslation } from "react-i18next";
+import logo from "@/assets/logo.png";
 
 export interface CarCardProps {
   id: string;
@@ -19,8 +20,7 @@ export interface CarCardProps {
   features: string[];
 }
 
-const PLACEHOLDER_IMG =
-  "https://i.pinimg.com/originals/7e/2e/2e7e2e2e2e2e2e2e2e2e2e2e2e2e2e2e.jpg";
+const PLACEHOLDER_IMG = logo;
 
 // Маппинг значений Airtable к ключам для перевода
 const transmissionReverseMap: Record<string, string> = {
@@ -42,6 +42,9 @@ const featureReverseMap: Record<string, string> = {
   "Камера заднего вида": "rearCamera",
   "Круиз-контроль": "cruise",
   "Подогрев сидений": "seatHeating",
+  "Подогрев руля": "steeringWheelHeating",
+  Парктроник: "parktronic",
+  "Климат-контроль": "climateControl",
 };
 
 const CarCard = ({
@@ -57,6 +60,7 @@ const CarCard = ({
   features,
 }: CarCardProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showAllFeatures, setShowAllFeatures] = useState(false);
   const { t } = useTranslation();
   const safeFeatures = Array.isArray(features) ? features : [];
   const imageUrl =
@@ -113,14 +117,30 @@ const CarCard = ({
 
           <div className="mb-4">
             <div className="flex flex-wrap gap-1">
-              {safeFeatures.slice(0, 3).map((feature, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {t(`cars.features.${featureReverseMap[feature]}`) || feature}
-                </Badge>
-              ))}
-              {safeFeatures.length > 3 && (
-                <Badge variant="outline" className="text-xs">
+              {(showAllFeatures ? safeFeatures : safeFeatures.slice(0, 3)).map(
+                (feature, index) => (
+                  <Badge key={index} variant="outline" className="text-xs">
+                    {t(`cars.features.${featureReverseMap[feature]}`) ||
+                      feature}
+                  </Badge>
+                )
+              )}
+              {safeFeatures.length > 3 && !showAllFeatures && (
+                <Badge
+                  variant="outline"
+                  className="text-xs cursor-pointer hover:bg-primary/10 transition-colors"
+                  onClick={() => setShowAllFeatures(true)}
+                >
                   +{safeFeatures.length - 3}
+                </Badge>
+              )}
+              {showAllFeatures && safeFeatures.length > 3 && (
+                <Badge
+                  variant="outline"
+                  className="text-xs cursor-pointer hover:bg-primary/10 transition-colors"
+                  onClick={() => setShowAllFeatures(false)}
+                >
+                  {t("cars.hide")}
                 </Badge>
               )}
             </div>

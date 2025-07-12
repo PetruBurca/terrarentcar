@@ -77,6 +77,7 @@
       "bluetooth": "Bluetooth",
       "ac": "Кондиционер",
       "seatHeating": "Подогрев сидений",
+      "steeringWheelHeating": "Подогрев руля",
       "sunroof": "Панорамная крыша",
       "leatherSeats": "Кожаные сиденья",
       "cruise": "Круиз-контроль",
@@ -85,6 +86,7 @@
       "seatMassage": "Массаж сидений",
       "harmanKardon": "Harman Kardon",
       "360Camera": "360° камера",
+      "rearCamera": "Камера заднего вида",
       "climateControl": "Климат-контроль",
       "adaptiveCruise": "Адаптивный круиз",
       "premiumSound": "Премиум звук",
@@ -96,7 +98,9 @@
     "ctaDesc": "Свяжитесь с нами, и мы поможем найти идеальный автомобиль для ваших потребностей",
     "ctaButton": "Связаться с нами",
     "book": "Забронировать",
-    "perDay": "/день"
+    "perDay": "/день",
+    "showMore": "Показать еще",
+    "hide": "Скрыть"
   },
   "reservation": {
     "title": "Бронирование автомобиля",
