@@ -3,6 +3,74 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 
+// Custom CSS for enhanced animations
+const customStyles = `
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
+  }
+  
+  @keyframes sparkle {
+    0%, 100% { opacity: 0; transform: scale(0); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+  
+  .feature-card {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.5s;
+    z-index: 0;
+  }
+  
+  .feature-card:hover::before {
+    opacity: 1;
+    animation: spin 3s linear infinite;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  .feature-icon {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .feature-card:hover .feature-icon {
+    animation: float 1s ease-in-out infinite;
+  }
+  
+  .sparkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #3b82f6;
+    border-radius: 50%;
+    animation: sparkle 2s ease-in-out infinite;
+  }
+  
+  .sparkle:nth-child(1) { top: 20%; left: 20%; animation-delay: 0s; }
+  .sparkle:nth-child(2) { top: 30%; right: 20%; animation-delay: 0.5s; }
+  .sparkle:nth-child(3) { bottom: 30%; left: 30%; animation-delay: 1s; }
+  .sparkle:nth-child(4) { bottom: 20%; right: 30%; animation-delay: 1.5s; }
+`;
+
 const About = () => {
   const { t } = useTranslation();
   const features = [
@@ -62,6 +130,7 @@ const About = () => {
 
   return (
     <section id="about" className="py-20 relative">
+      <style dangerouslySetInnerHTML={{ __html: customStyles }} />
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
@@ -77,19 +146,37 @@ const About = () => {
           {features.map((feature, index) => (
             <Card
               key={index}
-              className="group hover:glow-effect transition-all duration-100 animate-fade-in bg-card/50 backdrop-blur border-border/50"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              className="feature-card group hover:scale-105 hover:rotate-1 transition-all duration-500 animate-fade-in bg-card/50 backdrop-blur border-border/50 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20"
+              style={{ animationDelay: `${index * 0.2}s` }}
             >
-              <CardContent className="p-6 text-center">
-                <div className="bg-primary/10 p-4 rounded-full w-fit mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
-                  <feature.icon className="h-8 w-8 text-primary" />
+              <CardContent className="p-6 text-center relative overflow-hidden">
+                {/* Sparkle effects */}
+                <div className="sparkle" />
+                <div className="sparkle" />
+                <div className="sparkle" />
+                <div className="sparkle" />
+
+                {/* Animated background gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                {/* Floating icon with enhanced animation */}
+                <div className="relative bg-primary/10 p-4 rounded-full w-fit mx-auto mb-4 group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 feature-icon">
+                  <feature.icon className="h-8 w-8 text-primary group-hover:text-primary/80 transition-colors duration-300" />
+                  {/* Enhanced pulse ring effect */}
+                  <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping opacity-0 group-hover:opacity-100" />
+                  <div className="absolute inset-0 rounded-full border border-primary/20 animate-pulse opacity-0 group-hover:opacity-100" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2 text-foreground">
+
+                <h3 className="text-lg font-semibold mb-2 text-foreground relative group-hover:text-primary transition-colors duration-300 z-10">
                   {feature.title}
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <p className="text-muted-foreground text-sm leading-relaxed relative group-hover:text-foreground/80 transition-colors duration-300 z-10">
                   {feature.description}
                 </p>
+
+                {/* Enhanced corner accents */}
+                <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-primary/20 opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:w-12 group-hover:h-12 group-hover:border-primary/40" />
+                <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary/20 opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:w-12 group-hover:h-12 group-hover:border-primary/40" />
               </CardContent>
             </Card>
           ))}

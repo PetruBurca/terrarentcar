@@ -1,5 +1,6 @@
 import React from "react";
 import { FaInstagram, FaViber, FaWhatsapp, FaFacebook } from "react-icons/fa";
+import logo from "@/assets/logo.png";
 import "./Footer.scss";
 
 const Footer: React.FC = () => {
@@ -7,9 +8,16 @@ const Footer: React.FC = () => {
     <footer className="footer">
       <div className="footer-content">
         <div className="footer-logo">
-          TERRA <br />
-          RENT <br />
-          CAR
+          <img
+            src={logo}
+            alt="Terra Rent Car Logo"
+            className="footer-logo-img"
+          />
+          <div className="footer-logo-text">
+            TERRA <br />
+            RENT <br />
+            CAR
+          </div>
         </div>
         <div className="footer-contacts">
           <span>

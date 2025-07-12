@@ -241,10 +241,10 @@ const Header = () => {
             style={{ transitionProperty: "opacity, transform" }}
             onClick={toggleMenu}
           >
-            О нас
+            {t("header.about")}
           </a>
           <a
-            href="#gallery"
+            href="#cars"
             className={`block font-oswald text-white/90 hover:text-white transition-all duration-300 transform
               ${
                 isMenuOpen
@@ -254,7 +254,7 @@ const Header = () => {
             style={{ transitionProperty: "opacity, transform" }}
             onClick={toggleMenu}
           >
-            Галерея
+            {t("header.cars")}
           </a>
           <a
             href="#contact"
@@ -267,7 +267,7 @@ const Header = () => {
             style={{ transitionProperty: "opacity, transform" }}
             onClick={toggleMenu}
           >
-            Контакты
+            {t("header.contact")}
           </a>
           <div className="flex justify-center items-center space-x-2 text-white/80 text-sm font-semibold mt-2">
             <FaGlobe className="w-4 h-4 mr-1 opacity-80" />

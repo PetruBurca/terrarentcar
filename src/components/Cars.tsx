@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,22 +11,45 @@ import { fetchCars } from "@/lib/airtable";
 
 const categoryMap = {
   sedan: "Седан",
-  suv: "Внедорожник",
-  // Добавьте другие категории по мере необходимости
+  suv: "Внедорожник (SUV)",
+  hatchback: "Хэтчбэк",
+  wagon: "Универсал",
+  crossover: "Кроссовер",
+  coupe: "Купе",
+  convertible: "Кабриолет",
 };
 
 const Cars = () => {
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [showScrollHint, setShowScrollHint] = useState(true);
+  const [isAtEnd, setIsAtEnd] = useState(false);
   const carsPerPage = 9;
   const isMobile = useMediaQuery("(max-width: 767px)");
+  const filterContainerRef = useRef<HTMLDivElement>(null);
 
   const categories = [
     { key: "all", label: t("cars.category.all"), value: null },
     { key: "sedan", label: t("cars.category.sedan"), value: "sedan" },
     { key: "suv", label: t("cars.category.suv"), value: "suv" },
-    // Добавьте другие категории по мере необходимости
+    {
+      key: "hatchback",
+      label: t("cars.category.hatchback"),
+      value: "hatchback",
+    },
+    { key: "wagon", label: t("cars.category.wagon"), value: "wagon" },
+    {
+      key: "crossover",
+      label: t("cars.category.crossover"),
+      value: "crossover",
+    },
+    { key: "coupe", label: t("cars.category.coupe"), value: "coupe" },
+    {
+      key: "convertible",
+      label: t("cars.category.convertible"),
+      value: "convertible",
+    },
   ];
 
   const {
@@ -39,6 +62,67 @@ const Cars = () => {
     staleTime: 1000 * 60 * 5,
     retry: 2,
   });
+
+  // Check if user has scrolled to the end and hide scroll hint
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isMobile && filterContainerRef.current) {
+        const container = filterContainerRef.current;
+        const scrollLeft = container.scrollLeft;
+        const clientWidth = container.clientWidth;
+        const scrollWidth = container.scrollWidth;
+
+        // Check if we're at the end of the scroll (with tolerance)
+        const isAtEndOfScroll = scrollLeft + clientWidth >= scrollWidth - 15;
+
+        setIsAtEnd(isAtEndOfScroll);
+
+        // Show/hide hint based on scroll position
+        if (isAtEndOfScroll) {
+          setShowScrollHint(false);
+        } else if (scrollLeft > 10) {
+          // Show hint when scrolling back from the end
+          setShowScrollHint(true);
+        }
+      }
+    };
+
+    const filterContainer = filterContainerRef.current;
+    if (filterContainer) {
+      filterContainer.addEventListener("scroll", handleScroll);
+
+      // Check initial state after a small delay to ensure DOM is ready
+      setTimeout(() => {
+        handleScroll();
+      }, 100);
+
+      return () => filterContainer.removeEventListener("scroll", handleScroll);
+    }
+  }, [isMobile]);
+
+  // Reset scroll hint when categories change
+  useEffect(() => {
+    if (isMobile) {
+      setShowScrollHint(true);
+      setIsAtEnd(false);
+
+      // Check scroll position after category change
+      setTimeout(() => {
+        if (filterContainerRef.current) {
+          const container = filterContainerRef.current;
+          const scrollLeft = container.scrollLeft;
+          const clientWidth = container.clientWidth;
+          const scrollWidth = container.scrollWidth;
+          const isAtEndOfScroll = scrollLeft + clientWidth >= scrollWidth - 15;
+
+          setIsAtEnd(isAtEndOfScroll);
+          if (isAtEndOfScroll) {
+            setShowScrollHint(false);
+          }
+        }
+      }, 100);
+    }
+  }, [selectedCategory, isMobile]);
 
   const filteredCars =
     selectedCategory === "all"
@@ -76,22 +160,49 @@ const Cars = () => {
             isMobile ? "sticky top-[100px] z-30 border-border/30" : ""
           }`}
         >
-          <div className="flex items-center space-x-4 bg-card/50 backdrop-blur border border-border/50 rounded-full p-2">
-            <Filter className="h-4 w-4 text-muted-foreground ml-2" />
-            {categories.map((cat) => (
-              <Button
-                key={cat.key}
-                variant={selectedCategory === cat.key ? "default" : "ghost"}
-                size="sm"
-                onClick={() => {
-                  setSelectedCategory(cat.key);
-                  setCurrentPage(1);
-                }}
-                className={selectedCategory === cat.key ? "glow-effect" : ""}
-              >
-                {cat.label}
-              </Button>
-            ))}
+          <div className="relative">
+            <div
+              ref={filterContainerRef}
+              className="flex items-center bg-card/50 backdrop-blur border border-border/50 rounded-full p-2 max-w-[90vw] overflow-x-auto scrollbar-hide"
+            >
+              <Filter className="h-4 w-4 text-muted-foreground ml-2 flex-shrink-0" />
+              <div className="flex items-center space-x-2 px-2">
+                {categories.map((cat) => (
+                  <Button
+                    key={cat.key}
+                    variant={selectedCategory === cat.key ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => {
+                      setSelectedCategory(cat.key);
+                      setCurrentPage(1);
+                    }}
+                    className={`${
+                      selectedCategory === cat.key ? "glow-effect" : ""
+                    } flex-shrink-0 whitespace-nowrap`}
+                  >
+                    {cat.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            {/* Scroll hint for mobile */}
+            {isMobile && showScrollHint && (
+              <div className="absolute -bottom-4 right-2">
+                <div className="w-8 h-8 bg-yellow-400/80 backdrop-blur border border-yellow-300/50 rounded-full flex items-center justify-center animate-pulse shadow-lg">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5 text-white/80"
+                  >
+                    <path
+                      d="M9.71069 18.2929C10.1012 18.6834 10.7344 18.6834 11.1249 18.2929L16.0123 13.4006C16.7927 12.6195 16.7924 11.3537 16.0117 10.5729L11.1213 5.68254C10.7308 5.29202 10.0976 5.29202 9.70708 5.68254C9.31655 6.07307 9.31655 6.70623 9.70708 7.09676L13.8927 11.2824C14.2833 11.6729 14.2833 12.3061 13.8927 12.6966L9.71069 16.8787C9.32016 17.2692 9.32016 17.9023 9.71069 18.2929Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         {/* Cars Grid */}

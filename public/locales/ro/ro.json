@@ -50,7 +50,12 @@
     "category": {
       "all": "Toate",
       "sedan": "Sedan",
-      "suv": "SUV"
+      "suv": "SUV",
+      "hatchback": "Hatchback",
+      "wagon": "Break",
+      "crossover": "Crossover",
+      "coupe": "Coupe",
+      "convertible": "Convertibil"
     },
     "models": {
       "bmwX5": "BMW X5",
@@ -100,7 +105,8 @@
     "book": "Rezervă",
     "perDay": "/zi",
     "showMore": "Arată mai mult",
-    "hide": "Ascunde"
+    "hide": "Ascunde",
+    "scrollHint": "← Glisează pentru a vedea toate filtrele →"
   },
   "contact": {
     "title": "Contactați",

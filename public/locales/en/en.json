@@ -50,7 +50,12 @@
     "category": {
       "all": "All",
       "sedan": "Sedan",
-      "suv": "SUV"
+      "suv": "SUV",
+      "hatchback": "Hatchback",
+      "wagon": "Wagon",
+      "crossover": "Crossover",
+      "coupe": "Coupe",
+      "convertible": "Convertible"
     },
     "models": {
       "bmwX5": "BMW X5",
@@ -100,7 +105,8 @@
     "book": "Book",
     "perDay": "/day",
     "showMore": "Show more",
-    "hide": "Hide"
+    "hide": "Hide",
+    "scrollHint": "← Swipe to view all filters →"
   },
   "contact": {
     "title": "Contact",
