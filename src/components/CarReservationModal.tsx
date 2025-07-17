@@ -125,7 +125,8 @@ const CarReservationModal = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         aria-describedby="reservation-desc"
-        className="max-w-4xl max-h-[90vh] overflow-y-auto"
+        className="max-w-4xl max-h-[90vh] overflow-y-auto z-[3000] !top-1/2 !left-1/2 !translate-x-[-50%] !translate-y-[-50%] sm:max-w-lg md:max-w-2xl"
+        style={{ zIndex: 3000 }}
       >
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">

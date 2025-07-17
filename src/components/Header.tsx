@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { Car, Menu, X, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "../assets/logo.png";
@@ -6,7 +6,11 @@ import appstore from "../assets/appstore.svg";
 import { FaInstagram, FaFacebook, FaViber, FaWhatsapp } from "react-icons/fa";
 import { FaGlobe } from "react-icons/fa";
 import { FaPhoneSquareAlt } from "react-icons/fa";
-import CallContactsModal from "./CallContactsModal";
+const CallContactsModal = lazy(() =>
+  import("./CallContactsModal").then((mod) => ({
+    default: mod.CallContactsModal,
+  }))
+);
 import { useTranslation } from "react-i18next";
 import { loadLocale } from "@/lib/i18n";
 
@@ -79,7 +83,7 @@ const Header = () => {
   return (
     <>
       {/* Кнопка звонка */}
-      <div className="fixed right-6 bottom-10 flex flex-col items-center z-[1100]">
+      <div className="fixed right-6 bottom-10 flex flex-col items-center z-[1001]">
         <button
           ref={buttonRef}
           className={`animate-call-ripple bg-black w-16 h-16 p-4 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white/20 ${
@@ -113,23 +117,25 @@ const Header = () => {
           )}
         </button>
         {isModalVisible && (
-          <CallContactsModal
-            open={modalOpen}
-            onClose={() => {
-              setIconSpin("spin-out");
-              setTimeout(() => {
-                setModalOpen(false);
-                setIsModalVisible(false);
-              }, 300);
-            }}
-            onCloseWithAnimation={handleCloseWithAnimation}
-            buttonRef={buttonRef}
-          />
+          <Suspense fallback={null}>
+            <CallContactsModal
+              open={modalOpen}
+              onClose={() => {
+                setIconSpin("spin-out");
+                setTimeout(() => {
+                  setModalOpen(false);
+                  setIsModalVisible(false);
+                }, 300);
+              }}
+              onCloseWithAnimation={handleCloseWithAnimation}
+              buttonRef={buttonRef}
+            />
+          </Suspense>
         )}
       </div>
 
       {/* Кнопка App Store по центру внизу */}
-      <div className="fixed left-1/2 bottom-5 -translate-x-1/2 z-[1200] app-store-button bg-transparent flex justify-center">
+      <div className="fixed left-1/2 bottom-5 -translate-x-1/2 z-[1001] app-store-button bg-transparent flex justify-center">
         <a
           href="https://apps.apple.com/md/app/terrarent/id1661556785"
           target="_blank"
@@ -160,10 +166,10 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <a
-              href="#home"
+              href="#car-search"
               className="font-oswald text-white/90 hover:text-white transition-colors relative after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-0.5 after:bg-white/60 hover:after:w-full after:transition-all after:duration-300"
             >
-              {t("header.home")}
+              {t("header.chooseCar", "Выбор машины")}
             </a>
             <a
               href="#about"
@@ -230,6 +236,19 @@ const Header = () => {
             py-1 space-y-2 text-center
           `}
         >
+          <a
+            href="#car-search"
+            className={`block font-oswald text-white/90 hover:text-white transition-all duration-300 transform
+              ${
+                isMenuOpen
+                  ? "opacity-100 translate-y-0 delay-50"
+                  : "opacity-0 -translate-y-2 delay-0"
+              }`}
+            style={{ transitionProperty: "opacity, transform" }}
+            onClick={toggleMenu}
+          >
+            {t("header.chooseCar", "Выбор машины")}
+          </a>
           <a
             href="#about"
             className={`block font-oswald text-white/90 hover:text-white transition-all duration-300 transform

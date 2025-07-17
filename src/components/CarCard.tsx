@@ -1,5 +1,12 @@
-import { useState } from "react";
-import { Car, Users, Fuel, Settings, Star } from "lucide-react";
+import { useState, memo } from "react";
+import {
+  Car,
+  Users,
+  Fuel,
+  Settings,
+  Star,
+  Image as ImageIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -50,132 +57,165 @@ const featureReverseMap: Record<string, string> = {
   "Климат-контроль": "climateControl",
 };
 
-const CarCard = ({
-  id,
-  name,
-  images,
-  price,
-  rating,
-  passengers,
-  transmission,
-  fuel,
-  category,
-  features,
-}: CarCardProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showAllFeatures, setShowAllFeatures] = useState(false);
-  const { t } = useTranslation();
-  const safeFeatures = Array.isArray(features) ? features : [];
-  const imageUrl =
-    images && images.length > 0 && images[0] ? images[0] : PLACEHOLDER_IMG;
+const CarCard = memo(
+  ({
+    id,
+    name,
+    images,
+    price,
+    rating,
+    passengers,
+    transmission,
+    fuel,
+    category,
+    features,
+  }: CarCardProps) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showAllFeatures, setShowAllFeatures] = useState(false);
+    const [imageLoaded, setImageLoaded] = useState(false);
+    const [imageError, setImageError] = useState(false);
+    const { t } = useTranslation();
+    const safeFeatures = Array.isArray(features) ? features : [];
+    const imageUrl =
+      images && images.length > 0 && images[0] ? images[0] : PLACEHOLDER_IMG;
 
-  return (
-    <>
-      <Card className="group overflow-hidden car-hover bg-card/50 backdrop-blur border-border/50 hover:border-primary/50 transition-all duration-300 h-[480px] min-w-[320px] flex flex-col justify-between">
-        <div className="relative overflow-hidden h-48 w-full flex items-center justify-center bg-background">
-          <img
-            src={imageUrl}
-            alt={name}
-            className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-          />
-          <div className="absolute top-4 left-4">
-            <Badge
-              variant="secondary"
-              className="bg-primary text-primary-foreground"
-            >
-              {category}
-            </Badge>
-          </div>
-          <div className="absolute top-4 right-4 flex items-center space-x-1 bg-background/80 backdrop-blur px-2 py-1 rounded-full">
-            <Star className="h-3 w-3 fill-primary text-primary" />
-            <span className="text-xs font-medium">{rating}</span>
-          </div>
-        </div>
+    const handleImageLoad = () => {
+      setImageLoaded(true);
+      setImageError(false);
+    };
 
-        <CardContent className="p-6">
-          <h3 className="text-xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors">
-            {name}
-          </h3>
+    const handleImageError = () => {
+      setImageError(true);
+      setImageLoaded(true);
+    };
 
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <div className="flex items-center space-x-2 text-muted-foreground">
-              <Users className="h-4 w-4" />
-              <span className="text-sm">{passengers}</span>
+    return (
+      <>
+        <Card className="group overflow-hidden car-hover bg-card/50 backdrop-blur border-border/50 hover:border-primary/50 transition-all duration-300 h-[480px] min-w-[320px] flex flex-col justify-between">
+          <div className="relative overflow-hidden h-48 w-full flex items-center justify-center bg-background">
+            {!imageLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center bg-muted animate-pulse">
+                <ImageIcon className="h-8 w-8 text-muted-foreground" />
+              </div>
+            )}
+            <img
+              src={imageError ? PLACEHOLDER_IMG : imageUrl}
+              alt={name}
+              className={`w-full h-48 object-cover transition-all duration-500 ${
+                imageLoaded ? "group-hover:scale-110" : "opacity-0"
+              }`}
+              loading="lazy"
+              onLoad={handleImageLoad}
+              onError={handleImageError}
+              width={400}
+              height={192}
+            />
+            <div className="absolute top-4 left-4">
+              <Badge
+                variant="secondary"
+                className="bg-primary text-primary-foreground"
+              >
+                {category}
+              </Badge>
             </div>
-            <div className="flex items-center space-x-2 text-muted-foreground">
-              <Settings className="h-4 w-4" />
-              <span className="text-sm">
-                {t(
-                  `cars.transmission.${transmissionReverseMap[transmission]}`
-                ) || transmission}
-              </span>
-            </div>
-            <div className="flex items-center space-x-2 text-muted-foreground">
-              <Fuel className="h-4 w-4" />
-              <span className="text-sm">
-                {t(`cars.fuel.${fuelReverseMap[fuel]}`) || fuel}
-              </span>
+            <div className="absolute top-4 right-4 flex items-center space-x-1 bg-background/80 backdrop-blur px-2 py-1 rounded-full">
+              <Star className="h-3 w-3 fill-primary text-primary" />
+              <span className="text-xs font-medium">{rating}</span>
             </div>
           </div>
 
-          <div className="mb-4">
-            <div className="flex flex-wrap gap-1">
-              {(showAllFeatures ? safeFeatures : safeFeatures.slice(0, 3)).map(
-                (feature, index) => (
+          <CardContent className="p-6">
+            <h3 className="text-xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors">
+              {name}
+            </h3>
+
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="flex items-center space-x-2 text-muted-foreground">
+                <Users className="h-4 w-4" />
+                <span className="text-sm">{passengers}</span>
+              </div>
+              <div className="flex items-center space-x-2 text-muted-foreground">
+                <Settings className="h-4 w-4" />
+                <span className="text-sm">
+                  {t(
+                    `cars.transmission.${transmissionReverseMap[transmission]}`
+                  ) || transmission}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2 text-muted-foreground">
+                <Fuel className="h-4 w-4" />
+                <span className="text-sm">
+                  {t(`cars.fuel.${fuelReverseMap[fuel]}`) || fuel}
+                </span>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <div className="flex flex-wrap gap-1">
+                {(showAllFeatures
+                  ? safeFeatures
+                  : safeFeatures.slice(0, 3)
+                ).map((feature, index) => (
                   <Badge key={index} variant="outline" className="text-xs">
                     {featureReverseMap[feature]
                       ? t(`cars.features.${featureReverseMap[feature]}`)
                       : feature}
                   </Badge>
-                )
-              )}
-              {safeFeatures.length > 3 && !showAllFeatures && (
-                <Badge
-                  variant="outline"
-                  className="text-xs cursor-pointer hover:bg-primary/10 transition-colors"
-                  onClick={() => setShowAllFeatures(true)}
-                >
-                  +{safeFeatures.length - 3}
-                </Badge>
-              )}
-              {showAllFeatures && safeFeatures.length > 3 && (
-                <Badge
-                  variant="outline"
-                  className="text-xs cursor-pointer hover:bg-primary/10 transition-colors"
-                  onClick={() => setShowAllFeatures(false)}
-                >
-                  {t("cars.hide")}
-                </Badge>
-              )}
+                ))}
+                {safeFeatures.length > 3 && !showAllFeatures && (
+                  <Badge
+                    variant="outline"
+                    className="text-xs cursor-pointer hover:bg-primary/10 transition-colors"
+                    onClick={() => setShowAllFeatures(true)}
+                  >
+                    +{safeFeatures.length - 3}
+                  </Badge>
+                )}
+                {showAllFeatures && safeFeatures.length > 3 && (
+                  <Badge
+                    variant="outline"
+                    className="text-xs cursor-pointer hover:bg-primary/10 transition-colors"
+                    onClick={() => setShowAllFeatures(false)}
+                  >
+                    {t("cars.hide")}
+                  </Badge>
+                )}
+              </div>
             </div>
-          </div>
 
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <span className="text-2xl font-bold text-primary">${price}</span>
-              <span className="text-muted-foreground">{t("cars.perDay")}</span>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <span className="text-2xl font-bold text-primary">
+                  ${price}
+                </span>
+                <span className="text-muted-foreground">
+                  {t("cars.perDay")}
+                </span>
+              </div>
             </div>
-          </div>
-        </CardContent>
+          </CardContent>
 
-        <CardFooter className="p-6 pt-0">
-          <Button
-            className="w-full glow-effect"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <Car className="mr-2 h-4 w-4" />
-            {t("cars.book")}
-          </Button>
-        </CardFooter>
-      </Card>
+          <CardFooter className="p-6 pt-0">
+            <Button
+              className="w-full glow-effect"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <Car className="mr-2 h-4 w-4" />
+              {t("cars.book")}
+            </Button>
+          </CardFooter>
+        </Card>
 
-      <CarReservationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        car={{ id, name, images, price, category }}
-      />
-    </>
-  );
-};
+        <CarReservationModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          car={{ id, name, images, price, category }}
+        />
+      </>
+    );
+  }
+);
+
+CarCard.displayName = "CarCard";
 
 export default CarCard;

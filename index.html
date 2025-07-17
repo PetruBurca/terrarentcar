@@ -9,7 +9,13 @@
       content="Terra Rent Car - больше чем аренда автомобилей. Премиальные автомобили для ваших путешествий по Молдове и Европе. 24/7 поддержка, прозрачные цены."
     />
     <meta name="author" content="Terra Rent Car" />
+    <meta
+      name="keywords"
+      content="аренда автомобилей, Молдова, Кишинев, премиум автомобили, аренда авто"
+    />
+    <meta name="robots" content="index, follow" />
 
+    <!-- Open Graph / Facebook -->
     <meta
       property="og:title"
       content="Terra Rent Car - Премиальная аренда автомобилей"
@@ -20,11 +26,42 @@
     />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="src/assets/logo.png" />
+    <meta property="og:url" content="https://terrarentcar.com" />
+    <meta property="og:site_name" content="Terra Rent Car" />
 
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@terra_rent_car" />
+    <meta
+      name="twitter:title"
+      content="Terra Rent Car - Премиальная аренда автомобилей"
+    />
+    <meta
+      name="twitter:description"
+      content="Больше чем аренда автомобилей. Премиальные автомобили для ваших путешествий."
+    />
     <meta name="twitter:image" content="src/assets/logo.png" />
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/src/main.tsx" as="script" />
+    <link rel="preload" href="/src/index.css" as="style" />
+    <link rel="preload" href="src/assets/logo.png" as="image" />
+
+    <!-- DNS prefetch for external domains -->
+    <link rel="dns-prefetch" href="//api.airtable.com" />
+
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="src/assets/logo.png" />
+    <link rel="apple-touch-icon" href="src/assets/logo.png" />
+
+    <!-- Theme color -->
+    <meta name="theme-color" content="#000000" />
+    <meta name="msapplication-TileColor" content="#000000" />
+
+    <!-- Security headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
   </head>
 
   <body>

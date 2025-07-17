@@ -3,7 +3,8 @@
     "home": "Главная",
     "about": "О нас",
     "cars": "Авто",
-    "contact": "Контакты"
+    "contact": "Контакты",
+    "chooseCar": "Выбор машины"
   },
   "hero": {
     "slogan": "Больше чем аренда автомобилей",
@@ -50,12 +51,13 @@
     "category": {
       "all": "Все",
       "sedan": "Седан",
-      "suv": "Внедорожник (SUV)",
+      "suv": "Внедорожник",
       "hatchback": "Хэтчбэк",
       "wagon": "Универсал",
       "crossover": "Кроссовер",
       "coupe": "Купе",
-      "convertible": "Кабриолет"
+      "convertible": "Кабриолет",
+      "pickup": "Пикап"
     },
     "models": {
       "bmwX5": "BMW X5",

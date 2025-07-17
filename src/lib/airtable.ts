@@ -3,6 +3,29 @@ const AIRTABLE_TABLE_NAME = "Автомобили (Cars)"; // Имя табли�
 const AIRTABLE_TOKEN =
   "patKvCVhLU4cB94Gz.bfe322360c9044bfa0994f438f4cd451106309491786577e01eb3c4fe9b3ec26";
 
+interface AirtableImage {
+  url: string;
+}
+
+interface AirtableCarFields {
+  "Название/модель"?: string;
+  Категория?: string;
+  Рейтинг?: number;
+  "Количество мест"?: number;
+  "Тип коробки передач"?: string;
+  "Тип топлива"?: string;
+  "Список опций"?: string[];
+  "Цена за день"?: number;
+  Описание?: string;
+  Статус?: string;
+  Фото?: AirtableImage[];
+}
+
+interface AirtableRecord {
+  id: string;
+  fields: AirtableCarFields;
+}
+
 export async function fetchCars() {
   const res = await fetch(
     `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}`,
@@ -15,7 +38,7 @@ export async function fetchCars() {
   );
   if (!res.ok) throw new Error("Ошибка загрузки данных из Airtable");
   const data = await res.json();
-  return data.records.map((rec: any) => {
+  return data.records.map((rec: AirtableRecord) => {
     const fields = rec.fields;
     return {
       id: rec.id,
@@ -32,7 +55,7 @@ export async function fetchCars() {
       description: fields["Описание"] || "",
       status: fields["Статус"] || "",
       images: Array.isArray(fields["Фото"])
-        ? fields["Фото"].map((img: any) => img.url)
+        ? fields["Фото"].map((img) => img.url)
         : [],
     };
   });
@@ -50,7 +73,7 @@ export async function createOrder(order: {
   message?: string;
 }) {
   const AIRTABLE_ORDERS_TABLE = "Заявки на аренду";
-  const fields: Record<string, any> = {
+  const fields: Record<string, string | undefined> = {
     "Имя клиента": order.name,
     Телефон: order.phone,
     Email: order.email,

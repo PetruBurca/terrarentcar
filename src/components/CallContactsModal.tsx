@@ -43,7 +43,7 @@ const contacts = [
   },
 ];
 
-const CallContactsModal: React.FC<CallContactsModalProps> = ({
+export const CallContactsModal: React.FC<CallContactsModalProps> = ({
   open,
   onClose,
   buttonRef,
@@ -98,5 +98,3 @@ const CallContactsModal: React.FC<CallContactsModalProps> = ({
     </div>
   );
 };
-
-export default CallContactsModal;

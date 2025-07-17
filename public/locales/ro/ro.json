@@ -3,7 +3,8 @@
     "home": "Acasă",
     "about": "Despre noi",
     "cars": "Mașini",
-    "contact": "Contacte"
+    "contact": "Contacte",
+    "chooseCar": "Alege o mașină"
   },
   "hero": {
     "slogan": "Mai mult decât închiriere auto",
@@ -55,7 +56,8 @@
       "wagon": "Break",
       "crossover": "Crossover",
       "coupe": "Coupe",
-      "convertible": "Convertibil"
+      "convertible": "Convertibil",
+      "pickup": "Pickup"
     },
     "models": {
       "bmwX5": "BMW X5",

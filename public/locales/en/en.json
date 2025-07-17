@@ -3,7 +3,8 @@
     "home": "Home",
     "about": "About",
     "cars": "Cars",
-    "contact": "Contact"
+    "contact": "Contact",
+    "chooseCar": "Choose a car"
   },
   "hero": {
     "slogan": "More than just car rental",
@@ -55,7 +56,8 @@
       "wagon": "Wagon",
       "crossover": "Crossover",
       "coupe": "Coupe",
-      "convertible": "Convertible"
+      "convertible": "Convertible",
+      "pickup": "Pickup"
     },
     "models": {
       "bmwX5": "BMW X5",

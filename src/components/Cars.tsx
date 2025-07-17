@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Filter } from "lucide-react";
+import { Filter, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import CarCard from "./CarCard";
 import { useTranslation } from "react-i18next";
 import { useMediaQuery } from "@/hooks/use-mobile";
@@ -11,12 +12,12 @@ import { fetchCars } from "@/lib/airtable";
 
 const categoryMap = {
   sedan: "Седан",
-  suv: "Внедорожник (SUV)",
-  hatchback: "Хэтчбэк",
+  convertible: "Кабриолет",
   wagon: "Универсал",
   crossover: "Кроссовер",
-  coupe: "Купе",
-  convertible: "Кабриолет",
+  suv: "Внедорожник",
+  pickup: "Пикап",
+  hatchback: "Хэтчбэк",
 };
 
 const Cars = () => {
@@ -32,11 +33,10 @@ const Cars = () => {
   const categories = [
     { key: "all", label: t("cars.category.all"), value: null },
     { key: "sedan", label: t("cars.category.sedan"), value: "sedan" },
-    { key: "suv", label: t("cars.category.suv"), value: "suv" },
     {
-      key: "hatchback",
-      label: t("cars.category.hatchback"),
-      value: "hatchback",
+      key: "convertible",
+      label: t("cars.category.convertible"),
+      value: "convertible",
     },
     { key: "wagon", label: t("cars.category.wagon"), value: "wagon" },
     {
@@ -44,11 +44,12 @@ const Cars = () => {
       label: t("cars.category.crossover"),
       value: "crossover",
     },
-    { key: "coupe", label: t("cars.category.coupe"), value: "coupe" },
+    { key: "suv", label: t("cars.category.suv"), value: "suv" },
+    { key: "pickup", label: t("cars.category.pickup"), value: "pickup" },
     {
-      key: "convertible",
-      label: t("cars.category.convertible"),
-      value: "convertible",
+      key: "hatchback",
+      label: t("cars.category.hatchback"),
+      value: "hatchback",
     },
   ];
 
@@ -56,11 +57,14 @@ const Cars = () => {
     data: cars = [],
     isLoading,
     isError,
+    error,
+    refetch,
   } = useQuery({
     queryKey: ["cars"],
     queryFn: fetchCars,
     staleTime: 1000 * 60 * 5,
     retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   // Check if user has scrolled to the end and hide scroll hint
@@ -139,8 +143,60 @@ const Cars = () => {
         currentPage * carsPerPage
       );
 
-  if (isLoading) return <div>Загрузка...</div>;
-  if (isError) return <div>Ошибка загрузки машин</div>;
+  // Loading skeleton
+  if (isLoading) {
+    return (
+      <section id="cars" className="py-20 relative">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="text-center mb-16">
+            <Skeleton className="h-12 w-96 mx-auto mb-6" />
+            <Skeleton className="h-6 w-80 mx-auto" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="space-y-4">
+                <Skeleton className="h-48 w-full rounded-lg" />
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Error state
+  if (isError) {
+    return (
+      <section id="cars" className="py-20 relative">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="text-center">
+            <div className="flex flex-col items-center space-y-4">
+              <AlertCircle className="h-16 w-16 text-destructive" />
+              <h2 className="text-2xl font-bold text-destructive">
+                {t("cars.errorTitle", "Ошибка загрузки")}
+              </h2>
+              <p className="text-muted-foreground max-w-md">
+                {error instanceof Error
+                  ? error.message
+                  : t("cars.errorMessage", "Не удалось загрузить автомобили")}
+              </p>
+              <Button
+                onClick={() => refetch()}
+                className="mt-4"
+                variant="outline"
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                {t("cars.retry", "Попробовать снова")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="cars" className="py-20 relative">

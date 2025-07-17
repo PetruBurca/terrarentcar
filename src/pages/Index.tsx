@@ -1,5 +1,5 @@
 import Header from "@/components/Header";
-import Hero from "@/components/Hero";
+import RentSearch from "@/components/RentSearch";
 import LogoMarquee from "@/components/LogoMarquee";
 import About from "@/components/About";
 import Cars from "@/components/Cars";
@@ -11,7 +11,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main>
-        <Hero />
+        <RentSearch />
         <LogoMarquee />
         <About />
         <Cars />
