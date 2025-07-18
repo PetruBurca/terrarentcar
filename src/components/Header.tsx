@@ -83,7 +83,7 @@ const Header = () => {
   return (
     <>
       {/* Кнопка звонка */}
-      <div className="fixed right-6 bottom-10 flex flex-col items-center z-[1001]">
+      <div className="fixed right-6 bottom-10 flex flex-col items-center z-[1000]">
         <button
           ref={buttonRef}
           className={`animate-call-ripple bg-black w-16 h-16 p-4 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white/20 ${
@@ -135,7 +135,7 @@ const Header = () => {
       </div>
 
       {/* Кнопка App Store по центру внизу */}
-      <div className="fixed left-1/2 bottom-5 -translate-x-1/2 z-[1001] app-store-button bg-transparent flex justify-center">
+      <div className="fixed left-1/2 bottom-5 -translate-x-1/2 z-[1000] app-store-button bg-transparent flex justify-center">
         <a
           href="https://apps.apple.com/md/app/terrarent/id1661556785"
           target="_blank"

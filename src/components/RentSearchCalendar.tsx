@@ -297,7 +297,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
                 <div key={idx} ref={(el) => (monthRefs.current[idx] = el)}>
                   <MonthCalendar
                     month={month}
-                    selected={activeField === "from" ? range.from : range.to}
+                    range={range}
                     onSelect={handleCalendarSelect}
                     locale={locale}
                   />
@@ -339,7 +339,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
 };
 
 // Календарь одного месяца с выделением today и кастомными стилями
-function MonthCalendar({ month, selected, onSelect, locale }) {
+function MonthCalendar({ month, range, onSelect, locale }) {
   const daysInMonth = new Date(
     month.getFullYear(),
     month.getMonth() + 1,
@@ -350,43 +350,103 @@ function MonthCalendar({ month, selected, onSelect, locale }) {
     { length: daysInMonth },
     (_, i) => new Date(month.getFullYear(), month.getMonth(), i + 1)
   );
+  // Разбиваем месяц на недели (каждая неделя — массив дат)
+  const weeks = [];
+  let week = [];
+  // Добавляем пустые ячейки в начало, если месяц не с понедельника
+  const emptyDays = startDay === 0 ? 6 : startDay - 1;
+  for (let i = 0; i < emptyDays; i++) week.push(null);
+  days.forEach((date) => {
+    week.push(date);
+    if (week.length === 7) {
+      weeks.push(week);
+      week = [];
+    }
+  });
+  if (week.length) {
+    while (week.length < 7) week.push(null);
+    weeks.push(week);
+  }
+  // Вспомогательные функции
+  const isSameDay = (a, b) =>
+    a && b && format(a, "yyyy-MM-dd") === format(b, "yyyy-MM-dd");
+  const isInRange = (date) =>
+    range.from && range.to && date > range.from && date < range.to;
+  const isRangeStart = (date) => isSameDay(date, range.from);
+  const isRangeEnd = (date) => isSameDay(date, range.to);
   return (
     <div className="mb-2">
       <div className="text-lg font-bold text-yellow-400 mb-1 text-center">
         {format(month, "LLLL yyyy", { locale })}
       </div>
-      <div className="grid grid-cols-7 gap-1 mb-1 text-yellow-400 text-center text-sm">
+      <div className="grid grid-cols-7 gap-5 mb-1 text-yellow-400 text-center text-sm">
         {[...Array(7)].map((_, i) => (
           <span key={i}>
             {format(new Date(2023, 0, i + 2), "EE", { locale }).slice(0, 2)}
           </span>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-1">
-        {Array(startDay === 0 ? 6 : startDay - 1)
-          .fill(null)
-          .map((_, i) => (
-            <span key={i}></span>
-          ))}
-        {days.map((date) => {
-          const isSelected =
-            selected &&
-            format(date, "yyyy-MM-dd") === format(selected, "yyyy-MM-dd");
+      <div className="flex flex-col gap-1">
+        {weeks.map((week, wIdx) => {
+          // Найти диапазон в этой неделе
+          let startIdx = -1,
+            endIdx = -1;
+          week.forEach((date, i) => {
+            if (
+              date &&
+              (isInRange(date) || isRangeStart(date) || isRangeEnd(date))
+            ) {
+              if (startIdx === -1) startIdx = i;
+              endIdx = i;
+            }
+          });
+          const hasRange = startIdx !== -1 && endIdx !== -1;
           return (
-            <button
-              key={date.toISOString()}
-              className={`h-10 w-10 flex items-center justify-center rounded-full font-bold transition-colors duration-150
-                ${
-                  isSelected
-                    ? "bg-yellow-400 text-black border-2 border-yellow-400"
-                    : isToday(date)
-                    ? "border-2 border-white text-white"
-                    : "text-white hover:bg-yellow-400 hover:text-black"
-                }`}
-              onClick={() => onSelect(date)}
-            >
-              {date.getDate()}
-            </button>
+            <div key={wIdx} className="relative grid grid-cols-7 gap-5">
+              {hasRange && (
+                <div
+                  className="absolute left-0 right-0"
+                  style={{
+                    gridColumnStart: startIdx + 1,
+                    gridColumnEnd: endIdx + 2,
+                    top: "10%",
+                    bottom: "10%",
+                    borderTop: "2px solid #facc15", // жёлтый
+                    borderBottom: "2px solid #facc15",
+                    borderRadius: "8px",
+                    backgroundColor: "#facc15c4",
+                    zIndex: 1,
+                    pointerEvents: "none",
+                  }}
+                />
+              )}
+              {week.map((date, i) => {
+                if (!date) return <div key={i} className="w-10 h-10" />;
+                const today = isToday(date);
+                const start = isRangeStart(date);
+                const end = isRangeEnd(date);
+                const inRange = isInRange(date);
+                return (
+                  <button
+                    key={date.toISOString()}
+                    className={[
+                      "h-10 w-10 flex items-center justify-center font-bold transition-colors duration-150 relative",
+                      today
+                        ? "border-2 border-white text-white bg-transparent z-10 rounded-full"
+                        : start || end
+                        ? "bg-yellow-400 text-black z-10 rounded-xl border-2 border-yellow-400"
+                        : inRange
+                        ? "text-black z-10"
+                        : "text-white hover:bg-yellow-400 hover:text-black z-10 rounded-full",
+                    ].join(" ")}
+                    style={{ gridColumn: i + 1 }}
+                    onClick={() => onSelect(date)}
+                  >
+                    {date.getDate()}
+                  </button>
+                );
+              })}
+            </div>
           );
         })}
       </div>
