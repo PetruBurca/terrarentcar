@@ -157,7 +157,10 @@
     "wishes": "Cerințe suplimentare",
     "wishesPlaceholder": "Specificați orice cerințe suplimentare...",
     "send": "Trimite cererea",
-    "cancel": "Anulează"
+    "cancel": "Anulează",
+    "search": "Caută",
+    "pickupTime": "Ora preluării",
+    "returnTime": "Ora returnării"
   },
   "cookie": {
     "message": "Acest site folosește cookie-uri pentru a vă îmbunătăți experiența. Continuând să utilizați site-ul, sunteți de acord cu utilizarea cookie-urilor.",

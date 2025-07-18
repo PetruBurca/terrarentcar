@@ -157,7 +157,10 @@
     "wishes": "Additional wishes",
     "wishesPlaceholder": "Specify any additional requirements...",
     "send": "Send request",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "search": "Search",
+    "pickupTime": "Pickup time",
+    "returnTime": "Return time"
   },
   "cookie": {
     "message": "This website uses cookies to enhance your experience. By continuing to use the site, you agree to our use of cookies.",

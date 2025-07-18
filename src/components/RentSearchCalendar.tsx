@@ -10,6 +10,7 @@ import { format, isToday } from "date-fns";
 import { ru, ro, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { X, Search } from "lucide-react";
+import React from "react";
 
 const getLocale = (lng: string) =>
   lng === "ru" ? ru : lng === "ro" ? ro : enUS;
@@ -23,6 +24,7 @@ const times = Array.from({ length: 24 * 4 }, (_, i) => {
 });
 
 function TimePicker({ value, onChange, onClose }) {
+  const { t } = useTranslation();
   const [hour, setHour] = useState(Number(value.split(":")[0]));
   const [minute, setMinute] = useState(Number(value.split(":")[1]));
 
@@ -85,68 +87,95 @@ function TimePicker({ value, onChange, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60">
-      <div className="bg-[#232325] rounded-2xl p-4 w-full max-w-xs mx-auto flex flex-col items-center relative shadow-xl">
-        <div className="w-full flex justify-end mb-2">
-          <button
-            onClick={onClose}
-            className="text-yellow-400 hover:text-yellow-200 text-2xl"
-          >
-            <X />
-          </button>
-        </div>
-        <div className="flex gap-4 relative h-48 w-full justify-center">
-          {/* Акцентная область */}
-          <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-10 bg-gray-500/40 rounded-lg pointer-events-none z-10" />
-          {/* Часы */}
-          <div
-            ref={hourRef}
-            className="flex-1 h-full overflow-y-auto snap-y snap-mandatory scrollbar-hide"
-            style={{ minWidth: 60 }}
-          >
-            <div style={{ height: buffer }} />
-            {hours.map((h, idx) => (
-              <div
-                key={h}
-                className={`h-10 flex items-center justify-center text-lg snap-center cursor-pointer transition-all duration-300 text-white ${
-                  hour === h ? "font-bold bg-gray-700/80 rounded" : ""
-                }`}
-                onClick={() => handleHourClick(h, idx)}
-              >
-                {h.toString().padStart(2, "0")}
-              </div>
-            ))}
-            <div style={{ height: buffer }} />
+    <>
+      <style>{`
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: #facc15 #232325;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+          background: #232325;
+          border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #facc15;
+          border-radius: 8px;
+          border: 2px solid #232325;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #ffe066;
+        }
+      `}</style>
+      <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60">
+        <div className="bg-[#232325] rounded-2xl p-4 w-full max-w-xs mx-auto flex flex-col items-center relative shadow-xl">
+          <div className="w-full flex justify-end mb-2">
+            <button
+              onClick={onClose}
+              className="text-yellow-400 hover:text-yellow-200 text-2xl"
+            >
+              <X />
+            </button>
           </div>
-          {/* Минуты */}
-          <div
-            ref={minuteRef}
-            className="flex-1 h-full overflow-y-auto snap-y snap-mandatory scrollbar-hide"
-            style={{ minWidth: 60 }}
-          >
-            <div style={{ height: buffer }} />
-            {minutes.map((m, idx) => (
-              <div
-                key={m}
-                className={`h-10 flex items-center justify-center text-lg snap-center cursor-pointer transition-all duration-300 text-white ${
-                  minute === m ? "font-bold bg-gray-700/80 rounded" : ""
-                }`}
-                onClick={() => handleMinuteClick(m, idx)}
-              >
-                {m.toString().padStart(2, "0")}
+          <div className="flex gap-4 relative h-48 w-full justify-center">
+            {/* Акцентная область */}
+            <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-10 bg-gray-500/40 rounded-lg pointer-events-none z-10" />
+            {/* Часы */}
+            <div
+              ref={hourRef}
+              className="flex-1 h-full overflow-y-auto snap-y snap-mandatory custom-scrollbar"
+              style={{ minWidth: 60 }}
+            >
+              <div style={{ height: buffer }} />
+              {hours.map((h, idx) => (
+                <div
+                  key={h}
+                  className={`h-10 flex items-center justify-center text-lg snap-center cursor-pointer transition-all duration-300 text-white ${
+                    hour === h ? "font-bold bg-gray-700/80 rounded" : ""
+                  }`}
+                  onClick={() => handleHourClick(h, idx)}
+                >
+                  {h.toString().padStart(2, "0")}
+                </div>
+              ))}
+              <div style={{ height: buffer }} />
+              <div className="text-center text-xs text-yellow-200 mt-2">
+                {t("reservation.hours", "часы")}
               </div>
-            ))}
-            <div style={{ height: buffer }} />
+            </div>
+            {/* Минуты */}
+            <div
+              ref={minuteRef}
+              className="flex-1 h-full overflow-y-auto snap-y snap-mandatory custom-scrollbar"
+              style={{ minWidth: 60 }}
+            >
+              <div style={{ height: buffer }} />
+              {minutes.map((m, idx) => (
+                <div
+                  key={m}
+                  className={`h-10 flex items-center justify-center text-lg snap-center cursor-pointer transition-all duration-300 text-white ${
+                    minute === m ? "font-bold bg-gray-700/80 rounded" : ""
+                  }`}
+                  onClick={() => handleMinuteClick(m, idx)}
+                >
+                  {m.toString().padStart(2, "0")}
+                </div>
+              ))}
+              <div style={{ height: buffer }} />
+              <div className="text-center text-xs text-yellow-200 mt-2">
+                {t("reservation.minutes", "минуты")}
+              </div>
+            </div>
           </div>
+          <Button
+            onClick={handleOk}
+            className="w-full bg-yellow-400 text-black font-bold mt-4"
+          >
+            {t("reservation.ok", "OK")}
+          </Button>
         </div>
-        <Button
-          onClick={handleOk}
-          className="w-full bg-yellow-400 text-black font-bold mt-4"
-        >
-          OK
-        </Button>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -251,10 +280,10 @@ export const RentSearchCalendar = ({ onSearch }) => {
     typeof window !== "undefined" ? window.innerWidth <= 767 : true;
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white/90 rounded-2xl shadow-lg p-4 flex flex-col gap-4">
+    <div className="w-full md:max-w-md md:mx-auto bg-[#232325] rounded-2xl shadow-2xl p-3 flex flex-col gap-4 border border-yellow-400 mt-13 mb-11 sm:mt-0 transition hover:shadow-yellow-400/30 hover:scale-[1.01] duration-200">
       <div className="flex gap-2">
         <button
-          className="flex-1 border border-yellow-400 rounded-lg px-3 py-2 text-left font-semibold text-black bg-white hover:bg-yellow-50 transition"
+          className="flex-1 border border-yellow-400 rounded-lg px-4 py-3 text-left font-semibold text-yellow-400 bg-[#18181b] hover:bg-yellow-900/20 transition text-lg"
           onClick={() => handleFieldClick("from")}
         >
           <span className="block text-xs text-gray-500 mb-1">
@@ -265,7 +294,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
           </span>
         </button>
         <button
-          className="flex-1 border border-yellow-400 rounded-lg px-3 py-2 text-left font-semibold text-black bg-white hover:bg-yellow-50 transition"
+          className="flex-1 border border-yellow-400 rounded-lg px-4 py-3 text-left font-semibold text-yellow-400 bg-[#18181b] hover:bg-yellow-900/20 transition text-lg"
           onClick={() => handleFieldClick("to")}
         >
           <span className="block text-xs text-gray-500 mb-1">
@@ -277,7 +306,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
         </button>
       </div>
       <Button
-        className="w-full bg-black text-yellow-400 border-2 border-yellow-400 font-bold text-lg py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-yellow-900 transition"
+        className="w-full bg-yellow-400 text-black border-2 border-yellow-400 font-bold text-lg py-4 rounded-xl flex items-center justify-center gap-2 shadow-md hover:bg-yellow-500 hover:scale-105 active:bg-yellow-600 transition"
         onClick={handleSearch}
         disabled={!range.from || !range.to}
       >
@@ -287,15 +316,22 @@ export const RentSearchCalendar = ({ onSearch }) => {
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent
-          className={`flex flex-col h-full p-0 ${
+          className={
             isMobile
-              ? "w-full min-h-[100dvh] max-w-full rounded-none top-0 left-0 z-[1001]"
-              : "fixed right-0 top-0 h-full w-[420px] max-w-full rounded-l-2xl z-[1001]"
-          } bg-[#232325]`}
+              ? "w-full min-h-[100dvh] max-w-full rounded-none top-0 left-0 z-[1001] bg-[#232325] flex flex-col h-full p-0"
+              : "fixed right-0 top-0 h-full w-[420px] max-w-full rounded-l-2xl z-[1001] border-l-4 border-yellow-400 shadow-2xl bg-[#232325] flex flex-col h-full p-0 transform-none"
+          }
           style={
             isMobile
               ? {}
-              : { borderTopRightRadius: 0, borderBottomRightRadius: 0 }
+              : {
+                  left: "auto",
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
+                }
           }
         >
           <DialogTitle className="sr-only">
