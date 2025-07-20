@@ -71,6 +71,14 @@ const customStyles = `
   .sparkle:nth-child(4) { bottom: 20%; right: 30%; animation-delay: 1.5s; }
 `;
 
+// Функция для склонения слова "год" на русском языке
+function getYearWord(years: number) {
+  if (years % 10 === 1 && years % 100 !== 11) return "год";
+  if ([2, 3, 4].includes(years % 10) && ![12, 13, 14].includes(years % 100))
+    return "года";
+  return "лет";
+}
+
 const About = () => {
   const { t } = useTranslation();
   const features = [
@@ -233,7 +241,11 @@ const About = () => {
               <CardContent className="p-8">
                 <div className="text-center">
                   <div className="text-4xl font-bold text-primary mb-2">
-                    {diff.years} лет {diff.days} дней
+                    {t("about.yearsCount", {
+                      count: diff.years,
+                      yearsWord: getYearWord(diff.years),
+                    })}{" "}
+                    {diff.days} дней
                   </div>
                   <p className="text-muted-foreground mb-6">
                     {t("about.years")}

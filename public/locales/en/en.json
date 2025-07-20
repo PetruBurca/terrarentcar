@@ -35,6 +35,7 @@
     "fastTitle": "Fast processing",
     "fastDesc": "Minimum paperwork, maximum speed",
     "years": "years on the market",
+    "yearsCount": "{{count}} years",
     "clients": "clients",
     "cars": "cars",
     "support": "support",
