@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import type { CarCardProps } from "./CarCard";
-import { fetchCars } from "@/lib/airtable";
+import { fetchCars, fetchOrders } from "@/lib/airtable";
 
 const categoryMap = {
   sedan: "Седан",
@@ -20,7 +20,11 @@ const categoryMap = {
   hatchback: "Хэтчбэк",
 };
 
-const Cars = () => {
+function isDateOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) {
+  return aStart <= bEnd && aEnd >= bStart;
+}
+
+const Cars = ({ searchDates }) => {
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -70,6 +74,34 @@ const Cars = () => {
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
+
+  // Получаем заявки
+  const { data: orders = [], isLoading: isLoadingOrders } = useQuery({
+    queryKey: ["orders"],
+    queryFn: fetchOrders,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  // Фильтрация по доступности
+  let availableCars = cars;
+  if (searchDates?.from && searchDates?.to) {
+    availableCars = cars.filter((car) => {
+      const carOrders = orders.filter(
+        (order) =>
+          order.car === car.name &&
+          order.status === "подтверждена" &&
+          order.startDate &&
+          order.endDate
+      );
+      const from = new Date(searchDates.from);
+      const to = new Date(searchDates.to);
+      return !carOrders.some((order) => {
+        const orderStart = new Date(order.startDate.replace(/\./g, "/"));
+        const orderEnd = new Date(order.endDate.replace(/\./g, "/"));
+        return isDateOverlap(from, to, orderStart, orderEnd);
+      });
+    });
+  }
 
   // Check if user has scrolled to the end and hide scroll hint
   useEffect(() => {
@@ -149,8 +181,8 @@ const Cars = () => {
 
   const filteredCars =
     selectedCategory === "all"
-      ? cars
-      : cars.filter(
+      ? availableCars
+      : availableCars.filter(
           (car: CarCardProps) => car.category === categoryMap[selectedCategory]
         );
 

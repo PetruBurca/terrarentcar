@@ -103,3 +103,41 @@ export async function createOrder(order: {
   if (!res.ok) throw new Error("Ошибка отправки заявки");
   return res.json();
 }
+
+interface AirtableOrderFields {
+  "Выбранный автомобиль"?: string;
+  "Дата начала аренды"?: string;
+  "Дата окончания аренды"?: string;
+  "Статус заявки"?: string;
+}
+
+interface AirtableOrderRecord {
+  id: string;
+  fields: AirtableOrderFields;
+}
+
+// Получение всех заявок на аренду
+export async function fetchOrders() {
+  const AIRTABLE_ORDERS_TABLE = "Заявки на аренду";
+  const res = await fetch(
+    `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_ORDERS_TABLE}`,
+    {
+      headers: {
+        Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  if (!res.ok) throw new Error("Ошибка загрузки заявок из Airtable");
+  const data = await res.json();
+  return data.records.map((rec: AirtableOrderRecord) => {
+    const fields = rec.fields || {};
+    return {
+      id: rec.id,
+      car: fields["Выбранный автомобиль"] || "",
+      startDate: fields["Дата начала аренды"] || "",
+      endDate: fields["Дата окончания аренды"] || "",
+      status: (fields["Статус заявки"] || "").toLowerCase(),
+    };
+  });
+}

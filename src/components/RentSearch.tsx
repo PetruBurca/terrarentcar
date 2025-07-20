@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { RentSearchCalendar } from "./RentSearchCalendar";
 
-const RentSearch = () => {
+const RentSearch = ({ onSearch }) => {
   const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 767px)");
 
@@ -62,7 +62,7 @@ const RentSearch = () => {
             {/* На мобильных календарь будет здесь */}
             {isMobile && (
               <div className="mb-1 w-full md:max-w-md">
-                <RentSearchCalendar onSearch={undefined} />
+                <RentSearchCalendar onSearch={onSearch} />
               </div>
             )}
 
@@ -104,7 +104,7 @@ const RentSearch = () => {
           {!isMobile && (
             <div className="flex-1 flex items-center justify-center md:justify-end mt-24">
               <div className="w-full md:max-w-md">
-                <RentSearchCalendar onSearch={undefined} />
+                <RentSearchCalendar onSearch={onSearch} />
               </div>
             </div>
           )}
