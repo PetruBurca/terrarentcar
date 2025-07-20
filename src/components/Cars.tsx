@@ -30,7 +30,8 @@ const Cars = () => {
   const isMobile = useMediaQuery("(max-width: 767px)");
   const filterContainerRef = useRef<HTMLDivElement>(null);
   const carsListRef = useRef<HTMLDivElement>(null);
-  const [sortBy, setSortBy] = useState<"price" | "name" | null>(null);
+  // По умолчанию сортировка по имени по возрастанию
+  const [sortBy, setSortBy] = useState<"price" | "name" | null>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   const categories = [

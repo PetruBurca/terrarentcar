@@ -28,7 +28,7 @@ interface AirtableRecord {
 
 export async function fetchCars() {
   const res = await fetch(
-    `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}`,
+    `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}?sort[0][field]=Название/модель&sort[0][direction]=asc`,
     {
       headers: {
         Authorization: `Bearer ${AIRTABLE_TOKEN}`,
