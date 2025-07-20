@@ -57,6 +57,11 @@ export async function fetchCars() {
       images: Array.isArray(fields["Фото"])
         ? fields["Фото"].map((img) => img.url)
         : [],
+      pricePerDay: fields["Цена за день"] || 0,
+      price2to10: fields["Цена за 2-10 дней"] ?? fields["Цена за день"] ?? 0,
+      price11to20: fields["Цена за 11-20 дней"] ?? fields["Цена за день"] ?? 0,
+      price21to29: fields["Цена за 21-29 дней"] ?? fields["Цена за день"] ?? 0,
+      price30plus: fields["Цена от 30 дней"] ?? fields["Цена за день"] ?? 0,
     };
   });
 }

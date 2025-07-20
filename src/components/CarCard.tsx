@@ -25,6 +25,12 @@ export interface CarCardProps {
   fuel: string;
   category: string;
   features: string[];
+  description: string;
+  pricePerDay: number;
+  price2to10: number;
+  price11to20: number;
+  price21to29: number;
+  price30plus: number;
 }
 
 const PLACEHOLDER_IMG = logo;
@@ -69,6 +75,12 @@ const CarCard = memo(
     fuel,
     category,
     features,
+    description,
+    pricePerDay,
+    price2to10,
+    price11to20,
+    price21to29,
+    price30plus,
   }: CarCardProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showAllFeatures, setShowAllFeatures] = useState(false);
@@ -91,9 +103,16 @@ const CarCard = memo(
 
     return (
       <>
-        <Card className="group overflow-hidden car-hover bg-card/50 backdrop-blur border-border/50 hover:border-primary/50 transition-all duration-300 h-[480px] min-w-[320px] flex flex-col justify-between">
+        <Card
+          className="group overflow-hidden car-hover bg-card/50 backdrop-blur border-border/50 hover:border-primary/50 transition-all duration-300 h-[480px] min-w-[320px] flex flex-col justify-between cursor-pointer"
+          onClick={(e) => {
+            // Не открывать модалку, если клик был по кнопке бронирования
+            if ((e.target as HTMLElement).closest("button")) return;
+            setIsModalOpen(true);
+          }}
+        >
           <div className="relative overflow-hidden h-48 w-full flex items-center justify-center bg-background">
-            {!imageLoaded && (
+            {(!imageLoaded || imageError) && (
               <div className="absolute inset-0 flex items-center justify-center bg-muted animate-pulse">
                 <ImageIcon className="h-8 w-8 text-muted-foreground" />
               </div>
@@ -198,7 +217,10 @@ const CarCard = memo(
           <CardFooter className="p-6 pt-0">
             <Button
               className="w-full glow-effect"
-              onClick={() => setIsModalOpen(true)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsModalOpen(true);
+              }}
             >
               <Car className="mr-2 h-4 w-4" />
               {t("cars.book")}
@@ -209,7 +231,19 @@ const CarCard = memo(
         <CarReservationModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          car={{ id, name, images, price, category }}
+          car={{
+            id,
+            name,
+            images,
+            price,
+            category,
+            description,
+            pricePerDay,
+            price2to10,
+            price11to20,
+            price21to29,
+            price30plus,
+          }}
         />
       </>
     );

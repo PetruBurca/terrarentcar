@@ -281,6 +281,9 @@ export const RentSearchCalendar = ({ onSearch }) => {
 
   return (
     <div className="w-full md:max-w-md md:mx-auto bg-[#232325] rounded-2xl shadow-2xl p-3 flex flex-col gap-4 border border-yellow-400 mt-13 mb-11 sm:mt-0 transition hover:shadow-yellow-400/30 hover:scale-[1.01] duration-200">
+      <div className="text-xl md:text-2xl font-bold text-yellow-400 mb-3 text-center">
+        {t("reservation.selectDates", "Выбрать даты аренды")}
+      </div>
       <div className="flex gap-2">
         <button
           className="flex-1 border border-yellow-400 rounded-lg px-4 py-3 text-left font-semibold text-yellow-400 bg-[#18181b] hover:bg-yellow-900/20 transition text-lg"

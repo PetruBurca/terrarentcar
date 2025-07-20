@@ -108,7 +108,11 @@
     "perDay": "/zi",
     "showMore": "Arată mai mult",
     "hide": "Ascunde",
-    "scrollHint": "← Glisează pentru a vedea toate filtrele →"
+    "scrollHint": "← Glisează pentru a vedea toate filtrele →",
+    "sort": {
+      "price": "Preț",
+      "name": "Nume"
+    }
   },
   "contact": {
     "title": "Contactați",
@@ -144,9 +148,14 @@
     "title": "Rezervare auto",
     "sentTitle": "Cerere trimisă!",
     "sentDesc": "Cererea dvs. pentru închirierea {{car}} a fost trimisă. Vă vom contacta în curând.",
-    "pricePerDay": "Preț pe zi:",
-    "days": "Număr de zile:",
-    "total": "Total:",
+    "pricePerDay": "Preț pe zi",
+    "price2to10": "Preț pentru 2-10 zile",
+    "price11to20": "Preț pentru 11-20 zile",
+    "price21to29": "Preț pentru 21-29 zile",
+    "price30plus": "Preț pentru 30+ zile",
+    "days": "Zile",
+    "total": "Total",
+    "noDescription": "Fără descriere",
     "firstName": "Prenume *",
     "lastName": "Nume *",
     "phone": "Telefon *",
@@ -160,7 +169,9 @@
     "cancel": "Anulează",
     "search": "Caută",
     "pickupTime": "Ora preluării",
-    "returnTime": "Ora returnării"
+    "returnTime": "Ora returnării",
+    "selectDates": "Selectează datele de închiriere",
+    "message": "Comentariu"
   },
   "cookie": {
     "message": "Acest site folosește cookie-uri pentru a vă îmbunătăți experiența. Continuând să utilizați site-ul, sunteți de acord cu utilizarea cookie-urilor.",

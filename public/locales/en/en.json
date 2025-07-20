@@ -108,7 +108,11 @@
     "perDay": "/day",
     "showMore": "Show more",
     "hide": "Hide",
-    "scrollHint": "← Swipe to view all filters →"
+    "scrollHint": "← Swipe to view all filters →",
+    "sort": {
+      "price": "Price",
+      "name": "Name"
+    }
   },
   "contact": {
     "title": "Contact",
@@ -144,9 +148,14 @@
     "title": "Car reservation",
     "sentTitle": "Request sent!",
     "sentDesc": "Your request for {{car}} rental has been sent. We will contact you soon.",
-    "pricePerDay": "Price per day:",
-    "days": "Number of days:",
-    "total": "Total:",
+    "pricePerDay": "Price per day",
+    "price2to10": "Price for 2-10 days",
+    "price11to20": "Price for 11-20 days",
+    "price21to29": "Price for 21-29 days",
+    "price30plus": "Price for 30+ days",
+    "days": "Days",
+    "total": "Total",
+    "noDescription": "No description",
     "firstName": "First name *",
     "lastName": "Last name *",
     "phone": "Phone *",
@@ -160,7 +169,9 @@
     "cancel": "Cancel",
     "search": "Search",
     "pickupTime": "Pickup time",
-    "returnTime": "Return time"
+    "returnTime": "Return time",
+    "selectDates": "Select rental dates",
+    "message": "Comment"
   },
   "cookie": {
     "message": "This website uses cookies to enhance your experience. By continuing to use the site, you agree to our use of cookies.",
