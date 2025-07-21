@@ -206,7 +206,7 @@ const CarReservationModal = ({
         aria-describedby="reservation-desc"
         className={
           isMobile
-            ? "fixed inset-0 w-full min-h-[100dvh] max-w-full h-[100dvh] top-0 left-0 z-[3000] bg-background overflow-y-auto rounded-none p-1 pt-6 pb-[env(safe-area-inset-bottom,16px)]"
+            ? "fixed inset-0 w-full max-w-[100vw] min-w-0 min-h-[100dvh] h-[100dvh] top-0 left-0 z-[3000] bg-background overflow-y-auto rounded-none p-0 pt-4 pb-[env(safe-area-inset-bottom,12px)] px-2"
             : "max-w-4xl max-h-[90vh] overflow-y-auto z-[3000] !top-1/2 !left-1/2 !translate-x-[-50%] !translate-y-[-50%] sm:max-w-lg md:max-w-2xl p-6"
         }
         style={
@@ -570,7 +570,7 @@ function CarouselWithCenter({
         &#8594;
       </button>
       <div
-        className="flex gap-1 md:gap-2 justify-center items-center py-2 w-full overflow-hidden"
+        className="flex gap-0.5 md:gap-2 justify-center items-center py-1 md:py-2 w-full overflow-hidden flex-nowrap"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -582,7 +582,13 @@ function CarouselWithCenter({
                 (activeIdx + idx - center + items.length) % items.length
               )
             }
-            className={`rounded-lg px-1 md:px-4 py-2 md:py-3 min-w-0 flex-1 max-w-[110px] md:max-w-[120px] text-center select-none transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer
+            className={`rounded-lg px-0.5 md:px-2 py-1 md:py-2
+              ${
+                idx === center
+                  ? "min-w-[120px] max-w-[180px] md:min-w-[140px] md:max-w-[220px] whitespace-normal break-words"
+                  : "min-w-[70px] max-w-[80px] sm:min-w-[90px] sm:max-w-[90px] md:min-w-[110px] md:max-w-[110px] truncate"
+              }
+              text-center select-none transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer
               ${
                 idx === center
                   ? `${colorCenter} scale-110 shadow-lg font-bold opacity-100`
@@ -591,8 +597,14 @@ function CarouselWithCenter({
               ${animating ? "carousel-animating" : ""}`}
             style={{ zIndex: idx === center ? 2 : 1 }}
           >
-            <div className="text-xs mb-1">{item.label}</div>
-            <div className="text-2xl font-bold">
+            <div className="text-xs mb-1 opacity-70">{item.label}</div>
+            <div
+              className={`text-2xl font-bold transition-all duration-350 ${
+                idx === center
+                  ? "scale-110 whitespace-normal break-words"
+                  : "scale-90 opacity-80 truncate"
+              }`}
+            >
               {item.value}
               {valueSuffix ? ` ${valueSuffix}` : ""}
             </div>
