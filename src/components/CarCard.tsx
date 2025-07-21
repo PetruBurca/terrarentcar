@@ -23,6 +23,12 @@ export interface CarCardProps {
   passengers: number;
   transmission: string;
   fuel: string;
+  year: string;
+  engine: string;
+  drive: string;
+  description_ru?: string;
+  description_ro?: string;
+  description_en?: string;
   category: string;
   features: string[];
   description: string;
@@ -73,6 +79,12 @@ const CarCard = memo(
     passengers,
     transmission,
     fuel,
+    year,
+    engine,
+    drive,
+    description_ru,
+    description_ro,
+    description_en,
     category,
     features,
     description,
@@ -236,8 +248,16 @@ const CarCard = memo(
             name,
             images,
             price,
-            category,
-            description,
+            rating,
+            passengers,
+            transmission,
+            fuel,
+            year,
+            engine,
+            drive,
+            description_ru,
+            description_ro,
+            description_en,
             pricePerDay,
             price2to10,
             price11to20,

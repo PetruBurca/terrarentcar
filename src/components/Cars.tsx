@@ -400,6 +400,12 @@ const Cars = ({ searchDates }) => {
                 price11to20={car.price11to20}
                 price21to29={car.price21to29}
                 price30plus={car.price30plus}
+                year={car.year}
+                engine={car.engine}
+                drive={car.drive}
+                description_ru={car.description_ru}
+                description_ro={car.description_ro}
+                description_en={car.description_en}
               />
             </div>
           ))}

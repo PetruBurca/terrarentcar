@@ -77,6 +77,7 @@ const CarReservationModal = ({
 }: CarReservationModalProps) => {
   const { t, i18n } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 767px)");
+  console.log("car", car);
   const [currentStep, setCurrentStep] = useState(0);
   const [wizardData, setWizardData] = useState<WizardData>({});
   const [formData, setFormData] = useState({
@@ -325,6 +326,8 @@ const CarReservationModal = ({
               {/* Характеристики (carousel) */}
               <CarouselWithCenter
                 items={[
+                  { label: t("reservation.drive", "Привод"), value: car.drive },
+                  { label: t("reservation.fuel", "Топливо"), value: car.fuel },
                   {
                     label: t("reservation.rating", "Рейтинг"),
                     value: car.rating,
@@ -345,8 +348,6 @@ const CarReservationModal = ({
                     label: t("reservation.engine", "Двигатель"),
                     value: car.engine,
                   },
-                  { label: t("reservation.drive", "Привод"), value: car.drive },
-                  { label: t("reservation.fuel", "Топливо"), value: car.fuel },
                 ]}
                 title={t(
                   "reservation.featuresTitle",
