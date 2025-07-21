@@ -145,7 +145,7 @@ const Header = () => {
           <img
             src={appstore}
             alt="App Store"
-            className="w-[200px] object-contain"
+            className="w-[150px] object-contain"
           />
         </a>
       </div>

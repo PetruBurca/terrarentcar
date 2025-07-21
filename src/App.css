@@ -40,3 +40,16 @@
 .read-the-docs {
   color: #888;
 }
+
+.calendar-day-disabled-strike::after {
+  content: "";
+  position: absolute;
+  left: 15%;
+  top: 50%;
+  width: 70%;
+  height: 2px;
+  background: linear-gradient(90deg, #ff3333 60%, transparent 100%);
+  transform: rotate(-20deg);
+  pointer-events: none;
+  z-index: 2;
+}

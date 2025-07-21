@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +25,12 @@ import { createOrder } from "@/lib/airtable";
 import logo from "@/assets/logo.png";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useRef } from "react";
+import { Calendar as ShadcnCalendar } from "@/components/ui/calendar";
+import { useQuery } from "@tanstack/react-query";
+import { fetchOrders } from "@/lib/airtable";
+import TimePicker from "@/components/ui/time-picker-wheel";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface Car {
   id: string;
@@ -77,7 +84,6 @@ const CarReservationModal = ({
 }: CarReservationModalProps) => {
   const { t, i18n } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 767px)");
-  console.log("car", car);
   const [currentStep, setCurrentStep] = useState(0);
   const [wizardData, setWizardData] = useState<WizardData>({});
   const [formData, setFormData] = useState({
@@ -87,8 +93,23 @@ const CarReservationModal = ({
     phone: "",
     pickupDate: "",
     returnDate: "",
+    pickupTime: "",
+    returnTime: "",
     pickupLocation: "",
     message: "",
+    pickupType: "office", // по умолчанию 'заберу из офиса'
+  } as {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    pickupDate: string;
+    returnDate: string;
+    pickupTime: string;
+    returnTime: string;
+    pickupLocation: string;
+    message: string;
+    pickupType: string;
   });
   const [activeIndex, setActiveIndex] = useState(0);
   const images = Array.isArray(car.images) ? car.images : [];
@@ -125,11 +146,34 @@ const CarReservationModal = ({
     });
   };
 
-  // Для стандартного календаря
-  const handleDateInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
+    });
+  };
+
+  // Для стандартного календаря
+  const handleDateInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const date = new Date(value);
+    const isDisabled = disabledDays.some(
+      (dd) =>
+        dd.getFullYear() === date.getFullYear() &&
+        dd.getMonth() === date.getMonth() &&
+        dd.getDate() === date.getDate()
+    );
+    if (isDisabled) {
+      toast({
+        title: t("reservation.disabledRangeTitle", "Нельзя выбрать эти даты"),
+        description: t("reservation.disabledRangeDesc", "Эта дата занята."),
+        variant: "destructive",
+      });
+      return;
+    }
+    setFormData({
+      ...formData,
+      [e.target.name]: value,
     });
   };
 
@@ -140,7 +184,7 @@ const CarReservationModal = ({
         name: formData.firstName + " " + formData.lastName,
         phone: formData.phone,
         email: formData.email,
-        car: car.name,
+        car: [car.id], // <-- передаём id машины как массив
         startDate: formData.pickupDate,
         endDate: formData.returnDate,
         comment: formData.message,
@@ -157,8 +201,11 @@ const CarReservationModal = ({
         phone: "",
         pickupDate: "",
         returnDate: "",
+        pickupTime: "",
+        returnTime: "",
         pickupLocation: "",
         message: "",
+        pickupType: "office",
       });
       onClose();
     } catch (e) {
@@ -201,14 +248,90 @@ const CarReservationModal = ({
   const goNext = () => setCurrentStep((s) => Math.min(s + 1, STEPS.length - 1));
   const goBack = () => setCurrentStep((s) => Math.max(s - 1, 0));
 
+  const { data: orders = [] } = useQuery({
+    queryKey: ["orders"],
+    queryFn: fetchOrders,
+    staleTime: 1000 * 60 * 5,
+  });
+  // Получаем только заявки по этой машине и только подтверждённые
+  const carOrders = orders.filter((order) => {
+    const carIds = Array.isArray(order.car)
+      ? order.car.map((id) => String(id).trim())
+      : [String(order.car).trim()];
+    return (
+      carIds.includes(String(car.id).trim()) &&
+      order.status === "подтверждена" &&
+      order.startDate &&
+      order.endDate
+    );
+  });
+  // Универсальный парсер дат
+  function parseDate(str: string) {
+    if (!str) return null;
+    if (str.includes("-")) {
+      // Формат YYYY-MM-DD
+      const [year, month, day] = str.split("-");
+      return new Date(+year, +month - 1, +day);
+    } else if (str.includes(".")) {
+      // Формат дд.мм.гггг
+      const [day, month, year] = str.split(".");
+      return new Date(+year, +month - 1, +day);
+    }
+    return null;
+  }
+
+  // Генерируем массив занятых дат (только дата, без времени, с универсальным парсером)
+  const disabledDays: Date[] = [];
+  carOrders.forEach((order) => {
+    const start = parseDate(order.startDate);
+    const end = parseDate(order.endDate);
+    if (!start || !end) return;
+    for (
+      let d = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      d <= end;
+      d.setDate(d.getDate() + 1)
+    ) {
+      disabledDays.push(new Date(d.getFullYear(), d.getMonth(), d.getDate()));
+    }
+  });
+
+  const isDisabled = (date: Date | undefined) =>
+    !!date &&
+    disabledDays.some(
+      (dd) =>
+        dd.getFullYear() === date.getFullYear() &&
+        dd.getMonth() === date.getMonth() &&
+        dd.getDate() === date.getDate()
+    );
+
+  const selected =
+    isDisabled(
+      formData.pickupDate ? new Date(formData.pickupDate) : undefined
+    ) ||
+    isDisabled(formData.returnDate ? new Date(formData.returnDate) : undefined)
+      ? undefined
+      : {
+          from: formData.pickupDate ? new Date(formData.pickupDate) : undefined,
+          to: formData.returnDate ? new Date(formData.returnDate) : undefined,
+        };
+
+  // Преобразование даты в локальный формат YYYY-MM-DD
+  const toLocalDateString = (date: Date | undefined) =>
+    date
+      ? `${date.getFullYear()}-${(date.getMonth() + 1)
+          .toString()
+          .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`
+      : "";
+
+  // Удаляю всё, что связано с returnTime (кнопки, state, TimePicker, select и т.д.)
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        aria-describedby="reservation-desc"
         className={
           isMobile
-            ? "fixed inset-0 w-full max-w-[100vw] min-w-0 min-h-[100dvh] h-[100dvh] top-0 left-0 z-[3000] bg-background overflow-y-auto rounded-none p-0 pt-4 pb-[env(safe-area-inset-bottom,12px)] px-2"
-            : "max-w-4xl max-h-[90vh] overflow-y-auto z-[3000] !top-1/2 !left-1/2 !translate-x-[-50%] !translate-y-[-50%] sm:max-w-lg md:max-w-2xl p-6"
+            ? "fixed inset-0 w-full max-w-[400px] sm:max-w-[98vw] min-w-0 min-h-[100dvh] h-[100dvh] top-0 left-0 z-[3000] bg-background overflow-y-auto rounded-none p-0 pt-4 pb-[env(safe-area-inset-bottom,12px)] px-4 sm:px-2 box-border"
+            : "max-w-4xl max-h-[90vh] overflow-y-auto z-[3000] !top-1/2 !left-1/2 !translate-x-[-50%] !translate-y-[-50%] sm:max-w-lg md:max-w-2xl p-6 md:px-8 box-border"
         }
         style={
           isMobile
@@ -228,13 +351,13 @@ const CarReservationModal = ({
           <DialogTitle className="text-2xl font-bold">
             {t("reservation.title")}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {t(
+              "reservation.dialogDescription",
+              "Форма бронирования автомобиля. Заполните все поля и отправьте заявку."
+            )}
+          </DialogDescription>
         </DialogHeader>
-        <p id="reservation-desc" className="sr-only">
-          {t(
-            "reservation.dialogDescription",
-            "Форма бронирования автомобиля. Заполните все поля и отправьте заявку."
-          )}
-        </p>
 
         {/* Wizard steps */}
         <div className="w-full">
@@ -362,12 +485,111 @@ const CarReservationModal = ({
                 <h3 className="text-xl font-bold text-center mb-2">
                   {t("reservation.calendarTitle", "Период аренды")}
                 </h3>
-                {/* Здесь должен быть ваш календарь и time picker */}
-                {/* ... */}
+                <div className="flex flex-col items-center gap-2">
+                  <ShadcnCalendar
+                    mode="range"
+                    selected={selected}
+                    onSelect={(range) => {
+                      // Проверка на disabled
+                      const isDisabled = (date: Date | undefined) =>
+                        !!date &&
+                        disabledDays.some(
+                          (dd) =>
+                            dd.getFullYear() === date.getFullYear() &&
+                            dd.getMonth() === date.getMonth() &&
+                            dd.getDate() === date.getDate()
+                        );
+
+                      // Если клик по disabled — сброс
+                      if (isDisabled(range?.from) || isDisabled(range?.to)) {
+                        toast({
+                          title: t(
+                            "reservation.disabledRangeTitle",
+                            "Нельзя выбрать эти даты"
+                          ),
+                          description: t(
+                            "reservation.disabledRangeDesc",
+                            "В выбранном диапазоне есть занятые дни. Пожалуйста, выберите другой период."
+                          ),
+                          variant: "destructive",
+                        });
+                        setFormData((prev) => ({
+                          ...prev,
+                          pickupDate: "",
+                          returnDate: "",
+                        }));
+                        return;
+                      }
+
+                      // Если диапазон выбран и пользователь кликает на дату раньше from — сброс и новая дата выдачи
+                      if (range?.from && range?.to && range.to < range.from) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          pickupDate: toLocalDateString(range.to),
+                          returnDate: "",
+                        }));
+                        return;
+                      }
+
+                      // Если только from выбран — это дата выдачи
+                      if (range?.from && !range?.to) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          pickupDate: toLocalDateString(range.from),
+                          returnDate: "",
+                        }));
+                        return;
+                      }
+
+                      // Если выбран валидный диапазон
+                      if (range?.from && range?.to) {
+                        setFormData((prev) => ({
+                          ...prev,
+                          pickupDate: toLocalDateString(range.from),
+                          returnDate: toLocalDateString(range.to),
+                        }));
+                        return;
+                      }
+
+                      // Если ничего не выбрано — сброс
+                      setFormData((prev) => ({
+                        ...prev,
+                        pickupDate: "",
+                        returnDate: "",
+                      }));
+                    }}
+                    disabled={disabledDays}
+                    fromDate={new Date()}
+                    className="rounded-xl bg-zinc-900/80 border border-zinc-700 shadow-lg p-2 text-white"
+                    classNames={{
+                      day_selected:
+                        "bg-yellow-400 text-black hover:bg-yellow-500",
+                      day_range_end: "bg-yellow-500 text-black",
+                      day_today: "border-yellow-400 border-2",
+                      nav_button: "hover:bg-yellow-400/20",
+                    }}
+                    modifiersClassNames={{
+                      disabled: "calendar-day-disabled-strike",
+                    }}
+                  />
+                  {/* После календаря: */}
+                  <div className="mt-4 w-full">
+                    <h3 className="text-xl font-bold text-center mb-2">
+                      {t("reservation.pickupTime", "Время выдачи")}
+                    </h3>
+                    <TimePicker
+                      value={formData.pickupTime || "10:00"}
+                      onChange={(val) =>
+                        setFormData((prev) => ({ ...prev, pickupTime: val }))
+                      }
+                      onClose={() => {}}
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Доп. услуги */}
-              <div className="w-full max-w-md mx-auto">
+              <div className="w-full max-w-md sm:max-w-full mx-auto">
                 <h3 className="text-xl font-bold text-center mb-2">
                   {t("reservation.extraServices", "Дополнительные услуги")}
                 </h3>
@@ -378,61 +600,61 @@ const CarReservationModal = ({
                       "Безлимитный километраж"
                     )}
                   </span>
-                  <input
-                    type="checkbox"
-                    className="form-switch"
+                  <Checkbox
                     checked={!!wizardData.unlimitedMileage}
-                    onChange={(e) =>
+                    onCheckedChange={(checked) =>
                       setWizardData((d) => ({
                         ...d,
-                        unlimitedMileage: e.target.checked,
+                        unlimitedMileage: !!checked,
                       }))
                     }
+                    className="data-[state=checked]:bg-yellow-400 border-yellow-400"
                   />
                 </div>
               </div>
 
               {/* Как забрать машину */}
-              <div className="w-full max-w-md mx-auto">
+              <div className="w-full max-w-md sm:max-w-full mx-auto">
                 <h3 className="text-xl font-bold text-center mb-2">
                   {t("reservation.pickupType", "Как забрать машину")}
                 </h3>
-                <div className="flex flex-col gap-2 bg-gray-700 rounded-lg px-4 py-3 mb-2">
-                  <label className="flex items-center justify-between">
+                <RadioGroup
+                  value={wizardData.pickupType || "office"}
+                  onValueChange={(val) =>
+                    setWizardData((d) => ({
+                      ...d,
+                      pickupType: val as "office" | "airport" | "address",
+                    }))
+                  }
+                  className="flex flex-col gap-2 bg-gray-700 rounded-lg px-4 py-3 mb-2"
+                >
+                  <label className="flex items-center justify-between cursor-pointer">
                     <span>
                       {t("reservation.pickupOffice", "Заберу из офиса")}
                     </span>
-                    <input
-                      type="radio"
-                      name="pickupType"
-                      checked={wizardData.pickupType === "office"}
-                      onChange={() =>
-                        setWizardData((d) => ({ ...d, pickupType: "office" }))
-                      }
+                    <RadioGroupItem
+                      value="office"
+                      className="data-[state=checked]:bg-yellow-400 border-yellow-400"
                     />
                   </label>
-                  <label className="flex items-center justify-between">
+                  <label className="flex items-center justify-between cursor-pointer">
                     <span>
                       {t("reservation.pickupAirport", "Заберу из аэропорта")}
                     </span>
-                    <input
-                      type="radio"
-                      name="pickupType"
-                      checked={wizardData.pickupType === "airport"}
-                      onChange={() =>
-                        setWizardData((d) => ({ ...d, pickupType: "airport" }))
-                      }
+                    <RadioGroupItem
+                      value="airport"
+                      className="data-[state=checked]:bg-yellow-400 border-yellow-400"
                     />
                   </label>
                   <div className="border-t border-red-500 my-2"></div>
-                  <label className="flex flex-col gap-1">
+                  <label className="flex flex-col gap-1 cursor-pointer">
                     <span className="text-center">
                       {t(
                         "reservation.pickupAddress",
                         "Или доставить по адресу"
                       )}
                     </span>
-                    <input
+                    <Input
                       type="text"
                       className="bg-gray-800 rounded px-2 py-1 text-white"
                       placeholder={t(
@@ -450,13 +672,13 @@ const CarReservationModal = ({
                       onChange={(e) =>
                         setWizardData((d) => ({
                           ...d,
-                          pickupType: "address",
+                          pickupType: "address" as const,
                           pickupAddress: e.target.value,
                         }))
                       }
                     />
                   </label>
-                </div>
+                </RadioGroup>
               </div>
 
               {/* Индикатор шага перед кнопкой */}
@@ -465,7 +687,11 @@ const CarReservationModal = ({
                   {t("reservation.step", "Шаг")} {stepIndicator}
                 </span>
               </div>
-              <Button className="w-full mt-2" onClick={goNext}>
+              <Button
+                className="w-full mt-2"
+                onClick={goNext}
+                disabled={!formData.pickupDate || !formData.returnDate}
+              >
                 {t("reservation.next", "Продолжить")}
               </Button>
             </div>
@@ -522,17 +748,28 @@ function CarouselWithCenter({
   colorSide,
   valueSuffix = "",
 }) {
-  const visibleCount = 5; // всегда нечетное
+  // Адаптивное количество видимых элементов
+  const [visibleCount, setVisibleCount] = useState(5);
+  useEffect(() => {
+    const updateCount = () => {
+      setVisibleCount(window.innerWidth <= 640 ? 3 : 5);
+    };
+    updateCount();
+    window.addEventListener("resize", updateCount);
+    return () => window.removeEventListener("resize", updateCount);
+  }, []);
   const center = Math.floor(visibleCount / 2);
   const [activeIdx, setActiveIdx] = useState(0);
   const [animating, setAnimating] = useState(false);
   const touchStartX = useRef<number | null>(null);
 
   const getVisibleItems = () => {
-    return Array.from({ length: visibleCount }, (_, i) => {
-      const idx = (activeIdx + i - center + items.length) % items.length;
-      return items[idx];
-    });
+    const half = Math.floor(visibleCount / 2);
+    const arr = [];
+    for (let i = -half; i <= half; i++) {
+      arr.push(items[(activeIdx + i + items.length) % items.length]);
+    }
+    return arr;
   };
   const prev = () => {
     setAnimating(true);
@@ -571,7 +808,7 @@ function CarouselWithCenter({
         &#8594;
       </button>
       <div
-        className="flex gap-0.5 md:gap-2 justify-center items-center py-1 md:py-2 w-full overflow-hidden flex-nowrap"
+        className="flex gap-1 md:gap-2 justify-center items-center py-1 md:py-2 w-full overflow-hidden flex-nowrap"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -580,30 +817,34 @@ function CarouselWithCenter({
             key={idx}
             onClick={() =>
               setActiveIdx(
-                (activeIdx + idx - center + items.length) % items.length
+                (activeIdx +
+                  idx -
+                  Math.floor(visibleCount / 2) +
+                  items.length) %
+                  items.length
               )
             }
-            className={`rounded-lg px-0.5 md:px-2 py-1 md:py-2
+            className={`rounded-lg px-1 md:px-2 py-1 md:py-2
               ${
-                idx === center
-                  ? "min-w-[120px] max-w-[180px] md:min-w-[140px] md:max-w-[220px] whitespace-normal break-words"
-                  : "min-w-[70px] max-w-[80px] sm:min-w-[90px] sm:max-w-[90px] md:min-w-[110px] md:max-w-[110px] truncate"
+                idx === Math.floor(visibleCount / 2)
+                  ? "min-w-[110px] max-w-[140px] sm:min-w-[120px] sm:max-w-[180px] whitespace-normal break-words"
+                  : "min-w-[60px] max-w-[70px] sm:min-w-[90px] sm:max-w-[90px] md:min-w-[110px] md:max-w-[110px] truncate"
               }
               text-center select-none transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer
               ${
-                idx === center
+                idx === Math.floor(visibleCount / 2)
                   ? `${colorCenter} scale-110 shadow-lg font-bold opacity-100`
                   : `${colorSide} scale-90 opacity-60`
               }
               ${animating ? "carousel-animating" : ""}`}
-            style={{ zIndex: idx === center ? 2 : 1 }}
+            style={{ zIndex: idx === Math.floor(visibleCount / 2) ? 2 : 1 }}
           >
             <div className="text-xs mb-1 opacity-70">{item.label}</div>
             <div
-              className={`text-2xl font-bold transition-all duration-350 ${
-                idx === center
+              className={`text-xl font-bold transition-all duration-350 ${
+                idx === Math.floor(visibleCount / 2)
                   ? "scale-110 whitespace-normal break-words"
-                  : "scale-90 opacity-80 truncate"
+                  : "text-base scale-90 opacity-80 truncate"
               }`}
             >
               {item.value}
@@ -629,6 +870,30 @@ function CarouselWithCenter({
       <style>{`
         .carousel-animating {
           transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s cubic-bezier(0.22,1,0.36,1);
+        }
+        .calendar-day-disabled-strike::after {
+          content: "";
+          position: absolute;
+          left: 15%;
+          top: 50%;
+          width: 70%;
+          height: 2px;
+          background: linear-gradient(90deg, #ff3333 60%, transparent 100%);
+          transform: rotate(-20deg);
+          pointer-events: none;
+          z-index: 2;
+        }
+        .calendar-day-disabled-strike::before {
+          content: "-";
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%) scale(1.5);
+          color: #ff3333;
+          font-size: 1.2em;
+          font-weight: bold;
+          pointer-events: none;
+          z-index: 3;
         }
       `}</style>
     </div>

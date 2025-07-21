@@ -82,7 +82,7 @@ export async function createOrder(order: {
   name: string;
   phone: string;
   email: string;
-  car?: string;
+  car?: string | string[];
   startDate?: string;
   endDate?: string;
   comment?: string;
@@ -90,14 +90,17 @@ export async function createOrder(order: {
   message?: string;
 }) {
   const AIRTABLE_ORDERS_TABLE = "Заявки на аренду";
-  const fields: Record<string, string | undefined> = {
+  const fields: Record<string, string | string[] | undefined> = {
     "Имя клиента": order.name,
     Телефон: order.phone,
     Email: order.email,
     "Комментарий клиента": order.comment || order.message || "",
     "Статус заявки": "новая",
   };
-  if (order.car) fields["Выбранный автомобиль"] = order.car;
+  if (order.car)
+    fields["Выбранный автомобиль"] = Array.isArray(order.car)
+      ? order.car
+      : [order.car];
   if (order.startDate) fields["Дата начала аренды"] = order.startDate;
   if (order.endDate) fields["Дата окончания аренды"] = order.endDate;
 

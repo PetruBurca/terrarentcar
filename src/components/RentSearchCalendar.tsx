@@ -1,11 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { format, isToday } from "date-fns";
 import { ru, ro, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
@@ -199,14 +194,6 @@ export const RentSearchCalendar = ({ onSearch }) => {
     { length: 12 },
     (_, i) => new Date(now.getFullYear(), now.getMonth() + i, 1)
   );
-  if (typeof window !== "undefined") {
-    console.log(
-      "now",
-      now,
-      "months",
-      months.map((m) => m.toISOString())
-    );
-  }
   const calendarAreaRef = useRef<HTMLDivElement>(null);
   const monthRefs = useRef<(HTMLDivElement | null)[]>([]);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -219,9 +206,6 @@ export const RentSearchCalendar = ({ onSearch }) => {
           m.getFullYear() === today.getFullYear() &&
           m.getMonth() === today.getMonth()
       );
-      if (typeof window !== "undefined") {
-        console.log("today", today, "todayMonthIdx", todayMonthIdx);
-      }
       if (todayMonthIdx !== -1 && monthRefs.current[todayMonthIdx]) {
         monthRefs.current[todayMonthIdx]?.scrollIntoView({
           block: "start",
@@ -340,12 +324,6 @@ export const RentSearchCalendar = ({ onSearch }) => {
           <DialogTitle className="sr-only">
             {t("reservation.title", "Выбор дат и времени")}
           </DialogTitle>
-          <DialogDescription className="sr-only">
-            {t(
-              "reservation.dialogDescription",
-              "Выберите даты и время подачи/возврата для поиска автомобилей"
-            )}
-          </DialogDescription>
           {/* Header + поля */}
           <div>
             <div

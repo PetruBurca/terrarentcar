@@ -36,8 +36,6 @@
     "fastDesc": "Documente minime, viteză maximă",
     "years": "ani pe piață",
     "yearsCount": "{{count}} ani",
-    "days": "Zile",
-    "daysCount": "{{count}} zile",
     "clients": "clienți",
     "cars": "mașini",
     "support": "suport",
@@ -174,8 +172,7 @@
     "pickupTime": "Ora preluării",
     "returnTime": "Ora returnării",
     "selectDates": "Selectează datele de închiriere",
-    "message": "Comentariu",
-    "description": "Descriere"
+    "message": "Comentariu"
   },
   "cookie": {
     "message": "Acest site folosește cookie-uri pentru a vă îmbunătăți experiența. Continuând să utilizați site-ul, sunteți de acord cu utilizarea cookie-urilor.",
