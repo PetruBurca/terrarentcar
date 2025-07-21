@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, MapPin, Clock, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,14 +23,23 @@ import {
 import { createOrder } from "@/lib/airtable";
 import logo from "@/assets/logo.png";
 import { useMediaQuery } from "@/hooks/use-mobile";
+import { useRef } from "react";
 
 interface Car {
   id: string;
   name: string;
   images: string[];
   price: number;
-  category: string;
-  description?: string;
+  rating: number;
+  passengers: number;
+  transmission: string;
+  year: string;
+  engine: string;
+  drive: string;
+  fuel: string;
+  description_ru?: string;
+  description_ro?: string;
+  description_en?: string;
   pricePerDay: number;
   price2to10: number;
   price11to20: number;
@@ -44,13 +53,32 @@ interface CarReservationModalProps {
   car: Car;
 }
 
+// Wizard steps
+const STEPS = ["main", "summary", "personal"];
+
+type WizardData = {
+  // Все поля для бронирования, по мере добавления шагов
+  pickupDate?: string;
+  returnDate?: string;
+  pickupTime?: string;
+  returnTime?: string;
+  unlimitedMileage?: boolean;
+  pickupType?: "office" | "airport" | "address";
+  pickupAddress?: string;
+  goldCard?: boolean;
+  clubCard?: boolean;
+  // ... и т.д.
+};
+
 const CarReservationModal = ({
   isOpen,
   onClose,
   car,
 }: CarReservationModalProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 767px)");
+  const [currentStep, setCurrentStep] = useState(0);
+  const [wizardData, setWizardData] = useState<WizardData>({});
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -68,6 +96,24 @@ const CarReservationModal = ({
   const handleNext = () =>
     setActiveIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
   const [showDescription, setShowDescription] = useState(false);
+  // Индикатор шагов
+  const stepIndicator = `${currentStep + 1}/${STEPS.length}`;
+  // Везде далее используем только t и i18n из одного вызова useTranslation()
+  // Пример использования мультиязычных ключей для новых этапов:
+  // t('reservation.step1Title', 'Основная информация')
+  // t('reservation.step2Title', 'Подтверждение')
+  // t('reservation.step3Title', 'Данные клиента')
+  // t('reservation.next', 'Продолжить')
+  // t('reservation.back', 'Назад')
+  // t('reservation.book', 'Забронировать')
+
+  const lang = i18n.language;
+  const description =
+    lang === "en"
+      ? car.description_en || car.description_ru || car.description_ro || ""
+      : lang === "ro"
+      ? car.description_ro || car.description_ru || car.description_en || ""
+      : car.description_ru || car.description_ro || car.description_en || "";
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -150,16 +196,24 @@ const CarReservationModal = ({
   const pricePerDay = getPricePerDay(days);
   const totalPrice = pricePerDay * days;
 
+  // Навигация по шагам
+  const goNext = () => setCurrentStep((s) => Math.min(s + 1, STEPS.length - 1));
+  const goBack = () => setCurrentStep((s) => Math.max(s - 1, 0));
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         aria-describedby="reservation-desc"
         className={
           isMobile
-            ? "fixed inset-0 w-full min-h-[100dvh] max-w-full h-[100dvh] top-0 left-0 z-[3000] bg-background overflow-y-auto rounded-none p-2 pt-10"
+            ? "fixed inset-0 w-full min-h-[100dvh] max-w-full h-[100dvh] top-0 left-0 z-[3000] bg-background overflow-y-auto rounded-none p-1 pt-6 pb-[env(safe-area-inset-bottom,16px)]"
             : "max-w-4xl max-h-[90vh] overflow-y-auto z-[3000] !top-1/2 !left-1/2 !translate-x-[-50%] !translate-y-[-50%] sm:max-w-lg md:max-w-2xl p-6"
         }
-        style={isMobile ? { zIndex: 3000 } : { zIndex: 3000 }}
+        style={
+          isMobile
+            ? { zIndex: 3000, maxWidth: "100vw", minWidth: 0 }
+            : { zIndex: 3000 }
+        }
       >
         {/* Крестик всегда сверху справа */}
         <button
@@ -181,259 +235,276 @@ const CarReservationModal = ({
           )}
         </p>
 
-        <div
-          className={
-            isMobile
-              ? "flex flex-col gap-4"
-              : "grid grid-cols-1 lg:grid-cols-2 gap-8"
-          }
-        >
-          {/* Car Info */}
-          <div className={isMobile ? "w-full" : undefined}>
-            <Card className={isMobile ? "mb-4" : "mb-6"}>
-              <CardContent className={isMobile ? "p-2" : "p-6"}>
-                {images.length > 1 ? (
-                  <>
-                    <div className="relative mb-4">
-                      <img
-                        src={images[activeIndex]}
-                        alt={car.name}
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
-                      {/* Стрелки */}
+        {/* Wizard steps */}
+        <div className="w-full">
+          {currentStep === 0 && (
+            <div className="flex flex-col items-center gap-6">
+              {/* Фото (carousel) */}
+              <div className="w-full flex flex-col items-center">
+                <h2 className="text-2xl font-bold text-center mb-2 text-white">
+                  {car.name}
+                </h2>
+                <div className="relative w-full max-w-md mx-auto">
+                  <img
+                    src={car.images[activeIndex] || logo}
+                    alt={car.name}
+                    className="w-full h-64 object-cover rounded-lg border border-gray-800"
+                  />
+                  {/* Стрелки */}
+                  {car.images && car.images.length > 1 && (
+                    <>
                       <button
                         type="button"
                         onClick={handlePrev}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full p-1 hover:bg-primary transition"
-                        aria-label="Предыдущее фото"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-yellow-400 rounded-full p-1 hover:bg-yellow-500 transition"
+                        aria-label="Prev"
                       >
                         &#8592;
                       </button>
                       <button
                         type="button"
                         onClick={handleNext}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-white rounded-full p-1 hover:bg-primary transition"
-                        aria-label="Следующее фото"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-yellow-400 rounded-full p-1 hover:bg-yellow-500 transition"
+                        aria-label="Next"
                       >
                         &#8594;
                       </button>
-                    </div>
-                    {/* Миниатюры */}
-                    <div className="flex justify-center gap-2 mt-2">
-                      {images.map((img, idx) => (
-                        <img
-                          key={idx}
-                          src={img}
-                          alt={`thumb-${idx}`}
-                          className={`w-14 h-14 object-cover rounded cursor-pointer border-2 ${
-                            activeIndex === idx
-                              ? "border-primary"
-                              : "border-transparent"
-                          }`}
-                          onClick={() => setActiveIndex(idx)}
-                        />
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  <img
-                    src={images.length > 0 ? images[0] : logo}
-                    alt={car.name}
-                    className="w-full h-48 object-cover rounded-lg mb-4"
-                    onError={(e) => {
-                      e.currentTarget.src = logo;
-                    }}
-                  />
-                )}
-                <h3 className="text-xl font-bold mb-2 text-center md:text-left">
-                  {car.name}
-                </h3>
-                <p className="text-muted-foreground mb-4 text-center md:text-left">
-                  {car.category}
-                </p>
-
-                <div className="bg-secondary/50 p-3 rounded-lg">
-                  <div className="flex flex-col gap-1 mb-2">
-                    <div className="flex justify-between items-center">
-                      <span>
-                        {t("reservation.pricePerDay", "Цена за день")}
-                      </span>
-                      <span className="font-bold">${car.pricePerDay}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>
-                        {t("reservation.price2to10", "Цена за 2-10 дней")}
-                      </span>
-                      <span className="font-bold">${car.price2to10}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>
-                        {t("reservation.price11to20", "Цена за 11-20 дней")}
-                      </span>
-                      <span className="font-bold">${car.price11to20}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>
-                        {t("reservation.price21to29", "Цена за 21-29 дней")}
-                      </span>
-                      <span className="font-bold">${car.price21to29}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span>
-                        {t("reservation.price30plus", "Цена от 30 дней")}
-                      </span>
-                      <span className="font-bold">${car.price30plus}</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span>{t("reservation.days")}</span>
-                    <span className="font-bold">{calculateDays()}</span>
-                  </div>
-                  <hr className="my-2 border-border" />
-                  <div className="flex justify-between items-center text-lg font-bold">
-                    <span>{t("reservation.total")}</span>
-                    <span className="text-primary">${totalPrice}</span>
-                  </div>
-                  {/* Dropdown-описание */}
-                  <div className="my-2">
-                    <button
-                      className="flex items-center gap-2 text-yellow-400 font-semibold focus:outline-none"
-                      onClick={() => setShowDescription((v) => !v)}
-                      aria-expanded={showDescription}
-                    >
-                      {t("cars.description", "Описание")}
-                      <span
-                        className={`transform transition-transform ${
-                          showDescription ? "rotate-180" : ""
+                    </>
+                  )}
+                </div>
+                {/* Миниатюры */}
+                {car.images && car.images.length > 1 && (
+                  <div className="flex justify-center gap-2 mt-2">
+                    {car.images.map((img, idx) => (
+                      <img
+                        key={idx}
+                        src={img}
+                        alt={`thumb-${idx}`}
+                        className={`w-14 h-14 object-cover rounded cursor-pointer border-2 ${
+                          activeIndex === idx
+                            ? "border-yellow-400"
+                            : "border-gray-700"
                         }`}
-                      >
-                        ▼
-                      </span>
-                    </button>
-                    {showDescription && (
-                      <div className="mt-2 text-sm text-white bg-black/10 rounded p-2">
-                        {car.description ||
-                          t("cars.noDescription", "Нет описания")}
-                      </div>
-                    )}
+                        onClick={() => setActiveIndex(idx)}
+                      />
+                    ))}
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                )}
+              </div>
 
-          {/* Booking Form */}
-          <div className={isMobile ? "w-full" : undefined}>
-            <form
-              onSubmit={handleSubmit}
-              className={isMobile ? "flex flex-col gap-3" : "space-y-4"}
-            >
-              <div
-                className={
-                  isMobile ? "flex flex-col gap-3" : "grid grid-cols-2 gap-4"
-                }
-              >
-                <div>
-                  <Label htmlFor="firstName">
-                    {t("reservation.firstName")}
-                  </Label>
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    required
+              {/* Стоимость (carousel) */}
+              <CarouselWithCenter
+                items={[
+                  {
+                    label: t("reservation.pricePerDay", "1 день"),
+                    value: car.pricePerDay,
+                  },
+                  {
+                    label: t("reservation.price2to10", "2-10 дней"),
+                    value: car.price2to10,
+                  },
+                  {
+                    label: t("reservation.price11to20", "11-20 дней"),
+                    value: car.price11to20,
+                  },
+                  {
+                    label: t("reservation.price21to29", "21-29 дней"),
+                    value: car.price21to29,
+                  },
+                  {
+                    label: t("reservation.price30plus", "30+ дней"),
+                    value: car.price30plus,
+                  },
+                ]}
+                title={t("reservation.priceTitle", "Стоимость аренды")}
+                colorCenter="bg-yellow-400 text-black"
+                colorSide="bg-gray-800 text-white opacity-60"
+                valueSuffix="€"
+              />
+
+              {/* Характеристики (carousel) */}
+              <CarouselWithCenter
+                items={[
+                  {
+                    label: t("reservation.rating", "Рейтинг"),
+                    value: car.rating,
+                  },
+                  {
+                    label: t("reservation.passengers", "Количество мест"),
+                    value: car.passengers,
+                  },
+                  {
+                    label: t("reservation.transmission", "Коробка"),
+                    value: car.transmission,
+                  },
+                  {
+                    label: t("reservation.year", "Год выпуска"),
+                    value: car.year,
+                  },
+                  {
+                    label: t("reservation.engine", "Двигатель"),
+                    value: car.engine,
+                  },
+                  { label: t("reservation.drive", "Привод"), value: car.drive },
+                  { label: t("reservation.fuel", "Топливо"), value: car.fuel },
+                ]}
+                title={t(
+                  "reservation.featuresTitle",
+                  "Характеристики автомобиля"
+                )}
+                colorCenter="bg-yellow-400 text-black"
+                colorSide="bg-gray-800 text-white opacity-60"
+              />
+
+              {/* Календарь и время */}
+              <div className="w-full max-w-md mx-auto">
+                <h3 className="text-xl font-bold text-center mb-2">
+                  {t("reservation.calendarTitle", "Период аренды")}
+                </h3>
+                {/* Здесь должен быть ваш календарь и time picker */}
+                {/* ... */}
+              </div>
+
+              {/* Доп. услуги */}
+              <div className="w-full max-w-md mx-auto">
+                <h3 className="text-xl font-bold text-center mb-2">
+                  {t("reservation.extraServices", "Дополнительные услуги")}
+                </h3>
+                <div className="flex items-center justify-between bg-gray-700 rounded-lg px-4 py-3 mb-2">
+                  <span>
+                    {t(
+                      "reservation.unlimitedMileage",
+                      "Безлимитный километраж"
+                    )}
+                  </span>
+                  <input
+                    type="checkbox"
+                    className="form-switch"
+                    checked={!!wizardData.unlimitedMileage}
+                    onChange={(e) =>
+                      setWizardData((d) => ({
+                        ...d,
+                        unlimitedMileage: e.target.checked,
+                      }))
+                    }
                   />
                 </div>
-                <div>
-                  <Label htmlFor="lastName">{t("reservation.lastName")}</Label>
-                  <Input
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    required
-                  />
+              </div>
+
+              {/* Как забрать машину */}
+              <div className="w-full max-w-md mx-auto">
+                <h3 className="text-xl font-bold text-center mb-2">
+                  {t("reservation.pickupType", "Как забрать машину")}
+                </h3>
+                <div className="flex flex-col gap-2 bg-gray-700 rounded-lg px-4 py-3 mb-2">
+                  <label className="flex items-center justify-between">
+                    <span>
+                      {t("reservation.pickupOffice", "Заберу из офиса")}
+                    </span>
+                    <input
+                      type="radio"
+                      name="pickupType"
+                      checked={wizardData.pickupType === "office"}
+                      onChange={() =>
+                        setWizardData((d) => ({ ...d, pickupType: "office" }))
+                      }
+                    />
+                  </label>
+                  <label className="flex items-center justify-between">
+                    <span>
+                      {t("reservation.pickupAirport", "Заберу из аэропорта")}
+                    </span>
+                    <input
+                      type="radio"
+                      name="pickupType"
+                      checked={wizardData.pickupType === "airport"}
+                      onChange={() =>
+                        setWizardData((d) => ({ ...d, pickupType: "airport" }))
+                      }
+                    />
+                  </label>
+                  <div className="border-t border-red-500 my-2"></div>
+                  <label className="flex flex-col gap-1">
+                    <span className="text-center">
+                      {t(
+                        "reservation.pickupAddress",
+                        "Или доставить по адресу"
+                      )}
+                    </span>
+                    <input
+                      type="text"
+                      className="bg-gray-800 rounded px-2 py-1 text-white"
+                      placeholder={t(
+                        "reservation.enterAddress",
+                        "Введите адрес"
+                      )}
+                      value={
+                        wizardData.pickupType === "address"
+                          ? wizardData.pickupAddress || ""
+                          : ""
+                      }
+                      onFocus={() =>
+                        setWizardData((d) => ({ ...d, pickupType: "address" }))
+                      }
+                      onChange={(e) =>
+                        setWizardData((d) => ({
+                          ...d,
+                          pickupType: "address",
+                          pickupAddress: e.target.value,
+                        }))
+                      }
+                    />
+                  </label>
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="email">
-                  {t("reservation.email", "Email *")}
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
+              {/* Индикатор шага перед кнопкой */}
+              <div className="w-full flex justify-center mb-2 mt-2">
+                <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
+                  {t("reservation.step", "Шаг")} {stepIndicator}
+                </span>
               </div>
-
-              <div>
-                <Label htmlFor="phone">{t("reservation.phone")}</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 mt-4">
-                <Label htmlFor="pickupDate">
-                  {t("reservation.pickupDate", "Дата получения")}
-                </Label>
-                <Input
-                  type="date"
-                  id="pickupDate"
-                  name="pickupDate"
-                  value={formData.pickupDate}
-                  onChange={handleDateInput}
-                  required
-                />
-                <Label htmlFor="returnDate">
-                  {t("reservation.returnDate", "Дата возврата")}
-                </Label>
-                <Input
-                  type="date"
-                  id="returnDate"
-                  name="returnDate"
-                  value={formData.returnDate}
-                  onChange={handleDateInput}
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="pickupLocation">
-                  {t("reservation.pickupLocation")}
-                </Label>
-                <Input
-                  id="pickupLocation"
-                  name="pickupLocation"
-                  value={formData.pickupLocation}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="message">{t("reservation.message")}</Label>
-                <Textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleInputChange}
-                />
-              </div>
-
-              <Button type="submit" className="w-full mt-4">
-                {t("reservation.send")}
+              <Button className="w-full mt-2" onClick={goNext}>
+                {t("reservation.next", "Продолжить")}
               </Button>
-            </form>
-          </div>
+            </div>
+          )}
+          {currentStep === 1 && (
+            <div>
+              <div className="text-center text-lg font-bold mb-4">
+                {t("reservation.step2Title", "Подтверждение")}
+              </div>
+              {/* TODO: Здесь будут реальные поля для резюме, периода аренды, геолокации, правил, карты клиента, стоимости */}
+              <Button className="w-full mt-8" onClick={goNext}>
+                {t("reservation.next", "Продолжить")}
+              </Button>
+              <Button
+                className="w-full mt-2"
+                variant="outline"
+                onClick={goBack}
+              >
+                {t("reservation.back", "Назад")}
+              </Button>
+            </div>
+          )}
+          {currentStep === 2 && (
+            <div>
+              <div className="text-center text-lg font-bold mb-4">
+                {t("reservation.step3Title", "Данные клиента")}
+              </div>
+              {/* TODO: Здесь будут реальные поля для личных данных, загрузки фото, телефона, чекбокса, политики, кнопки забронировать */}
+              <Button className="w-full mt-8" type="submit">
+                {t("reservation.book", "Забронировать")}
+              </Button>
+              <Button
+                className="w-full mt-2"
+                variant="outline"
+                onClick={goBack}
+              >
+                {t("reservation.back", "Назад")}
+              </Button>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
@@ -441,3 +512,112 @@ const CarReservationModal = ({
 };
 
 export default CarReservationModal;
+
+// Универсальный loop-carousel с плавной анимацией смены центра
+function CarouselWithCenter({
+  items,
+  title,
+  colorCenter,
+  colorSide,
+  valueSuffix = "",
+}) {
+  const visibleCount = 5; // всегда нечетное
+  const center = Math.floor(visibleCount / 2);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [animating, setAnimating] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+
+  const getVisibleItems = () => {
+    return Array.from({ length: visibleCount }, (_, i) => {
+      const idx = (activeIdx + i - center + items.length) % items.length;
+      return items[idx];
+    });
+  };
+  const prev = () => {
+    setAnimating(true);
+    setTimeout(() => setAnimating(false), 350);
+    setActiveIdx((idx) => (idx - 1 + items.length) % items.length);
+  };
+  const next = () => {
+    setAnimating(true);
+    setTimeout(() => setAnimating(false), 350);
+    setActiveIdx((idx) => (idx + 1) % items.length);
+  };
+  // Touch swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    if (delta > 40) prev();
+    if (delta < -40) next();
+    touchStartX.current = null;
+  };
+  return (
+    <div className="w-full max-w-full md:max-w-lg mx-auto relative">
+      <h3 className="text-xl font-bold text-center mb-2 text-white">{title}</h3>
+      <button
+        onClick={prev}
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 transition"
+      >
+        &#8592;
+      </button>
+      <button
+        onClick={next}
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 transition"
+      >
+        &#8594;
+      </button>
+      <div
+        className="flex gap-1 md:gap-2 justify-center items-center py-2 w-full overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {getVisibleItems().map((item, idx) => (
+          <div
+            key={idx}
+            onClick={() =>
+              setActiveIdx(
+                (activeIdx + idx - center + items.length) % items.length
+              )
+            }
+            className={`rounded-lg px-1 md:px-4 py-2 md:py-3 min-w-0 flex-1 max-w-[110px] md:max-w-[120px] text-center select-none transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer
+              ${
+                idx === center
+                  ? `${colorCenter} scale-110 shadow-lg font-bold opacity-100`
+                  : `${colorSide} scale-90 opacity-60`
+              }
+              ${animating ? "carousel-animating" : ""}`}
+            style={{ zIndex: idx === center ? 2 : 1 }}
+          >
+            <div className="text-xs mb-1">{item.label}</div>
+            <div className="text-2xl font-bold">
+              {item.value}
+              {valueSuffix ? ` ${valueSuffix}` : ""}
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Dots */}
+      <div className="flex justify-center gap-1 mt-1">
+        {items.map((_, idx) => (
+          <span
+            key={idx}
+            className={`h-3 w-3 rounded-full transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)]
+              ${
+                activeIdx === idx
+                  ? "bg-yellow-400 scale-110 shadow"
+                  : "bg-gray-600 scale-90 opacity-70"
+              }`}
+          ></span>
+        ))}
+      </div>
+      <style>{`
+        .carousel-animating {
+          transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s cubic-bezier(0.22,1,0.36,1);
+        }
+      `}</style>
+    </div>
+  );
+}

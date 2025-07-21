@@ -6,6 +6,7 @@
   padding: 20px 0;
   margin: 5rem auto;
   max-width: 1200px;
+  background: transparent;
   background: hsl(var(--background));
 
   /* Градиентные маски для краёв */
@@ -18,13 +19,14 @@
     width: 100px;
     z-index: 2;
     pointer-events: none; /* Разрешает клики сквозь маски */
+    background: none;
   }
 
   &::before {
     left: 0;
     background: linear-gradient(
       to right,
-      rgb(0, 0, 0) 15%,
+      rgba(08, 08, 08) 15%,
       rgba(45, 45, 45, 0) 100%
     );
   }
@@ -33,7 +35,7 @@
     right: 0;
     background: linear-gradient(
       to left,
-      rgb(0, 0, 0) 15%,
+      rgba(08, 08, 08) 15%,
       rgba(45, 45, 45, 0) 100%
     );
   }

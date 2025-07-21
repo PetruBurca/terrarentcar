@@ -19,6 +19,12 @@ interface AirtableCarFields {
   Описание?: string;
   Статус?: string;
   Фото?: AirtableImage[];
+  "Описание рус"?: string;
+  "Описание рум"?: string;
+  "Описание англ"?: string;
+  "Год выпуска"?: string;
+  Двигатель?: string;
+  Привод?: string;
 }
 
 interface AirtableRecord {
@@ -53,6 +59,12 @@ export async function fetchCars() {
         : [],
       price: fields["Цена за день"] || 0,
       description: fields["Описание"] || "",
+      description_ru: fields["Описание рус"] || "",
+      description_ro: fields["Описание рум"] || "",
+      description_en: fields["Описание англ"] || "",
+      year: fields["Год выпуска"] || "",
+      engine: fields["Двигатель"] || "",
+      drive: fields["Привод"] || "",
       status: fields["Статус"] || "",
       images: Array.isArray(fields["Фото"])
         ? fields["Фото"].map((img) => img.url)

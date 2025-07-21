@@ -39,7 +39,8 @@
     "clients": "clients",
     "cars": "cars",
     "support": "support",
-    "quality": "quality"
+    "quality": "quality",
+    "daysCount": "{{count}} days"
   },
   "footer": {
     "copyright": "© 2024 All rights reserved"
@@ -172,7 +173,8 @@
     "pickupTime": "Pickup time",
     "returnTime": "Return time",
     "selectDates": "Select rental dates",
-    "message": "Comment"
+    "message": "Comment",
+    "description": "Description"
   },
   "cookie": {
     "message": "This website uses cookies to enhance your experience. By continuing to use the site, you agree to our use of cookies.",
