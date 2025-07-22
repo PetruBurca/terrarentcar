@@ -88,21 +88,107 @@ export async function createOrder(order: {
   comment?: string;
   subject?: string;
   message?: string;
+  pickupTime?: string;
+  idnp?: string;
+  pickupType?: string;
+  pickupAddress?: string;
+  unlimitedMileage?: boolean;
+  goldCard?: boolean;
+  clubCard?: boolean;
+  idPhotoFront?: File;
+  idPhotoBack?: File;
+  totalCost?: number;
 }) {
   const AIRTABLE_ORDERS_TABLE = "Заявки на аренду";
-  const fields: Record<string, string | string[] | undefined> = {
+  // Используем точные названия полей как в Airtable
+  const fields: Record<string, string | string[] | number | boolean> = {
     "Имя клиента": order.name,
     Телефон: order.phone,
     Email: order.email,
-    "Комментарий клиента": order.comment || order.message || "",
     "Статус заявки": "новая",
   };
-  if (order.car)
+
+  // Добавляем основные поля
+  if (order.comment || order.message) {
+    fields["Комментарий клиента"] = order.comment || order.message || "";
+  }
+
+  if (order.car) {
     fields["Выбранный автомобиль"] = Array.isArray(order.car)
       ? order.car
       : [order.car];
-  if (order.startDate) fields["Дата начала аренды"] = order.startDate;
-  if (order.endDate) fields["Дата окончания аренды"] = order.endDate;
+  }
+
+  if (order.startDate) {
+    fields["Дата начала аренды"] = order.startDate;
+  }
+
+  if (order.endDate) {
+    fields["Дата окончания аренды"] = order.endDate;
+  }
+
+  // Создаем дополнительный комментарий с новыми данными
+  const additionalInfo = [];
+
+  if (order.pickupTime) {
+    additionalInfo.push(`Время выдачи: ${order.pickupTime}`);
+  }
+
+  if (order.idnp) {
+    additionalInfo.push(`IDNP: ${order.idnp}`);
+  }
+
+  if (order.pickupType) {
+    const typeMap = {
+      office: "Офис",
+      airport: "Аэропорт",
+      address: "Доставка",
+    };
+    const typeName =
+      typeMap[order.pickupType as keyof typeof typeMap] || order.pickupType;
+    additionalInfo.push(`Тип получения: ${typeName}`);
+  }
+
+  if (order.pickupAddress) {
+    additionalInfo.push(`Адрес доставки: ${order.pickupAddress}`);
+  }
+
+  if (order.unlimitedMileage) {
+    additionalInfo.push(`Безлимитный километраж: Да`);
+  }
+
+  if (order.goldCard) {
+    additionalInfo.push(`Gold карта: Да`);
+  }
+
+  if (order.clubCard) {
+    additionalInfo.push(`Club карта: Да`);
+  }
+
+  if (order.totalCost !== undefined) {
+    additionalInfo.push(`Общая стоимость: ${order.totalCost}€`);
+  }
+
+  if (order.idPhotoFront || order.idPhotoBack) {
+    const uploadedFiles = [];
+    if (order.idPhotoFront) uploadedFiles.push("фронт");
+    if (order.idPhotoBack) uploadedFiles.push("оборот");
+    additionalInfo.push(
+      `Загружены фото документов: ${uploadedFiles.join(", ")}`
+    );
+  }
+
+  // Добавляем все дополнительные данные к комментарию
+  if (additionalInfo.length > 0) {
+    const existingComment = (fields["Комментарий клиента"] as string) || "";
+    const separator = existingComment
+      ? "\n\n--- Дополнительная информация ---\n"
+      : "";
+    fields["Комментарий клиента"] =
+      existingComment + separator + additionalInfo.join("\n");
+  }
+
+  console.log("Отправляемые данные в Airtable:", { fields });
 
   const res = await fetch(
     `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_ORDERS_TABLE}`,
@@ -115,7 +201,19 @@ export async function createOrder(order: {
       body: JSON.stringify({ fields }),
     }
   );
-  if (!res.ok) throw new Error("Ошибка отправки заявки");
+
+  if (!res.ok) {
+    const errorData = await res
+      .json()
+      .catch(() => ({ error: "Unknown error" }));
+    console.error("Airtable API Error:", errorData);
+    throw new Error(
+      `Ошибка отправки заявки: ${res.status} - ${
+        errorData.error?.message || errorData.error || "Неизвестная ошибка"
+      }`
+    );
+  }
+
   return res.json();
 }
 

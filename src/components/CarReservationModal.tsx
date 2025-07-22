@@ -104,6 +104,11 @@ const CarReservationModal = ({
   const [currentStep, setCurrentStep] = useState(0);
   const [wizardData, setWizardData] = useState<WizardData>({});
   const [selectedCountryCode, setSelectedCountryCode] = useState("+373");
+  const [uploadedPhotos, setUploadedPhotos] = useState({
+    front: false,
+    back: false,
+  });
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -111,12 +116,16 @@ const CarReservationModal = ({
     phone: "",
     pickupDate: "",
     returnDate: "",
-    pickupTime: "",
+    pickupTime: "10:00", // Устанавливаю начальное значение
     returnTime: "",
     pickupLocation: "",
     message: "",
     pickupType: "office", // по умолчанию 'заберу из офиса'
     idnp: "", // добавлено поле idnp
+    pickupAddress: "",
+    unlimitedMileage: false,
+    goldCard: false,
+    clubCard: false,
   } as {
     firstName: string;
     lastName: string;
@@ -130,6 +139,10 @@ const CarReservationModal = ({
     message: string;
     pickupType: string;
     idnp: string;
+    pickupAddress: string;
+    unlimitedMileage: boolean;
+    goldCard: boolean;
+    clubCard: boolean;
   });
   const [activeIndex, setActiveIndex] = useState(0);
   const images = Array.isArray(car.images) ? car.images : [];
@@ -199,6 +212,9 @@ const CarReservationModal = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const formDataObj = new FormData(form);
+
     try {
       await createOrder({
         name: formData.firstName + " " + formData.lastName,
@@ -208,7 +224,16 @@ const CarReservationModal = ({
         startDate: formData.pickupDate,
         endDate: formData.returnDate,
         comment: formData.message,
-        // Можно добавить pickupLocation, если нужно
+        pickupTime: formData.pickupTime,
+        idnp: formData.idnp,
+        pickupType: formData.pickupType,
+        pickupAddress: formData.pickupAddress,
+        unlimitedMileage: formData.unlimitedMileage,
+        goldCard: formData.goldCard,
+        clubCard: formData.clubCard,
+        idPhotoFront: formDataObj.get("idPhotoFront") as File,
+        idPhotoBack: formDataObj.get("idPhotoBack") as File,
+        totalCost: totalPrice + 20,
       });
       toast({
         title: t("reservation.sentTitle"),
@@ -221,13 +246,19 @@ const CarReservationModal = ({
         phone: "",
         pickupDate: "",
         returnDate: "",
-        pickupTime: "",
+        pickupTime: "10:00", // Сброс на начальное значение
         returnTime: "",
         pickupLocation: "",
         message: "",
         pickupType: "office",
         idnp: "", // сброс idnp
+        pickupAddress: "",
+        unlimitedMileage: false,
+        goldCard: false,
+        clubCard: false,
       });
+      setUploadedPhotos({ front: false, back: false });
+      setPrivacyAccepted(false);
       onClose();
     } catch (e) {
       toast({
@@ -265,8 +296,225 @@ const CarReservationModal = ({
   const pricePerDay = getPricePerDay(days);
   const totalPrice = pricePerDay * days;
 
-  // Навигация по шагам
+  // Валидация для каждого шага
+  const validateStep = (stepIndex: number): boolean => {
+    switch (stepIndex) {
+      case 0: {
+        // Шаг 1 - основная информация
+        if (!formData.pickupDate) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t(
+              "validation.pickupDateRequired",
+              "Выберите дату выдачи"
+            ),
+            variant: "destructive",
+          });
+          return false;
+        }
+        if (!formData.returnDate) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t(
+              "validation.returnDateRequired",
+              "Выберите дату возврата"
+            ),
+            variant: "destructive",
+          });
+          return false;
+        }
+        if (!formData.pickupTime) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t(
+              "validation.pickupTimeRequired",
+              "Выберите время выдачи"
+            ),
+            variant: "destructive",
+          });
+          return false;
+        }
+        // Проверяем, что дата возврата не раньше даты выдачи
+        const pickup = new Date(formData.pickupDate);
+        const returnDate = new Date(formData.returnDate);
+        if (returnDate <= pickup) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t(
+              "validation.invalidDateRange",
+              "Дата возврата должна быть позже даты выдачи"
+            ),
+            variant: "destructive",
+          });
+          return false;
+        }
+        // Проверяем адрес доставки если выбрана доставка
+        if (
+          wizardData.pickupType === "address" &&
+          !wizardData.pickupAddress?.trim()
+        ) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t(
+              "validation.addressRequired",
+              "Введите адрес доставки"
+            ),
+            variant: "destructive",
+          });
+          return false;
+        }
+        return true;
+      }
+
+      case 1: {
+        // Шаг 2 - подтверждение (нет дополнительных полей для валидации)
+        return true;
+      }
+
+      case 2: {
+        // Шаг 3 - персональные данные
+        if (!formData.firstName.trim()) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t("validation.firstNameRequired", "Введите имя"),
+            variant: "destructive",
+          });
+          return false;
+        }
+        if (!formData.lastName.trim()) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t("validation.lastNameRequired", "Введите фамилию"),
+            variant: "destructive",
+          });
+          return false;
+        }
+        if (!formData.email.trim()) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t("validation.emailRequired", "Введите email"),
+            variant: "destructive",
+          });
+          return false;
+        }
+        // Проверка формата email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t(
+              "validation.emailInvalid",
+              "Введите корректный email"
+            ),
+            variant: "destructive",
+          });
+          return false;
+        }
+        if (!formData.phone.trim()) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t(
+              "validation.phoneRequired",
+              "Введите номер телефона"
+            ),
+            variant: "destructive",
+          });
+          return false;
+        }
+        // Проверка длины телефона (минимум 7 цифр после кода страны)
+        const phoneDigits = formData.phone.replace(/\D/g, "");
+        if (phoneDigits.length < 10) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t(
+              "validation.phoneInvalid",
+              "Введите корректный номер телефона"
+            ),
+            variant: "destructive",
+          });
+          return false;
+        }
+        if (!formData.idnp.trim()) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t("validation.idnpRequired", "Введите IDNP"),
+            variant: "destructive",
+          });
+          return false;
+        }
+        // Проверка IDNP (должен содержать минимум 10 цифр)
+        const idnpDigits = formData.idnp.replace(/\D/g, "");
+        if (idnpDigits.length < 10) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t(
+              "validation.idnpInvalid",
+              "IDNP должен содержать минимум 10 цифр"
+            ),
+            variant: "destructive",
+          });
+          return false;
+        }
+        // Проверка загрузки фото документов
+        if (!uploadedPhotos.front) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t(
+              "validation.frontPhotoRequired",
+              "Загрузите фото лицевой стороны документа"
+            ),
+            variant: "destructive",
+          });
+          return false;
+        }
+        if (!uploadedPhotos.back) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t(
+              "validation.backPhotoRequired",
+              "Загрузите фото обратной стороны документа"
+            ),
+            variant: "destructive",
+          });
+          return false;
+        }
+        // Проверка согласия с политикой конфиденциальности
+        if (!privacyAccepted) {
+          toast({
+            title: t("validation.error", "Ошибка валидации"),
+            description: t(
+              "validation.privacyRequired",
+              "Необходимо согласие на обработку персональных данных"
+            ),
+            variant: "destructive",
+          });
+          return false;
+        }
+        return true;
+      }
+
+      default:
+        return true;
+    }
+  };
+
+  // Навигация по шагам с валидацией
   const goNext = () => {
+    // Валидируем текущий шаг перед переходом
+    if (!validateStep(currentStep)) {
+      return; // Останавливаем переход если валидация не прошла
+    }
+
+    // Синхронизируем данные из wizardData в formData перед переходом
+    setFormData((prev) => ({
+      ...prev,
+      pickupType: wizardData.pickupType || "office",
+      pickupAddress: wizardData.pickupAddress || "",
+      unlimitedMileage: wizardData.unlimitedMileage || false,
+      goldCard: wizardData.goldCard || false,
+      clubCard: wizardData.clubCard || false,
+    }));
+
     setCurrentStep((s) => {
       const next = Math.min(s + 1, STEPS.length - 1);
       if (next === 1) {
@@ -657,10 +905,13 @@ const CarReservationModal = ({
                       {t("reservation.pickupTime", "Время выдачи")}
                     </h3>
                     <TimePicker
-                      value={formData.pickupTime || "10:00"}
-                      onChange={(val) =>
-                        setFormData((prev) => ({ ...prev, pickupTime: val }))
-                      }
+                      value={formData.pickupTime}
+                      onChange={(val) => {
+                        setFormData((prev) => {
+                          const newData = { ...prev, pickupTime: val };
+                          return newData;
+                        });
+                      }}
                       onClose={() => {}}
                     />
                   </div>
@@ -797,31 +1048,26 @@ const CarReservationModal = ({
                 </div>
                 <div className="bg-zinc-900 rounded-xl px-4 py-3 flex flex-col gap-1 border border-yellow-400">
                   {formData.pickupDate && formData.returnDate ? (
-                    <>
-                      <div className="flex flex-col sm:flex-row gap-1 sm:gap-2 items-start sm:items-center">
-                        <span className="text-white text-base font-semibold">
-                          {new Date(formData.pickupDate).toLocaleDateString(
-                            "ru-RU",
-                            { day: "2-digit", month: "long" }
-                          )}
-                          <span className="ml-1 text-yellow-400 font-bold">
-                            {formData.pickupTime || "10:00"}
-                          </span>
-                        </span>
-                        <span className="mx-2 text-yellow-400 font-bold">
-                          —
-                        </span>
-                        <span className="text-white text-base font-semibold">
-                          {new Date(formData.returnDate).toLocaleDateString(
-                            "ru-RU",
-                            { day: "2-digit", month: "long" }
-                          )}
-                          <span className="ml-1 text-yellow-400 font-bold">
-                            {formData.pickupTime || "10:00"}
-                          </span>
-                        </span>
-                      </div>
-                    </>
+                    <div className="text-white text-base font-semibold text-center">
+                      {new Date(formData.pickupDate).toLocaleDateString(
+                        "ru-RU",
+                        {
+                          day: "2-digit",
+                          month: "long",
+                        }
+                      )}
+                      <span className="mx-2 text-yellow-400 font-bold">—</span>
+                      {new Date(formData.returnDate).toLocaleDateString(
+                        "ru-RU",
+                        {
+                          day: "2-digit",
+                          month: "long",
+                        }
+                      )}
+                      <span className="ml-2 text-yellow-400 font-bold">
+                        {formData.pickupTime}
+                      </span>
+                    </div>
                   ) : (
                     <span className="text-zinc-400">
                       {t("reservation.periodNotSelected", "Не выбрано")}
@@ -1026,7 +1272,7 @@ const CarReservationModal = ({
                   </div>
                 </div>
                 <div className="text-2xl font-bold text-white">
-                  {totalPrice} €
+                  {totalPrice + 20} €
                 </div>
               </div>
 
@@ -1102,33 +1348,72 @@ const CarReservationModal = ({
                 <div className="flex gap-4 mt-2">
                   {/* Фронт */}
                   <div className="flex flex-col items-center gap-1">
-                    <label className="relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed border-yellow-400 rounded-lg cursor-pointer hover:bg-zinc-800 transition group">
+                    <label
+                      className={`relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed rounded-lg cursor-pointer hover:bg-zinc-800 transition group ${
+                        uploadedPhotos.front
+                          ? "border-green-400"
+                          : "border-yellow-400"
+                      }`}
+                    >
                       <input
                         type="file"
                         accept="image/*"
                         name="idPhotoFront"
                         className="absolute inset-0 opacity-0 cursor-pointer z-10"
                         required
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            setUploadedPhotos((prev) => ({
+                              ...prev,
+                              front: true,
+                            }));
+                          }
+                        }}
                       />
                       {/* Иконка */}
-                      <span className="flex flex-col items-center justify-center z-0">
-                        <svg
-                          width="36"
-                          height="36"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          className="text-yellow-400 mb-1"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M12 4v16m8-8H4"
-                          />
-                        </svg>
-                        <span className="text-xs text-gray-400">Загрузить</span>
-                      </span>
+                      {uploadedPhotos.front ? (
+                        <span className="flex flex-col items-center justify-center z-0">
+                          <svg
+                            width="36"
+                            height="36"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            className="text-green-400 mb-1"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                          <span className="text-xs text-green-400">
+                            Загружено
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="flex flex-col items-center justify-center z-0">
+                          <svg
+                            width="36"
+                            height="36"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            className="text-yellow-400 mb-1"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M12 4v16m8-8H4"
+                            />
+                          </svg>
+                          <span className="text-xs text-gray-400">
+                            Загрузить
+                          </span>
+                        </span>
+                      )}
                       {/* Пример */}
                       <img
                         src={PasportFront}
@@ -1142,33 +1427,72 @@ const CarReservationModal = ({
                   </div>
                   {/* Бэк */}
                   <div className="flex flex-col items-center gap-1">
-                    <label className="relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed border-yellow-400 rounded-lg cursor-pointer hover:bg-zinc-800 transition group">
+                    <label
+                      className={`relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed rounded-lg cursor-pointer hover:bg-zinc-800 transition group ${
+                        uploadedPhotos.back
+                          ? "border-green-400"
+                          : "border-yellow-400"
+                      }`}
+                    >
                       <input
                         type="file"
                         accept="image/*"
                         name="idPhotoBack"
                         className="absolute inset-0 opacity-0 cursor-pointer z-10"
                         required
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            setUploadedPhotos((prev) => ({
+                              ...prev,
+                              back: true,
+                            }));
+                          }
+                        }}
                       />
                       {/* Иконка */}
-                      <span className="flex flex-col items-center justify-center z-0">
-                        <svg
-                          width="36"
-                          height="36"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          className="text-yellow-400 mb-1"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M12 4v16m8-8H4"
-                          />
-                        </svg>
-                        <span className="text-xs text-gray-400">Загрузить</span>
-                      </span>
+                      {uploadedPhotos.back ? (
+                        <span className="flex flex-col items-center justify-center z-0">
+                          <svg
+                            width="36"
+                            height="36"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            className="text-green-400 mb-1"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                          <span className="text-xs text-green-400">
+                            Загружено
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="flex flex-col items-center justify-center z-0">
+                          <svg
+                            width="36"
+                            height="36"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            className="text-yellow-400 mb-1"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M12 4v16m8-8H4"
+                            />
+                          </svg>
+                          <span className="text-xs text-gray-400">
+                            Загрузить
+                          </span>
+                        </span>
+                      )}
                       {/* Пример */}
                       <img
                         src={PasportBack}
@@ -1251,8 +1575,10 @@ const CarReservationModal = ({
               <div className="flex items-start gap-2 mt-2">
                 <Checkbox
                   id="privacy"
+                  checked={privacyAccepted}
+                  onCheckedChange={(checked) => setPrivacyAccepted(!!checked)}
                   required
-                  className="mt-1 border-yellow-400"
+                  className="mt-1 border-yellow-400 data-[state=checked]:bg-yellow-400 data-[state=checked]:border-yellow-400"
                 />
                 <label
                   htmlFor="privacy"

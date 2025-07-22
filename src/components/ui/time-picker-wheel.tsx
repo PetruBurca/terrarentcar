@@ -51,10 +51,21 @@ function TimePicker({ value, onChange, onClose }) {
   const handleHourClick = (h, idx) => {
     setHour(h);
     scrollToIndex(hourRef, idx);
+    // Вызываем onChange сразу при изменении часа
+    const newTime = `${h.toString().padStart(2, "0")}:${minute
+      .toString()
+      .padStart(2, "0")}`;
+    onChange(newTime);
   };
+
   const handleMinuteClick = (m, idx) => {
     setMinute(m);
     scrollToIndex(minuteRef, idx);
+    // Вызываем onChange сразу при изменении минут
+    const newTime = `${hour.toString().padStart(2, "0")}:${m
+      .toString()
+      .padStart(2, "0")}`;
+    onChange(newTime);
   };
 
   const handleOk = () => {
