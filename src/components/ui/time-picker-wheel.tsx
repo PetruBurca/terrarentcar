@@ -103,7 +103,7 @@ function TimePicker({ value, onChange, onClose }) {
               <div
                 key={h}
                 className={`h-10 flex items-center justify-center text-lg snap-center cursor-pointer transition-all duration-300 text-white ${
-                  hour === h ? "font-bold bg-gray-700/80 rounded" : ""
+                  hour === h ? "font-bold  rounded" : ""
                 }`}
                 onClick={() => handleHourClick(h, idx)}
               >
@@ -124,7 +124,7 @@ function TimePicker({ value, onChange, onClose }) {
               <div
                 key={m}
                 className={`h-10 flex items-center justify-center text-lg snap-center cursor-pointer transition-all duration-300 text-white ${
-                  minute === m ? "font-bold bg-gray-700/80 rounded" : ""
+                  minute === m ? "font-bold  rounded" : ""
                 }`}
                 onClick={() => handleMinuteClick(m, idx)}
               >

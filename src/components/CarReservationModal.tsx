@@ -38,6 +38,9 @@ import FuelIcon from "@/assets/logorule/fuel-counter-svgrepo-com.svg";
 import NoDepositIcon from "@/assets/logorule/no-money-poverty-budget-poor-cash-svgrepo-com.svg";
 import SpeedIcon from "@/assets/logorule/website-performance-internet-svgrepo-com.svg";
 import AggressiveIcon from "@/assets/logorule/fast-acceleration-svgrepo-com.svg";
+// Примеры фото паспорта
+import PasportFront from "@/assets/pasport/front.png";
+import PasportBack from "@/assets/pasport/back.png";
 
 interface Car {
   id: string;
@@ -105,6 +108,7 @@ const CarReservationModal = ({
     pickupLocation: "",
     message: "",
     pickupType: "office", // по умолчанию 'заберу из офиса'
+    idnp: "", // добавлено поле idnp
   } as {
     firstName: string;
     lastName: string;
@@ -117,6 +121,7 @@ const CarReservationModal = ({
     pickupLocation: string;
     message: string;
     pickupType: string;
+    idnp: string;
   });
   const [activeIndex, setActiveIndex] = useState(0);
   const images = Array.isArray(car.images) ? car.images : [];
@@ -213,6 +218,7 @@ const CarReservationModal = ({
         pickupLocation: "",
         message: "",
         pickupType: "office",
+        idnp: "", // сброс idnp
       });
       onClose();
     } catch (e) {
@@ -952,13 +958,228 @@ const CarReservationModal = ({
             </div>
           )}
           {currentStep === 2 && (
-            <div>
-              <div className="text-center text-lg font-bold mb-4">
-                {t("reservation.step3Title", "Данные клиента")}
+            <form
+              className="w-full max-w-md sm:max-w-full mx-auto flex flex-col gap-4"
+              onSubmit={handleSubmit}
+              encType="multipart/form-data"
+            >
+              {/* Всего и стоимость */}
+              <div className="flex justify-between items-center border-b border-red-600 pb-2 mb-2">
+                <div>
+                  <div className="text-lg font-bold text-red-500">Всего</div>
+                  <div className="text-sm text-gray-300">
+                    Общая стоимость аренды
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-white">
+                  {totalPrice} €
+                </div>
               </div>
-              {/* TODO: Здесь будут реальные поля для личных данных, загрузки фото, телефона, чекбокса, политики, кнопки забронировать */}
-              <Button className="w-full mt-8" type="submit">
-                {t("reservation.book", "Забронировать")}
+
+              {/* Имя */}
+              <div>
+                <Label htmlFor="firstName" className="text-red-500 font-bold">
+                  Имя
+                </Label>
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  placeholder="Введите имя"
+                  className="bg-zinc-800 text-white border-none mt-1"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              {/* Фамилия */}
+              <div>
+                <Label htmlFor="lastName" className="text-red-500 font-bold">
+                  Фамилия
+                </Label>
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  placeholder="Введите фамилию"
+                  className="bg-zinc-800 text-white border-none mt-1"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              {/* Email */}
+              <div>
+                <Label htmlFor="email" className="text-red-500 font-bold">
+                  Электронная почта
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="Введите e-mail"
+                  className="bg-zinc-800 text-white border-none mt-1"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              {/* IDNP */}
+              <div>
+                <Label htmlFor="idnp" className="text-red-500 font-bold">
+                  IDNP
+                </Label>
+                <Input
+                  id="idnp"
+                  name="idnp"
+                  placeholder="Введите IDNP"
+                  className="bg-zinc-800 text-white border-none mt-1"
+                  value={formData.idnp || ""}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              {/* Фото удостоверения */}
+              <div>
+                <Label className="text-red-500 font-bold">
+                  Фотографии удостоверения личности (обе стороны)
+                </Label>
+                <div className="flex gap-4 mt-2">
+                  {/* Фронт */}
+                  <div className="flex flex-col items-center gap-1">
+                    <label className="relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed border-red-500 rounded-lg cursor-pointer hover:bg-zinc-800 transition group">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        name="idPhotoFront"
+                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                        required
+                      />
+                      {/* Иконка */}
+                      <span className="flex flex-col items-center justify-center z-0">
+                        <svg
+                          width="36"
+                          height="36"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          className="text-red-500 mb-1"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 4v16m8-8H4"
+                          />
+                        </svg>
+                      </span>
+                      {/* Пример */}
+                      <img
+                        src={PasportFront}
+                        alt="Пример (фронт)"
+                        className="absolute bottom-1 left-1 w-16 h-12 object-cover rounded shadow border border-gray-700 bg-black"
+                      />
+                    </label>
+                    <span className="text-xs text-gray-400 mt-1">
+                      Пример (фронт)
+                    </span>
+                  </div>
+                  {/* Бэк */}
+                  <div className="flex flex-col items-center gap-1">
+                    <label className="relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed border-red-500 rounded-lg cursor-pointer hover:bg-zinc-800 transition group">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        name="idPhotoBack"
+                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                        required
+                      />
+                      {/* Иконка */}
+                      <span className="flex flex-col items-center justify-center z-0">
+                        <svg
+                          width="36"
+                          height="36"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          className="text-red-500 mb-1"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 4v16m8-8H4"
+                          />
+                        </svg>
+                      </span>
+                      {/* Пример */}
+                      <img
+                        src={PasportBack}
+                        alt="Пример (оборот)"
+                        className="absolute bottom-1 left-1 w-16 h-12 object-cover rounded shadow border border-gray-700 bg-black"
+                      />
+                    </label>
+                    <span className="text-xs text-gray-400 mt-1">
+                      Пример (оборот)
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {/* Телефон с регионом */}
+              <div>
+                <Label htmlFor="phone" className="text-red-500 font-bold">
+                  Телефон
+                </Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="flex items-center bg-zinc-800 text-white px-2 py-1 rounded">
+                    <span className="fi fi-md mr-1">🇲🇩</span>+373
+                  </span>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="___ ___ ___"
+                    className="bg-zinc-800 text-white border-none flex-1"
+                    value={formData.phone.replace(/^\+?373/, "")}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        phone: "+373" + e.target.value.replace(/\D/g, ""),
+                      })
+                    }
+                    pattern="[0-9]{8,10}"
+                    required
+                  />
+                </div>
+              </div>
+              {/* Чекбокс согласия */}
+              <div className="flex items-start gap-2 mt-2">
+                <Checkbox
+                  id="privacy"
+                  required
+                  className="mt-1 border-red-500"
+                />
+                <label
+                  htmlFor="privacy"
+                  className="text-white text-sm select-none"
+                >
+                  Я согласен на сбор и использование моих персональных данных,
+                  описанных в
+                  <a
+                    href="/privacy-policy.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-red-500 underline ml-1"
+                  >
+                    политике конфиденциальности
+                  </a>
+                  .
+                </label>
+              </div>
+              {/* Кнопка */}
+              <Button
+                className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white text-lg font-bold py-3 rounded-xl"
+                type="submit"
+              >
+                Забронировать
               </Button>
               <Button
                 className="w-full mt-2"
@@ -967,7 +1188,7 @@ const CarReservationModal = ({
               >
                 {t("reservation.back", "Назад")}
               </Button>
-            </div>
+            </form>
           )}
         </div>
       </DialogContent>
