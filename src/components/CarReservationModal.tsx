@@ -31,6 +31,13 @@ import { fetchOrders } from "@/lib/airtable";
 import TimePicker from "@/components/ui/time-picker-wheel";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+// Импорт SVG-иконок для правил
+import NoSmokeIcon from "@/assets/logorule/no-smoking-sign-svgrepo-com.svg";
+import NoPetsIcon from "@/assets/logorule/no-pets-svgrepo-com.svg";
+import FuelIcon from "@/assets/logorule/fuel-counter-svgrepo-com.svg";
+import NoDepositIcon from "@/assets/logorule/no-money-poverty-budget-poor-cash-svgrepo-com.svg";
+import SpeedIcon from "@/assets/logorule/website-performance-internet-svgrepo-com.svg";
+import AggressiveIcon from "@/assets/logorule/fast-acceleration-svgrepo-com.svg";
 
 interface Car {
   id: string;
@@ -245,7 +252,24 @@ const CarReservationModal = ({
   const totalPrice = pricePerDay * days;
 
   // Навигация по шагам
-  const goNext = () => setCurrentStep((s) => Math.min(s + 1, STEPS.length - 1));
+  const goNext = () => {
+    setCurrentStep((s) => {
+      const next = Math.min(s + 1, STEPS.length - 1);
+      if (next === 1) {
+        setTimeout(() => {
+          const modal = document.querySelector(
+            '.DialogContent, .dialog-content, [role="dialog"]'
+          );
+          if (modal) {
+            modal.scrollTo({ top: 0, behavior: "smooth" });
+          } else {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        }, 50);
+      }
+      return next;
+    });
+  };
   const goBack = () => setCurrentStep((s) => Math.max(s - 1, 0));
 
   const { data: orders = [] } = useQuery({
@@ -362,7 +386,7 @@ const CarReservationModal = ({
         {/* Wizard steps */}
         <div className="w-full">
           {currentStep === 0 && (
-            <div className="flex flex-col items-center gap-6">
+            <div className="flex flex-col items-center gap-1">
               {/* Фото (carousel) */}
               <div className="w-full flex flex-col items-center">
                 <h2 className="text-2xl font-bold text-center mb-2 text-white">
@@ -589,7 +613,7 @@ const CarReservationModal = ({
               </div>
 
               {/* Доп. услуги */}
-              <div className="w-full max-w-md sm:max-w-full mx-auto">
+              <div className="w-full max-w-md sm:max-w-full mx-auto mb-2">
                 <h3 className="text-xl font-bold text-center mb-2">
                   {t("reservation.extraServices", "Дополнительные услуги")}
                 </h3>
@@ -614,7 +638,7 @@ const CarReservationModal = ({
               </div>
 
               {/* Как забрать машину */}
-              <div className="w-full max-w-md sm:max-w-full mx-auto">
+              <div className="w-full max-w-md sm:max-w-full mx-auto mb-2">
                 <h3 className="text-xl font-bold text-center mb-2">
                   {t("reservation.pickupType", "Как забрать машину")}
                 </h3>
@@ -646,7 +670,7 @@ const CarReservationModal = ({
                       className="data-[state=checked]:bg-yellow-400 border-yellow-400"
                     />
                   </label>
-                  <div className="border-t border-red-500 my-2"></div>
+                  <div className="border-t border-yellow-500 my-2"></div>
                   <label className="flex flex-col gap-1 cursor-pointer">
                     <span className="text-center">
                       {t(
@@ -682,31 +706,244 @@ const CarReservationModal = ({
               </div>
 
               {/* Индикатор шага перед кнопкой */}
+              <div className="w-full flex justify-center mb-1">
+                <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
+                  {t("reservation.step", "Шаг")} {stepIndicator}
+                </span>
+              </div>
+              {/* Шаг 1: компактные отступы */}
+              <Button
+                className="w-full bg-yellow-400 hover:bg-yellow-500 text-black text-lg font-bold py-3 rounded-xl"
+                onClick={goNext}
+                disabled={!formData.pickupDate || !formData.returnDate}
+              >
+                {t("reservation.next", "Продолжить")}
+              </Button>
+              <Button
+                className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl"
+                variant="outline"
+                onClick={goBack}
+              >
+                {t("reservation.back", "Назад")}
+              </Button>
+            </div>
+          )}
+          {currentStep === 1 && (
+            <div className="w-full max-w-md sm:max-w-full mx-auto">
+              {/* Заголовок */}
+              <div className="text-2xl font-bold mb-4 text-white text-center">
+                {t("reservation.confirmTitle", "Подтверждение")}
+              </div>
+
+              {/* Период аренды */}
+              <div className="mb-3">
+                <div className="text-lg font-bold text-yellow-400 mb-1">
+                  {t("reservation.periodTitle", "Период аренды")}
+                </div>
+                <div className="bg-zinc-900 rounded-xl px-4 py-3 flex flex-col gap-1 border border-yellow-400">
+                  {formData.pickupDate && formData.returnDate ? (
+                    <>
+                      <div className="flex flex-col sm:flex-row gap-1 sm:gap-2 items-start sm:items-center">
+                        <span className="text-white text-base font-semibold">
+                          {new Date(formData.pickupDate).toLocaleDateString(
+                            "ru-RU",
+                            { day: "2-digit", month: "long" }
+                          )}
+                          <span className="ml-1 text-yellow-400 font-bold">
+                            {formData.pickupTime || "10:00"}
+                          </span>
+                        </span>
+                        <span className="mx-2 text-yellow-400 font-bold">
+                          —
+                        </span>
+                        <span className="text-white text-base font-semibold">
+                          {new Date(formData.returnDate).toLocaleDateString(
+                            "ru-RU",
+                            { day: "2-digit", month: "long" }
+                          )}
+                          <span className="ml-1 text-yellow-400 font-bold">
+                            {formData.returnTime || "10:00"}
+                          </span>
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <span className="text-zinc-400">
+                      {t("reservation.periodNotSelected", "Не выбрано")}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Геолокация */}
+              <div className="mb-3">
+                <div className="text-lg font-bold text-yellow-400 mb-1">
+                  {t("reservation.geoTitle", "Геолокация")}
+                </div>
+                <div className="bg-zinc-900 rounded-xl px-4 py-3 text-base text-white border border-yellow-400">
+                  {wizardData.pickupType === "office" || !wizardData.pickupType
+                    ? t(
+                        "reservation.officeAddress",
+                        "Город Кишинев, Проспект Мирча чел Бэтрын 4/4"
+                      )
+                    : wizardData.pickupType === "airport"
+                    ? t(
+                        "reservation.airportAddress",
+                        "Аэропорт Кишинев, Dacia 80/3"
+                      )
+                    : wizardData.pickupAddress ||
+                      t("reservation.enterAddress", "Введите адрес")}
+                </div>
+              </div>
+
+              {/* Правила пользования автомобилем */}
+              <div className="mb-3">
+                <div className="text-lg font-bold mb-2 text-yellow-400">
+                  {t(
+                    "reservation.rulesTitle",
+                    "Правила пользования автомобилем"
+                  )}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-zinc-900 rounded-xl p-4 border border-yellow-400">
+                  <div className="flex items-center gap-3 text-white">
+                    <img
+                      src={NoSmokeIcon}
+                      alt="Не курить"
+                      className="w-7 h-7"
+                    />
+                    <span>{t("reservation.ruleNoSmoke", "Не курить")}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-white">
+                    <img
+                      src={NoPetsIcon}
+                      alt="Без животных"
+                      className="w-7 h-7"
+                    />
+                    <span>{t("reservation.ruleNoPets", "Без животных")}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-white">
+                    <img
+                      src={FuelIcon}
+                      alt="Возврат с тем же уровнем топлива"
+                      className="w-7 h-7"
+                    />
+                    <span>
+                      {t(
+                        "reservation.ruleFuel",
+                        "Возврат с тем же уровнем топлива"
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-white">
+                    <img
+                      src={NoDepositIcon}
+                      alt="Без залога"
+                      className="w-7 h-7"
+                    />
+                    <span>{t("reservation.ruleNoDeposit", "Без залога")}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-white">
+                    <img
+                      src={SpeedIcon}
+                      alt="Максимальная скорость 120 км/ч"
+                      className="w-7 h-7"
+                    />
+                    <span>
+                      {t(
+                        "reservation.ruleSpeed",
+                        "Максимальная скорость 120 км/ч"
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-white">
+                    <img
+                      src={AggressiveIcon}
+                      alt="Без агрессивной езды"
+                      className="w-7 h-7"
+                    />
+                    <span>
+                      {t(
+                        "reservation.ruleNoAggressive",
+                        "Без агрессивной езды"
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Карта постоянного клиента */}
+              <div className="mb-3">
+                <div className="text-xl font-bold text-center mb-2 text-yellow-400">
+                  {t(
+                    "reservation.clientCardTitle",
+                    "Карта постоянного клиента"
+                  )}
+                </div>
+                <div className="flex flex-col gap-2 bg-zinc-900 rounded-xl p-4 border border-yellow-400">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <span>Gold карта</span>
+                    <Checkbox
+                      checked={!!wizardData.goldCard}
+                      onCheckedChange={(checked) =>
+                        setWizardData((d) => ({ ...d, goldCard: !!checked }))
+                      }
+                      className="data-[state=checked]:bg-yellow-400 border-yellow-400"
+                    />
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <span>Club карта</span>
+                    <Checkbox
+                      checked={!!wizardData.clubCard}
+                      onCheckedChange={(checked) =>
+                        setWizardData((d) => ({ ...d, clubCard: !!checked }))
+                      }
+                      className="data-[state=checked]:bg-yellow-400 border-yellow-400"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Стоимость */}
+              <div className="mb-0">
+                <div className="text-lg font-bold text-yellow-400 mb-2">
+                  {t("reservation.costTitle", "Стоимость")}
+                </div>
+                <div className="bg-zinc-900 rounded-xl p-4 flex flex-col gap-2 text-white border border-yellow-400">
+                  <div className="flex justify-between">
+                    <span>
+                      {t("reservation.duration", "Продолжительность аренды")}
+                    </span>{" "}
+                    <span>
+                      {calculateDays()} {t("reservation.days", "дн(я/ей)")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{t("reservation.wash", "Мойка")}</span>{" "}
+                    <span>20 €</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>
+                      {t("reservation.rentCost", "Стоимость за аренду авто")}
+                    </span>{" "}
+                    <span>{totalPrice} €</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Индикатор шага перед кнопкой */}
               <div className="w-full flex justify-center mb-2 mt-2">
                 <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
                   {t("reservation.step", "Шаг")} {stepIndicator}
                 </span>
               </div>
               <Button
-                className="w-full mt-2"
+                className="w-full bg-yellow-400 hover:bg-yellow-500 text-black text-lg font-bold py-3 rounded-xl"
                 onClick={goNext}
-                disabled={!formData.pickupDate || !formData.returnDate}
               >
                 {t("reservation.next", "Продолжить")}
               </Button>
-            </div>
-          )}
-          {currentStep === 1 && (
-            <div>
-              <div className="text-center text-lg font-bold mb-4">
-                {t("reservation.step2Title", "Подтверждение")}
-              </div>
-              {/* TODO: Здесь будут реальные поля для резюме, периода аренды, геолокации, правил, карты клиента, стоимости */}
-              <Button className="w-full mt-8" onClick={goNext}>
-                {t("reservation.next", "Продолжить")}
-              </Button>
               <Button
-                className="w-full mt-2"
+                className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl"
                 variant="outline"
                 onClick={goBack}
               >
