@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Calendar, MapPin, Clock, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +31,13 @@ import { fetchOrders } from "@/lib/airtable";
 import TimePicker from "@/components/ui/time-picker-wheel";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 // Импорт SVG-иконок для правил
 import NoSmokeIcon from "@/assets/logorule/no-smoking-sign-svgrepo-com.svg";
 import NoPetsIcon from "@/assets/logorule/no-pets-svgrepo-com.svg";
@@ -96,6 +103,7 @@ const CarReservationModal = ({
   const isMobile = useMediaQuery("(max-width: 767px)");
   const [currentStep, setCurrentStep] = useState(0);
   const [wizardData, setWizardData] = useState<WizardData>({});
+  const [selectedCountryCode, setSelectedCountryCode] = useState("+373");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -273,6 +281,18 @@ const CarReservationModal = ({
           }
         }, 50);
       }
+      if (next === 2) {
+        setTimeout(() => {
+          const modal = document.querySelector(
+            '.DialogContent, .dialog-content, [role="dialog"]'
+          );
+          if (modal) {
+            modal.scrollTo({ top: 0, behavior: "smooth" });
+          } else {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        }, 50);
+      }
       return next;
     });
   };
@@ -355,6 +375,35 @@ const CarReservationModal = ({
 
   // Удаляю всё, что связано с returnTime (кнопки, state, TimePicker, select и т.д.)
 
+  // Список стран с кодами
+  const countries = [
+    { code: "+373", name: "Moldova", flag: "🇲🇩" },
+    { code: "+1", name: "USA/Canada", flag: "🇺🇸" },
+    { code: "+7", name: "Russia", flag: "🇷🇺" },
+    { code: "+40", name: "Romania", flag: "🇷🇴" },
+    { code: "+380", name: "Ukraine", flag: "🇺🇦" },
+    { code: "+49", name: "Germany", flag: "🇩🇪" },
+    { code: "+33", name: "France", flag: "🇫🇷" },
+    { code: "+39", name: "Italy", flag: "🇮🇹" },
+    { code: "+34", name: "Spain", flag: "🇪🇸" },
+    { code: "+44", name: "UK", flag: "🇬🇧" },
+    { code: "+48", name: "Poland", flag: "🇵🇱" },
+    { code: "+31", name: "Netherlands", flag: "🇳🇱" },
+    { code: "+41", name: "Switzerland", flag: "🇨🇭" },
+    { code: "+43", name: "Austria", flag: "🇦🇹" },
+    { code: "+32", name: "Belgium", flag: "🇧🇪" },
+    { code: "+420", name: "Czech Republic", flag: "🇨🇿" },
+    { code: "+36", name: "Hungary", flag: "🇭🇺" },
+    { code: "+90", name: "Turkey", flag: "🇹🇷" },
+    { code: "+972", name: "Israel", flag: "🇮🇱" },
+    { code: "+86", name: "China", flag: "🇨🇳" },
+    { code: "+81", name: "Japan", flag: "🇯🇵" },
+    { code: "+82", name: "South Korea", flag: "🇰🇷" },
+    { code: "+91", name: "India", flag: "🇮🇳" },
+    { code: "+61", name: "Australia", flag: "🇦🇺" },
+    { code: "+64", name: "New Zealand", flag: "🇳🇿" },
+  ];
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
@@ -390,9 +439,9 @@ const CarReservationModal = ({
         </DialogHeader>
 
         {/* Wizard steps */}
-        <div className="w-full">
+        <div className="w-full pb-4">
           {currentStep === 0 && (
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1 pb-4">
               {/* Фото (carousel) */}
               <div className="w-full flex flex-col items-center">
                 <h2 className="text-2xl font-bold text-center mb-2 text-white">
@@ -735,7 +784,7 @@ const CarReservationModal = ({
             </div>
           )}
           {currentStep === 1 && (
-            <div className="w-full max-w-md sm:max-w-full mx-auto">
+            <div className="w-full max-w-md sm:max-w-full mx-auto pb-4">
               {/* Заголовок */}
               <div className="text-2xl font-bold mb-4 text-white text-center">
                 {t("reservation.confirmTitle", "Подтверждение")}
@@ -768,7 +817,7 @@ const CarReservationModal = ({
                             { day: "2-digit", month: "long" }
                           )}
                           <span className="ml-1 text-yellow-400 font-bold">
-                            {formData.returnTime || "10:00"}
+                            {formData.pickupTime || "10:00"}
                           </span>
                         </span>
                       </div>
@@ -959,14 +1008,19 @@ const CarReservationModal = ({
           )}
           {currentStep === 2 && (
             <form
-              className="w-full max-w-md sm:max-w-full mx-auto flex flex-col gap-4"
+              className="w-full max-w-md sm:max-w-full mx-auto flex flex-col gap-1 pb-4"
               onSubmit={handleSubmit}
               encType="multipart/form-data"
             >
+              {/* Заголовок */}
+              <div className="text-2xl font-bold mb-4 text-white text-center">
+                {t("reservation.step3Title", "Данные клиента")}
+              </div>
+
               {/* Всего и стоимость */}
-              <div className="flex justify-between items-center border-b border-red-600 pb-2 mb-2">
+              <div className="flex justify-between items-center border-b border-yellow-400 pb-2 mb-2">
                 <div>
-                  <div className="text-lg font-bold text-red-500">Всего</div>
+                  <div className="text-lg font-bold text-yellow-400">Всего</div>
                   <div className="text-sm text-gray-300">
                     Общая стоимость аренды
                   </div>
@@ -978,7 +1032,10 @@ const CarReservationModal = ({
 
               {/* Имя */}
               <div>
-                <Label htmlFor="firstName" className="text-red-500 font-bold">
+                <Label
+                  htmlFor="firstName"
+                  className="text-yellow-400 font-bold"
+                >
                   Имя
                 </Label>
                 <Input
@@ -993,7 +1050,7 @@ const CarReservationModal = ({
               </div>
               {/* Фамилия */}
               <div>
-                <Label htmlFor="lastName" className="text-red-500 font-bold">
+                <Label htmlFor="lastName" className="text-yellow-400 font-bold">
                   Фамилия
                 </Label>
                 <Input
@@ -1008,7 +1065,7 @@ const CarReservationModal = ({
               </div>
               {/* Email */}
               <div>
-                <Label htmlFor="email" className="text-red-500 font-bold">
+                <Label htmlFor="email" className="text-yellow-400 font-bold">
                   Электронная почта
                 </Label>
                 <Input
@@ -1024,7 +1081,7 @@ const CarReservationModal = ({
               </div>
               {/* IDNP */}
               <div>
-                <Label htmlFor="idnp" className="text-red-500 font-bold">
+                <Label htmlFor="idnp" className="text-yellow-400 font-bold">
                   IDNP
                 </Label>
                 <Input
@@ -1039,13 +1096,13 @@ const CarReservationModal = ({
               </div>
               {/* Фото удостоверения */}
               <div>
-                <Label className="text-red-500 font-bold">
+                <Label className="text-yellow-400 font-bold">
                   Фотографии удостоверения личности (обе стороны)
                 </Label>
                 <div className="flex gap-4 mt-2">
                   {/* Фронт */}
                   <div className="flex flex-col items-center gap-1">
-                    <label className="relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed border-red-500 rounded-lg cursor-pointer hover:bg-zinc-800 transition group">
+                    <label className="relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed border-yellow-400 rounded-lg cursor-pointer hover:bg-zinc-800 transition group">
                       <input
                         type="file"
                         accept="image/*"
@@ -1061,7 +1118,7 @@ const CarReservationModal = ({
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
-                          className="text-red-500 mb-1"
+                          className="text-yellow-400 mb-1"
                         >
                           <path
                             strokeLinecap="round"
@@ -1070,6 +1127,7 @@ const CarReservationModal = ({
                             d="M12 4v16m8-8H4"
                           />
                         </svg>
+                        <span className="text-xs text-gray-400">Загрузить</span>
                       </span>
                       {/* Пример */}
                       <img
@@ -1084,7 +1142,7 @@ const CarReservationModal = ({
                   </div>
                   {/* Бэк */}
                   <div className="flex flex-col items-center gap-1">
-                    <label className="relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed border-red-500 rounded-lg cursor-pointer hover:bg-zinc-800 transition group">
+                    <label className="relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed border-yellow-400 rounded-lg cursor-pointer hover:bg-zinc-800 transition group">
                       <input
                         type="file"
                         accept="image/*"
@@ -1100,7 +1158,7 @@ const CarReservationModal = ({
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
-                          className="text-red-500 mb-1"
+                          className="text-yellow-400 mb-1"
                         >
                           <path
                             strokeLinecap="round"
@@ -1109,6 +1167,7 @@ const CarReservationModal = ({
                             d="M12 4v16m8-8H4"
                           />
                         </svg>
+                        <span className="text-xs text-gray-400">Загрузить</span>
                       </span>
                       {/* Пример */}
                       <img
@@ -1125,27 +1184,65 @@ const CarReservationModal = ({
               </div>
               {/* Телефон с регионом */}
               <div>
-                <Label htmlFor="phone" className="text-red-500 font-bold">
+                <Label htmlFor="phone" className="text-yellow-400 font-bold">
                   Телефон
                 </Label>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="flex items-center bg-zinc-800 text-white px-2 py-1 rounded">
-                    <span className="fi fi-md mr-1">🇲🇩</span>+373
-                  </span>
+                  <Select
+                    value={selectedCountryCode}
+                    onValueChange={setSelectedCountryCode}
+                  >
+                    <SelectTrigger className="w-40 bg-zinc-800 text-white border-none hover:bg-zinc-700">
+                      <SelectValue>
+                        <span className="flex items-center gap-2">
+                          <span>
+                            {
+                              countries.find(
+                                (c) => c.code === selectedCountryCode
+                              )?.flag
+                            }
+                          </span>
+                          <span>{selectedCountryCode}</span>
+                        </span>
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-800 border-zinc-700 z-[3001] max-h-60">
+                      {countries.map((country) => (
+                        <SelectItem
+                          key={country.code}
+                          value={country.code}
+                          className="text-white hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span>{country.flag}</span>
+                            <span>{country.code}</span>
+                            <span className="text-gray-400 text-sm">
+                              {country.name}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <Input
                     id="phone"
                     name="phone"
                     type="tel"
                     placeholder="___ ___ ___"
                     className="bg-zinc-800 text-white border-none flex-1"
-                    value={formData.phone.replace(/^\+?373/, "")}
+                    value={formData.phone.replace(
+                      new RegExp(`^\\${selectedCountryCode}`),
+                      ""
+                    )}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        phone: "+373" + e.target.value.replace(/\D/g, ""),
+                        phone:
+                          selectedCountryCode +
+                          e.target.value.replace(/\D/g, ""),
                       })
                     }
-                    pattern="[0-9]{8,10}"
+                    pattern="[0-9]{7,12}"
                     required
                   />
                 </div>
@@ -1155,7 +1252,7 @@ const CarReservationModal = ({
                 <Checkbox
                   id="privacy"
                   required
-                  className="mt-1 border-red-500"
+                  className="mt-1 border-yellow-400"
                 />
                 <label
                   htmlFor="privacy"
@@ -1167,22 +1264,30 @@ const CarReservationModal = ({
                     href="/privacy-policy.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-red-500 underline ml-1"
+                    className="text-yellow-400 underline ml-1"
                   >
                     политике конфиденциальности
                   </a>
                   .
                 </label>
               </div>
+
+              {/* Индикатор шага перед кнопкой */}
+              <div className="w-full flex justify-center mb-2 mt-2">
+                <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
+                  {t("reservation.step", "Шаг")} {stepIndicator}
+                </span>
+              </div>
+
               {/* Кнопка */}
               <Button
-                className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white text-lg font-bold py-3 rounded-xl"
+                className="w-full bg-yellow-400 hover:bg-yellow-500 text-black text-lg font-bold py-3 rounded-xl"
                 type="submit"
               >
                 Забронировать
               </Button>
               <Button
-                className="w-full mt-2"
+                className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl"
                 variant="outline"
                 onClick={goBack}
               >
@@ -1197,6 +1302,45 @@ const CarReservationModal = ({
 };
 
 export default CarReservationModal;
+
+// Стили для календаря
+const calendarStyles = `
+  .calendar-day-disabled-strike::after {
+    content: "";
+    position: absolute;
+    left: 15%;
+    top: 50%;
+    width: 70%;
+    height: 2px;
+    background: linear-gradient(90deg, #ff3333 60%, transparent 100%);
+    transform: rotate(-20deg);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .calendar-day-disabled-strike::before {
+    content: "-";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(1.5);
+    color: #ff3333;
+    font-size: 1.2em;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 3;
+  }
+`;
+
+// Добавляем стили в head
+if (typeof document !== "undefined") {
+  const existingStyle = document.getElementById("calendar-styles");
+  if (!existingStyle) {
+    const styleElement = document.createElement("style");
+    styleElement.id = "calendar-styles";
+    styleElement.textContent = calendarStyles;
+    document.head.appendChild(styleElement);
+  }
+}
 
 // Универсальный loop-carousel с плавной анимацией смены центра
 function CarouselWithCenter({
@@ -1216,144 +1360,423 @@ function CarouselWithCenter({
     window.addEventListener("resize", updateCount);
     return () => window.removeEventListener("resize", updateCount);
   }, []);
-  const center = Math.floor(visibleCount / 2);
-  const [activeIdx, setActiveIdx] = useState(0);
-  const [animating, setAnimating] = useState(false);
-  const touchStartX = useRef<number | null>(null);
 
-  const getVisibleItems = () => {
-    const half = Math.floor(visibleCount / 2);
-    const arr = [];
-    for (let i = -half; i <= half; i++) {
-      arr.push(items[(activeIdx + i + items.length) % items.length]);
+  const [offset, setOffset] = useState(0); // Смещение в пикселях
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dragCurrent, setDragCurrent] = useState({ x: 0, y: 0 });
+  const [swipeDirection, setSwipeDirection] = useState<
+    "horizontal" | "vertical" | null
+  >(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<number>();
+
+  const itemWidth = 120; // Ширина одного элемента
+  const totalWidth = items.length * itemWidth;
+  const swipeThreshold = 30; // Минимальное расстояние для срабатывания свайпа
+  const directionThreshold = 15; // Порог для определения направления
+
+  // Нормализация offset для бесконечной прокрутки
+  const normalizeOffset = useCallback(
+    (off: number) => {
+      const mod = off % totalWidth;
+      return mod < 0 ? mod + totalWidth : mod;
+    },
+    [totalWidth]
+  );
+
+  // Получение активного индекса на основе offset
+  const getActiveIndex = useCallback(() => {
+    const normalizedOffset = normalizeOffset(offset);
+    return Math.round(normalizedOffset / itemWidth) % items.length;
+  }, [offset, normalizeOffset, itemWidth, items.length]);
+
+  // Touch handlers с полной блокировкой вертикального скролла
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setIsDragging(true);
+    setDragStart({ x: touch.clientX, y: touch.clientY });
+    setDragCurrent({ x: touch.clientX, y: touch.clientY });
+    setSwipeDirection(null);
+    setIsAnimating(false);
+  }, []);
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isDragging) return;
+
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - dragStart.x;
+      const deltaY = touch.clientY - dragStart.y;
+
+      // Определяем направление свайпа только один раз
+      if (
+        swipeDirection === null &&
+        (Math.abs(deltaX) > directionThreshold ||
+          Math.abs(deltaY) > directionThreshold)
+      ) {
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          setSwipeDirection("horizontal");
+        } else {
+          setSwipeDirection("vertical");
+        }
+      }
+
+      // Если определили горизонтальный свайп - блокируем вертикальный скролл
+      if (swipeDirection === "horizontal") {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragCurrent({ x: touch.clientX, y: touch.clientY });
+
+        // Ограниченная визуальная обратная связь (максимум 30% от ширины элемента)
+        const maxVisualOffset = itemWidth * 0.3;
+        const limitedDelta = Math.max(
+          -maxVisualOffset,
+          Math.min(maxVisualOffset, deltaX)
+        );
+
+        const normalizedOffset = normalizeOffset(offset);
+        const baseIndex = Math.round(normalizedOffset / itemWidth);
+        const baseOffset = baseIndex * itemWidth;
+        setOffset(baseOffset - limitedDelta);
+      }
+
+      // Если вертикальный свайп - НЕ блокируем, позволяем странице скроллиться
+    },
+    [
+      isDragging,
+      dragStart,
+      swipeDirection,
+      directionThreshold,
+      itemWidth,
+      normalizeOffset,
+      offset,
+    ]
+  );
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isDragging) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+
+      // Обрабатываем только горизонтальные свайпы
+      if (swipeDirection === "horizontal") {
+        const deltaX = dragCurrent.x - dragStart.x;
+        const normalizedOffset = normalizeOffset(offset);
+        const currentIndex = Math.round(normalizedOffset / itemWidth);
+        let targetIndex = currentIndex;
+
+        // Определяем направление и переходим на 1 шаг
+        if (Math.abs(deltaX) > swipeThreshold) {
+          if (deltaX > 0) {
+            // Свайп вправо - предыдущий элемент
+            targetIndex = currentIndex - 1;
+          } else {
+            // Свайп влево - следующий элемент
+            targetIndex = currentIndex + 1;
+          }
+        }
+
+        // Нормализуем индекс
+        targetIndex =
+          ((targetIndex % items.length) + items.length) % items.length;
+        const targetOffset = targetIndex * itemWidth;
+
+        setIsAnimating(true);
+        setOffset(targetOffset);
+        setTimeout(() => setIsAnimating(false), 250);
+      } else {
+        // Если не горизонтальный свайп - возвращаем к исходной позиции
+        const normalizedOffset = normalizeOffset(offset);
+        const currentIndex = Math.round(normalizedOffset / itemWidth);
+        const targetOffset = currentIndex * itemWidth;
+        setOffset(targetOffset);
+      }
+
+      setSwipeDirection(null);
+    },
+    [
+      isDragging,
+      swipeDirection,
+      dragCurrent,
+      dragStart,
+      swipeThreshold,
+      normalizeOffset,
+      offset,
+      itemWidth,
+      items.length,
+    ]
+  );
+
+  // Mouse handlers (аналогично touch, но без учета вертикального скролла)
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
+    setDragCurrent({ x: e.clientX, y: e.clientY });
+    setSwipeDirection("horizontal"); // Для мыши всегда горизонтально
+    setIsAnimating(false);
+  }, []);
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isDragging || swipeDirection !== "horizontal") return;
+
+      const deltaX = e.clientX - dragStart.x;
+      setDragCurrent({ x: e.clientX, y: e.clientY });
+
+      // Ограниченная визуальная обратная связь
+      const maxVisualOffset = itemWidth * 0.3;
+      const limitedDelta = Math.max(
+        -maxVisualOffset,
+        Math.min(maxVisualOffset, deltaX)
+      );
+
+      const normalizedOffset = normalizeOffset(offset);
+      const baseIndex = Math.round(normalizedOffset / itemWidth);
+      const baseOffset = baseIndex * itemWidth;
+      setOffset(baseOffset - limitedDelta);
+    },
+    [isDragging, swipeDirection, dragStart, itemWidth, normalizeOffset, offset]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    if (!isDragging) return;
+    setIsDragging(false);
+
+    if (swipeDirection === "horizontal") {
+      const deltaX = dragCurrent.x - dragStart.x;
+      const normalizedOffset = normalizeOffset(offset);
+      const currentIndex = Math.round(normalizedOffset / itemWidth);
+      let targetIndex = currentIndex;
+
+      if (Math.abs(deltaX) > swipeThreshold) {
+        if (deltaX > 0) {
+          targetIndex = currentIndex - 1;
+        } else {
+          targetIndex = currentIndex + 1;
+        }
+      }
+
+      targetIndex =
+        ((targetIndex % items.length) + items.length) % items.length;
+      const targetOffset = targetIndex * itemWidth;
+
+      setIsAnimating(true);
+      setOffset(targetOffset);
+      setTimeout(() => setIsAnimating(false), 250);
     }
-    return arr;
-  };
-  const prev = () => {
-    setAnimating(true);
-    setTimeout(() => setAnimating(false), 350);
-    setActiveIdx((idx) => (idx - 1 + items.length) % items.length);
-  };
-  const next = () => {
-    setAnimating(true);
-    setTimeout(() => setAnimating(false), 350);
-    setActiveIdx((idx) => (idx + 1) % items.length);
-  };
-  // Touch swipe handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
-    const delta = e.changedTouches[0].clientX - touchStartX.current;
-    if (delta > 40) prev();
-    if (delta < -40) next();
-    touchStartX.current = null;
-  };
+
+    setSwipeDirection(null);
+  }, [
+    isDragging,
+    swipeDirection,
+    dragCurrent,
+    dragStart,
+    swipeThreshold,
+    normalizeOffset,
+    offset,
+    itemWidth,
+    items.length,
+  ]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (isDragging) {
+      handleMouseUp();
+    }
+  }, [isDragging, handleMouseUp]);
+
+  // Кнопки навигации с плавной анимацией
+  const prev = useCallback(() => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setOffset((prev) => prev - itemWidth); // Исправлено: двигаем влево
+    setTimeout(() => setIsAnimating(false), 250);
+  }, [itemWidth, isAnimating]);
+
+  const next = useCallback(() => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setOffset((prev) => prev + itemWidth); // Исправлено: двигаем вправо
+    setTimeout(() => setIsAnimating(false), 250);
+  }, [itemWidth, isAnimating]);
+
+  // Оптимизированный рендер элементов
+  const renderItems = useMemo(() => {
+    const normalizedOffset = normalizeOffset(offset);
+    const elements = [];
+
+    // Рендерим только видимые элементы + буфер
+    const visibleRange = visibleCount + 2;
+    for (let i = -visibleRange; i <= visibleRange; i++) {
+      const itemIndex = (i + items.length * 10) % items.length;
+      const item = items[itemIndex];
+      const itemPosition = i * itemWidth - normalizedOffset;
+
+      // Пропускаем элементы, которые слишком далеко
+      if (Math.abs(itemPosition) > itemWidth * 3) continue;
+
+      // Оптимизированные вычисления близости
+      const distanceFromCenter = Math.abs(itemPosition) / (itemWidth * 1.2);
+      const proximity = Math.max(0, Math.min(1, 1 - distanceFromCenter));
+
+      // Более простые интерполяции
+      const scale = 0.85 + proximity * 0.3;
+      const opacity = 0.5 + proximity * 0.5;
+      const fontSize = 15 + proximity * 6;
+
+      // Упрощенная логика цвета
+      const isCenter = proximity > 0.6;
+      const bgOpacity = isCenter ? proximity * 0.9 : 0.7;
+      const bgColor = isCenter
+        ? `rgba(250, 204, 21, ${bgOpacity})`
+        : `rgba(63, 63, 70, ${bgOpacity})`;
+
+      const textColor = isCenter ? "#000" : "#fff";
+
+      elements.push(
+        <div
+          key={`${itemIndex}-${i}`}
+          className={`absolute flex flex-col items-center justify-center rounded-lg px-2 py-2 cursor-pointer select-none will-change-transform ${
+            isDragging
+              ? ""
+              : isAnimating
+              ? "transition-all duration-400 ease-out"
+              : "transition-all duration-300 ease-out"
+          }`}
+          style={{
+            left: `calc(50% + ${itemPosition}px)`,
+            transform: `translateX(-50%) scale(${scale})`,
+            transformOrigin: "center center",
+            opacity,
+            backgroundColor: bgColor,
+            color: textColor,
+            width: `${itemWidth - 10}px`,
+            height: "80px",
+            zIndex: Math.round(proximity * 10),
+            boxShadow: isCenter
+              ? "0 4px 12px rgba(250, 204, 21, 0.25)"
+              : "none",
+            position: "absolute",
+            top: "50%",
+            marginTop: "-40px", // Половина высоты элемента для центрирования
+            pointerEvents: isDragging ? "none" : "auto",
+            backfaceVisibility: "hidden",
+            perspective: "1000px",
+          }}
+          onClick={() => {
+            if (isAnimating || isDragging) return;
+            setIsAnimating(true);
+            setOffset(i * itemWidth);
+            setTimeout(() => setIsAnimating(false), 250);
+          }}
+        >
+          <div className="text-xs mb-1 opacity-70">{item.label}</div>
+          <div
+            className="font-bold text-center"
+            style={{
+              fontSize: `${fontSize}px`,
+              fontWeight: isCenter ? 700 : 500,
+            }}
+          >
+            {item.value}
+            {valueSuffix ? ` ${valueSuffix}` : ""}
+          </div>
+        </div>
+      );
+    }
+
+    return elements;
+  }, [
+    offset,
+    normalizeOffset,
+    itemWidth,
+    items,
+    visibleCount,
+    isDragging,
+    isAnimating,
+    valueSuffix,
+  ]);
+
   return (
     <div className="w-full max-w-full md:max-w-lg mx-auto relative">
-      <h3 className="text-xl font-bold text-center mb-2 text-white">{title}</h3>
+      <h3 className="text-xl font-bold text-center mb-4 text-white">{title}</h3>
+
+      {/* Кнопки навигации */}
       <button
         onClick={prev}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 transition"
+        disabled={isAnimating}
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 transition-all duration-200 disabled:opacity-50"
       >
         &#8592;
       </button>
       <button
         onClick={next}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 transition"
+        disabled={isAnimating}
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 transition-all duration-200 disabled:opacity-50"
       >
         &#8594;
       </button>
+
+      {/* Невидимая лупа - только для понимания центра */}
       <div
-        className="flex gap-1 md:gap-2 justify-center items-center py-1 md:py-2 w-full overflow-hidden flex-nowrap"
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-28 h-16 pointer-events-none z-5"
+        style={{
+          background:
+            "radial-gradient(ellipse, rgba(250, 204, 21, 0.02) 40%, transparent 70%)",
+        }}
+      />
+
+      {/* Контейнер элементов */}
+      <div
+        ref={containerRef}
+        className="relative h-24 overflow-hidden cursor-grab active:cursor-grabbing"
         onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        style={
+          {
+            userSelect: "none",
+            WebkitUserSelect: "none",
+            touchAction: "pan-x",
+            WebkitTouchCallout: "none",
+            overscrollBehavior: "contain",
+            overscrollBehaviorX: "none",
+            overscrollBehaviorY: "auto",
+          } as React.CSSProperties
+        }
       >
-        {getVisibleItems().map((item, idx) => (
-          <div
-            key={idx}
-            onClick={() =>
-              setActiveIdx(
-                (activeIdx +
-                  idx -
-                  Math.floor(visibleCount / 2) +
-                  items.length) %
-                  items.length
-              )
-            }
-            className={`rounded-lg px-1 md:px-2 py-1 md:py-2
-              ${
-                idx === Math.floor(visibleCount / 2)
-                  ? "min-w-[110px] max-w-[140px] sm:min-w-[120px] sm:max-w-[180px] whitespace-normal break-words"
-                  : "min-w-[60px] max-w-[70px] sm:min-w-[90px] sm:max-w-[90px] md:min-w-[110px] md:max-w-[110px] truncate"
-              }
-              text-center select-none transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer
-              ${
-                idx === Math.floor(visibleCount / 2)
-                  ? `${colorCenter} scale-110 shadow-lg font-bold opacity-100`
-                  : `${colorSide} scale-90 opacity-60`
-              }
-              ${animating ? "carousel-animating" : ""}`}
-            style={{ zIndex: idx === Math.floor(visibleCount / 2) ? 2 : 1 }}
-          >
-            <div className="text-xs mb-1 opacity-70">{item.label}</div>
-            <div
-              className={`text-xl font-bold transition-all duration-350 ${
-                idx === Math.floor(visibleCount / 2)
-                  ? "scale-110 whitespace-normal break-words"
-                  : "text-base scale-90 opacity-80 truncate"
-              }`}
-            >
-              {item.value}
-              {valueSuffix ? ` ${valueSuffix}` : ""}
-            </div>
-          </div>
-        ))}
+        {renderItems}
       </div>
-      {/* Dots */}
-      <div className="flex justify-center gap-1 mt-1">
+
+      {/* Точки навигации */}
+      <div className="flex justify-center gap-1 mt-3">
         {items.map((_, idx) => (
-          <span
+          <button
             key={idx}
-            className={`h-3 w-3 rounded-full transition-all duration-350 ease-[cubic-bezier(0.22,1,0.36,1)]
-              ${
-                activeIdx === idx
-                  ? "bg-yellow-400 scale-110 shadow"
-                  : "bg-gray-600 scale-90 opacity-70"
-              }`}
-          ></span>
+            onClick={() => {
+              if (isAnimating) return;
+              setIsAnimating(true);
+              setOffset(idx * itemWidth);
+              setTimeout(() => setIsAnimating(false), 250);
+            }}
+            disabled={isAnimating}
+            className={`h-2 w-2 rounded-full transition-all duration-300 cursor-pointer hover:scale-125 disabled:cursor-default ${
+              getActiveIndex() === idx
+                ? "bg-yellow-400 scale-125 shadow-md shadow-yellow-400/50"
+                : "bg-gray-600 scale-100 opacity-70 hover:opacity-100"
+            }`}
+          />
         ))}
       </div>
-      <style>{`
-        .carousel-animating {
-          transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s cubic-bezier(0.22,1,0.36,1);
-        }
-        .calendar-day-disabled-strike::after {
-          content: "";
-          position: absolute;
-          left: 15%;
-          top: 50%;
-          width: 70%;
-          height: 2px;
-          background: linear-gradient(90deg, #ff3333 60%, transparent 100%);
-          transform: rotate(-20deg);
-          pointer-events: none;
-          z-index: 2;
-        }
-        .calendar-day-disabled-strike::before {
-          content: "-";
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%) scale(1.5);
-          color: #ff3333;
-          font-size: 1.2em;
-          font-weight: bold;
-          pointer-events: none;
-          z-index: 3;
-        }
-      `}</style>
     </div>
   );
 }
