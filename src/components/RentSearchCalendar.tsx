@@ -10,183 +10,15 @@ import React from "react";
 const getLocale = (lng: string) =>
   lng === "ru" ? ru : lng === "ro" ? ro : enUS;
 
-const times = Array.from({ length: 24 * 4 }, (_, i) => {
-  const h = Math.floor(i / 4)
-    .toString()
-    .padStart(2, "0");
-  const m = ((i % 4) * 15).toString().padStart(2, "0");
-  return `${h}:${m}`;
-});
-
-function TimePicker({ value, onChange, onClose }) {
-  const { t } = useTranslation();
-  const [hour, setHour] = useState(Number(value.split(":")[0]));
-  const [minute, setMinute] = useState(Number(value.split(":")[1]));
-
-  const hours = Array.from({ length: 24 }, (_, h) => h);
-  const minutes = Array.from({ length: 60 }, (_, m) => m);
-
-  const hourRef = useRef(null);
-  const minuteRef = useRef(null);
-  const [buffer, setBuffer] = useState(40 * 2); // default 80px
-  const didInitScrollHour = useRef(false);
-  const didInitScrollMinute = useRef(false);
-
-  useEffect(() => {
-    // Вычисляем buffer динамически
-    if (hourRef.current) {
-      const rowHeight = 40;
-      const containerHeight = hourRef.current.offsetHeight;
-      setBuffer(containerHeight / 2 - rowHeight / 2);
-    }
-  }, []);
-
-  // Скроллим к выбранному значению только при открытии
-  useEffect(() => {
-    if (!didInitScrollHour.current && hourRef.current) {
-      scrollToIndex(hourRef, hour);
-      didInitScrollHour.current = true;
-    }
-    if (!didInitScrollMinute.current && minuteRef.current) {
-      scrollToIndex(minuteRef, minute);
-      didInitScrollMinute.current = true;
-    }
-  }, []);
-
-  const scrollToIndex = (ref, idx) => {
-    if (ref.current) {
-      const rowHeight = 40;
-      ref.current.scrollTo({
-        top: idx * rowHeight,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  const handleHourClick = (h, idx) => {
-    setHour(h);
-    scrollToIndex(hourRef, idx);
-  };
-  const handleMinuteClick = (m, idx) => {
-    setMinute(m);
-    scrollToIndex(minuteRef, idx);
-  };
-
-  const handleOk = () => {
-    onChange(
-      `${hour.toString().padStart(2, "0")}:${minute
-        .toString()
-        .padStart(2, "0")}`
-    );
-    onClose();
-  };
-
-  return (
-    <>
-      <style>{`
-        .custom-scrollbar {
-          scrollbar-width: thin;
-          scrollbar-color: #facc15 #232325;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-          background: #232325;
-          border-radius: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #facc15;
-          border-radius: 8px;
-          border: 2px solid #232325;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #ffe066;
-        }
-      `}</style>
-      <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60">
-        <div className="bg-[#232325] rounded-2xl p-4 w-full max-w-xs mx-auto flex flex-col items-center relative shadow-xl">
-          <div className="w-full flex justify-end mb-2">
-            <button
-              onClick={onClose}
-              className="text-yellow-400 hover:text-yellow-200 text-2xl"
-            >
-              <X />
-            </button>
-          </div>
-          <div className="flex gap-4 relative h-48 w-full justify-center">
-            {/* Акцентная область */}
-            <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-10 bg-gray-500/40 rounded-lg pointer-events-none z-10" />
-            {/* Часы */}
-            <div
-              ref={hourRef}
-              className="flex-1 h-full overflow-y-auto snap-y snap-mandatory custom-scrollbar"
-              style={{ minWidth: 60 }}
-            >
-              <div style={{ height: buffer }} />
-              {hours.map((h, idx) => (
-                <div
-                  key={h}
-                  className={`h-10 flex items-center justify-center text-lg snap-center cursor-pointer transition-all duration-300 text-white ${
-                    hour === h ? "font-bold bg-gray-700/80 rounded" : ""
-                  }`}
-                  onClick={() => handleHourClick(h, idx)}
-                >
-                  {h.toString().padStart(2, "0")}
-                </div>
-              ))}
-              <div style={{ height: buffer }} />
-              <div className="text-center text-xs text-yellow-200 mt-2">
-                {t("reservation.hours", "часы")}
-              </div>
-            </div>
-            {/* Минуты */}
-            <div
-              ref={minuteRef}
-              className="flex-1 h-full overflow-y-auto snap-y snap-mandatory custom-scrollbar"
-              style={{ minWidth: 60 }}
-            >
-              <div style={{ height: buffer }} />
-              {minutes.map((m, idx) => (
-                <div
-                  key={m}
-                  className={`h-10 flex items-center justify-center text-lg snap-center cursor-pointer transition-all duration-300 text-white ${
-                    minute === m ? "font-bold bg-gray-700/80 rounded" : ""
-                  }`}
-                  onClick={() => handleMinuteClick(m, idx)}
-                >
-                  {m.toString().padStart(2, "0")}
-                </div>
-              ))}
-              <div style={{ height: buffer }} />
-              <div className="text-center text-xs text-yellow-200 mt-2">
-                {t("reservation.minutes", "минуты")}
-              </div>
-            </div>
-          </div>
-          <Button
-            onClick={handleOk}
-            className="w-full bg-yellow-400 text-black font-bold mt-4"
-          >
-            {t("reservation.ok", "OK")}
-          </Button>
-        </div>
-      </div>
-    </>
-  );
-}
-
 export const RentSearchCalendar = ({ onSearch }) => {
   const { t, i18n } = useTranslation();
   const [modalOpen, setModalOpen] = useState(false);
   const [activeField, setActiveField] = useState<"from" | "to" | null>(null);
-  const [showTimePicker, setShowTimePicker] = useState<null | "from" | "to">(
-    null
-  );
+
   const [range, setRange] = useState<{ from: Date | null; to: Date | null }>({
     from: null,
     to: null,
   });
-  const [fromTime, setFromTime] = useState("10:00");
-  const [toTime, setToTime] = useState("10:00");
 
   // Вертикальный календарь: ближайшие 12 месяцев (локальное время)
   const now = new Date();
@@ -240,12 +72,29 @@ export const RentSearchCalendar = ({ onSearch }) => {
 
   const handleCalendarSelect = (date: Date | undefined) => {
     if (!date) return;
+
     if (activeField === "from") {
+      // Выбираем дату "от"
       setRange((r) => ({ ...r, from: date }));
       setActiveField("to");
     } else if (activeField === "to") {
-      setRange((r) => ({ ...r, to: date }));
-      // setModalOpen(false); // Больше не закрываем окно автоматически
+      // Проверяем, кликнули ли повторно по уже выбранной дате "from"
+      const isSameDateAsFrom =
+        range.from &&
+        format(date, "yyyy-MM-dd") === format(range.from, "yyyy-MM-dd");
+
+      if (isSameDateAsFrom) {
+        // Если кликнули по той же дате - это однодневная аренда
+        setRange((r) => ({ ...r, to: date }));
+        console.log("🎯 Однодневная аренда:", format(date, "dd.MM.yyyy"));
+      } else if (date < range.from!) {
+        // Если выбрали дату раньше чем "from", меняем местами
+        setRange({ from: date, to: range.from });
+        console.log("🔄 Поменяли местами даты");
+      } else {
+        // Обычный выбор даты "до"
+        setRange((r) => ({ ...r, to: date }));
+      }
     }
   };
 
@@ -254,8 +103,6 @@ export const RentSearchCalendar = ({ onSearch }) => {
     onSearch?.({
       from: range.from,
       to: range.to,
-      fromTime,
-      toTime,
     });
   };
 
@@ -266,7 +113,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
   return (
     <div className="w-full md:max-w-md md:mx-auto bg-[#232325] rounded-2xl shadow-2xl p-3 flex flex-col gap-4 border border-yellow-400 mt-13 mb-11 sm:mt-0 transition hover:shadow-yellow-400/30 hover:scale-[1.01] duration-200">
       <div className="text-xl md:text-2xl font-bold text-yellow-400 mb-3 text-center">
-        {t("reservation.selectDates", "Выбрать даты аренды")}
+        {t("reservation.selectDates")}
       </div>
       <div className="flex gap-2">
         <button
@@ -274,7 +121,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
           onClick={() => handleFieldClick("from")}
         >
           <span className="block text-xs text-gray-500 mb-1">
-            {t("reservation.pickupDate", "Дата выдачи")}
+            {t("reservation.pickupDate")}
           </span>
           <span className="block text-base">
             {range.from ? format(range.from, "dd.MM.yyyy") : "--.--.----"}
@@ -285,7 +132,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
           onClick={() => handleFieldClick("to")}
         >
           <span className="block text-xs text-gray-500 mb-1">
-            {t("reservation.returnDate", "Дата возврата")}
+            {t("reservation.returnDate")}
           </span>
           <span className="block text-base">
             {range.to ? format(range.to, "dd.MM.yyyy") : "--.--.----"}
@@ -298,7 +145,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
         disabled={!range.from || !range.to}
       >
         <Search className="w-5 h-5 mr-2" />
-        {t("reservation.search", "Найти")}
+        {t("reservation.search")}
       </Button>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
@@ -322,7 +169,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
           }
         >
           <DialogTitle className="sr-only">
-            {t("reservation.title", "Выбор дат и времени")}
+            {t("reservation.selectDates")}
           </DialogTitle>
           {/* Header + поля */}
           <div>
@@ -342,7 +189,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
               <div className="flex gap-2">
                 <div className="flex flex-col items-center flex-1">
                   <span className="text-xs text-white/70 mb-1">
-                    {t("reservation.pickupDate", "Дата выдачи")}
+                    {t("reservation.pickupDate")}
                   </span>
                   <button
                     className={`w-full py-2 rounded-lg border ${
@@ -359,7 +206,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
                 </div>
                 <div className="flex flex-col items-center flex-1">
                   <span className="text-xs text-white/70 mb-1">
-                    {t("reservation.returnDate", "Дата возврата")}
+                    {t("reservation.returnDate")}
                   </span>
                   <button
                     className={`w-full py-2 rounded-lg border ${
@@ -370,30 +217,6 @@ export const RentSearchCalendar = ({ onSearch }) => {
                     onClick={() => setActiveField("to")}
                   >
                     {range.to ? format(range.to, "dd.MM.yyyy") : "--.--.----"}
-                  </button>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <div className="flex flex-col items-center flex-1">
-                  <span className="text-xs text-white/70 mb-1">
-                    {t("reservation.pickupTime", "Время выдачи")}
-                  </span>
-                  <button
-                    className="w-full py-2 rounded-lg border border-yellow-400 bg-black text-yellow-400 font-bold text-lg text-center hover:bg-yellow-400 hover:text-black transition"
-                    onClick={() => setShowTimePicker("from")}
-                  >
-                    {fromTime}
-                  </button>
-                </div>
-                <div className="flex flex-col items-center flex-1">
-                  <span className="text-xs text-white/70 mb-1">
-                    {t("reservation.returnTime", "Время возврата")}
-                  </span>
-                  <button
-                    className="w-full py-2 rounded-lg border border-yellow-400 bg-black text-yellow-400 font-bold text-lg text-center hover:bg-yellow-400 hover:text-black transition"
-                    onClick={() => setShowTimePicker("to")}
-                  >
-                    {toTime}
                   </button>
                 </div>
               </div>
@@ -432,19 +255,9 @@ export const RentSearchCalendar = ({ onSearch }) => {
               style={{ minHeight: 56 }}
             >
               <Search className="w-5 h-5 mr-1" />
-              <span className="pl-1">{t("reservation.search", "Найти")}</span>
+              <span className="pl-1">{t("reservation.search")}</span>
             </Button>
           </div>
-          {/* Wheel time picker popover */}
-          {showTimePicker && (
-            <TimePicker
-              value={showTimePicker === "from" ? fromTime : toTime}
-              onChange={(val) =>
-                showTimePicker === "from" ? setFromTime(val) : setToTime(val)
-              }
-              onClose={() => setShowTimePicker(null)}
-            />
-          )}
         </DialogContent>
       </Dialog>
     </div>
@@ -544,12 +357,12 @@ function MonthCalendar({ month, range, onSelect, locale }) {
                     key={date.toISOString()}
                     className={[
                       "h-10 w-10 flex items-center justify-center font-bold transition-colors duration-150 relative",
-                      today
-                        ? "border-2 border-white text-white bg-transparent z-10 rounded-full"
-                        : start || end
+                      start || end
                         ? "bg-yellow-400 text-black z-10 rounded-xl border-2 border-yellow-400"
                         : inRange
                         ? "text-black z-10"
+                        : today
+                        ? "border-2 border-white text-white bg-transparent z-10 rounded-full"
                         : "text-white hover:bg-yellow-400 hover:text-black z-10 rounded-full",
                     ].join(" ")}
                     style={{ gridColumn: i + 1 }}

@@ -100,6 +100,24 @@ export async function createOrder(order: {
   totalCost?: number;
 }) {
   const AIRTABLE_ORDERS_TABLE = "Заявки на аренду";
+
+  // Пока что просто логируем информацию о загруженных фото
+  if (order.idPhotoFront) {
+    console.log(
+      "Фото лицевой стороны получено:",
+      order.idPhotoFront.name,
+      `(${Math.round(order.idPhotoFront.size / 1024)}KB)`
+    );
+  }
+
+  if (order.idPhotoBack) {
+    console.log(
+      "Фото оборотной стороны получено:",
+      order.idPhotoBack.name,
+      `(${Math.round(order.idPhotoBack.size / 1024)}KB)`
+    );
+  }
+
   // Используем точные названия полей как в Airtable
   const fields: Record<string, string | string[] | number | boolean> = {
     "Имя клиента": order.name,
@@ -108,10 +126,8 @@ export async function createOrder(order: {
     "Статус заявки": "новая",
   };
 
-  // Добавляем основные поля
-  if (order.comment || order.message) {
-    fields["Комментарий клиента"] = order.comment || order.message || "";
-  }
+  // Отправляем фото документов в правильные поля вложений
+  // TODO: Реализовать загрузку фото в будущем
 
   if (order.car) {
     fields["Выбранный автомобиль"] = Array.isArray(order.car)
@@ -127,68 +143,57 @@ export async function createOrder(order: {
     fields["Дата окончания аренды"] = order.endDate;
   }
 
-  // Создаем дополнительный комментарий с новыми данными
-  const additionalInfo = [];
-
+  // Добавляем новые поля с правильными типами
   if (order.pickupTime) {
-    additionalInfo.push(`Время выдачи: ${order.pickupTime}`);
+    fields["Время выдачи"] = order.pickupTime;
   }
 
   if (order.idnp) {
-    additionalInfo.push(`IDNP: ${order.idnp}`);
+    fields["IDNP"] = order.idnp;
   }
 
+  // Как забрать машину - используем правильное название поля
   if (order.pickupType) {
-    const typeMap = {
-      office: "Офис",
-      airport: "Аэропорт",
-      address: "Доставка",
-    };
-    const typeName =
-      typeMap[order.pickupType as keyof typeof typeMap] || order.pickupType;
-    additionalInfo.push(`Тип получения: ${typeName}`);
+    if (order.pickupType === "office") {
+      fields["Как забрать машину"] = "Заберу из офиса";
+      fields["Тип получения"] = "Офис";
+    } else if (order.pickupType === "airport") {
+      fields["Как забрать машину"] = "Заберу из аэропорта";
+      fields["Тип получения"] = "Аэропорт";
+    } else if (order.pickupType === "address") {
+      // Для доставки не заполняем "Как забрать машину", но заполняем "Тип получения"
+      fields["Тип получения"] = "Доставка";
+    }
   }
 
   if (order.pickupAddress) {
-    additionalInfo.push(`Адрес доставки: ${order.pickupAddress}`);
+    fields["Доставить по адресу"] = order.pickupAddress;
   }
 
-  if (order.unlimitedMileage) {
-    additionalInfo.push(`Безлимитный километраж: Да`);
+  // Безлимитный километраж - "Выбор одного варианта": "да" или "не указано"
+  if (order.unlimitedMileage === true) {
+    fields["Безлимитный километраж"] = "да";
   }
 
-  if (order.goldCard) {
-    additionalInfo.push(`Gold карта: Да`);
+  // Gold карта - Флажок (чекбокс)
+  if (order.goldCard === true) {
+    fields["Gold карта"] = true;
   }
 
-  if (order.clubCard) {
-    additionalInfo.push(`Club карта: Да`);
+  // Club карта - Флажок (чекбокс)
+  if (order.clubCard === true) {
+    fields["Club карта"] = true;
   }
 
   if (order.totalCost !== undefined) {
-    additionalInfo.push(`Общая стоимость: ${order.totalCost}€`);
+    fields["Общая стоимость"] = order.totalCost;
   }
 
-  if (order.idPhotoFront || order.idPhotoBack) {
-    const uploadedFiles = [];
-    if (order.idPhotoFront) uploadedFiles.push("фронт");
-    if (order.idPhotoBack) uploadedFiles.push("оборот");
-    additionalInfo.push(
-      `Загружены фото документов: ${uploadedFiles.join(", ")}`
-    );
-  }
-
-  // Добавляем все дополнительные данные к комментарию
-  if (additionalInfo.length > 0) {
-    const existingComment = (fields["Комментарий клиента"] as string) || "";
-    const separator = existingComment
-      ? "\n\n--- Дополнительная информация ---\n"
-      : "";
-    fields["Комментарий клиента"] =
-      existingComment + separator + additionalInfo.join("\n");
-  }
-
-  console.log("Отправляемые данные в Airtable:", { fields });
+  console.log("=== ДИАГНОСТИКА ОТПРАВКИ ===");
+  console.log("Order data:", order);
+  console.log("Fields to send:", fields);
+  console.log("Fields count:", Object.keys(fields).length);
+  console.log("Фото info:", { frontPhotoUrl: "", backPhotoUrl: "" });
 
   const res = await fetch(
     `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_ORDERS_TABLE}`,
@@ -218,7 +223,7 @@ export async function createOrder(order: {
 }
 
 interface AirtableOrderFields {
-  "Выбранный автомобиль"?: string;
+  "Выбранный автомобиль"?: string[]; // Record ID массив
   "Дата начала аренды"?: string;
   "Дата окончания аренды"?: string;
   "Статус заявки"?: string;
@@ -232,8 +237,17 @@ interface AirtableOrderRecord {
 // Получение всех заявок на аренду
 export async function fetchOrders() {
   const AIRTABLE_ORDERS_TABLE = "Заявки на аренду";
+
+  // Получаем заявки с развернутыми данными автомобилей
+  const params = new URLSearchParams();
+  params.append("fields[]", "Выбранный автомобиль");
+  params.append("fields[]", "Дата начала аренды");
+  params.append("fields[]", "Дата окончания аренды");
+  params.append("fields[]", "Статус заявки");
+  params.append("returnFieldsByFieldId", "false");
+
   const res = await fetch(
-    `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_ORDERS_TABLE}`,
+    `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_ORDERS_TABLE}?${params}`,
     {
       headers: {
         Authorization: `Bearer ${AIRTABLE_TOKEN}`,
@@ -243,11 +257,25 @@ export async function fetchOrders() {
   );
   if (!res.ok) throw new Error("Ошибка загрузки заявок из Airtable");
   const data = await res.json();
+
+  console.log("=== DEBUG: fetchOrders data ===");
+  console.log("Raw orders from Airtable:", data.records);
+
   return data.records.map((rec: AirtableOrderRecord) => {
     const fields = rec.fields || {};
+    const carIds = fields["Выбранный автомобиль"] || [];
+
+    console.log("Order record:", {
+      id: rec.id,
+      carIds,
+      startDate: fields["Дата начала аренды"],
+      endDate: fields["Дата окончания аренды"],
+      status: fields["Статус заявки"],
+    });
+
     return {
       id: rec.id,
-      car: fields["Выбранный автомобиль"] || "",
+      carIds: carIds, // Record IDs массив
       startDate: fields["Дата начала аренды"] || "",
       endDate: fields["Дата окончания аренды"] || "",
       status: (fields["Статус заявки"] || "").toLowerCase(),

@@ -22,6 +22,8 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 import { createOrder } from "@/lib/airtable";
+import { translateCarSpec } from "@/lib/carTranslations";
+import { formatDateRange } from "@/lib/dateHelpers";
 import logo from "@/assets/logo.png";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useRef } from "react";
@@ -109,6 +111,7 @@ const CarReservationModal = ({
     back: false,
   });
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -198,8 +201,8 @@ const CarReservationModal = ({
     );
     if (isDisabled) {
       toast({
-        title: t("reservation.disabledRangeTitle", "Нельзя выбрать эти даты"),
-        description: t("reservation.disabledRangeDesc", "Эта дата занята."),
+        title: t("reservation.disabledRangeTitle"),
+        description: t("reservation.disabledRangeDesc"),
         variant: "destructive",
       });
       return;
@@ -212,6 +215,11 @@ const CarReservationModal = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Предотвращаем повторную отправку
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
     const form = e.target as HTMLFormElement;
     const formDataObj = new FormData(form);
 
@@ -259,16 +267,15 @@ const CarReservationModal = ({
       });
       setUploadedPhotos({ front: false, back: false });
       setPrivacyAccepted(false);
+      setIsSubmitting(false);
       onClose();
     } catch (e) {
       toast({
-        title: t("reservation.errorTitle", "Ошибка отправки заявки"),
-        description: t(
-          "reservation.errorDesc",
-          "Проверьте соединение или попробуйте позже."
-        ),
+        title: t("reservation.errorTitle"),
+        description: t("reservation.errorDesc"),
         variant: "destructive",
       });
+      setIsSubmitting(false); // Разблокируем кнопку при ошибке
     }
   };
 
@@ -546,6 +553,16 @@ const CarReservationModal = ({
   };
   const goBack = () => setCurrentStep((s) => Math.max(s - 1, 0));
 
+  // Сброс состояния при закрытии модала
+  useEffect(() => {
+    if (!isOpen) {
+      setCurrentStep(0);
+      setIsSubmitting(false);
+      setPrivacyAccepted(false);
+      setUploadedPhotos({ front: false, back: false });
+    }
+  }, [isOpen]);
+
   const { data: orders = [] } = useQuery({
     queryKey: ["orders"],
     queryFn: fetchOrders,
@@ -653,7 +670,7 @@ const CarReservationModal = ({
   ];
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={isSubmitting ? undefined : onClose}>
       <DialogContent
         className={
           isMobile
@@ -668,9 +685,12 @@ const CarReservationModal = ({
       >
         {/* Крестик всегда сверху справа */}
         <button
-          onClick={onClose}
-          className="absolute top-3 right-3 z-20 text-3xl text-yellow-400 hover:text-yellow-200 transition md:top-4 md:right-4"
-          aria-label="Закрыть"
+          onClick={isSubmitting ? undefined : onClose}
+          className={`absolute top-3 right-3 z-20 text-3xl text-yellow-400 hover:text-yellow-200 transition md:top-4 md:right-4 ${
+            isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          aria-label={t("reservation.cancel")}
+          disabled={isSubmitting}
         >
           <X />
         </button>
@@ -747,27 +767,27 @@ const CarReservationModal = ({
               <CarouselWithCenter
                 items={[
                   {
-                    label: t("reservation.pricePerDay", "1 день"),
+                    label: t("reservation.pricePerDay"),
                     value: car.pricePerDay,
                   },
                   {
-                    label: t("reservation.price2to10", "2-10 дней"),
+                    label: t("reservation.price2to10"),
                     value: car.price2to10,
                   },
                   {
-                    label: t("reservation.price11to20", "11-20 дней"),
+                    label: t("reservation.price11to20"),
                     value: car.price11to20,
                   },
                   {
-                    label: t("reservation.price21to29", "21-29 дней"),
+                    label: t("reservation.price21to29"),
                     value: car.price21to29,
                   },
                   {
-                    label: t("reservation.price30plus", "30+ дней"),
+                    label: t("reservation.price30plus"),
                     value: car.price30plus,
                   },
                 ]}
-                title={t("reservation.priceTitle", "Стоимость аренды")}
+                title={t("reservation.priceTitle")}
                 colorCenter="bg-yellow-400 text-black"
                 colorSide="bg-gray-800 text-white opacity-60"
                 valueSuffix="€"
@@ -776,33 +796,40 @@ const CarReservationModal = ({
               {/* Характеристики (carousel) */}
               <CarouselWithCenter
                 items={[
-                  { label: t("reservation.drive", "Привод"), value: car.drive },
-                  { label: t("reservation.fuel", "Топливо"), value: car.fuel },
                   {
-                    label: t("reservation.rating", "Рейтинг"),
+                    label: t("reservation.drive"),
+                    value: translateCarSpec("drive", car.drive, t),
+                  },
+                  {
+                    label: t("reservation.fuel"),
+                    value: translateCarSpec("fuel", car.fuel, t),
+                  },
+                  {
+                    label: t("reservation.rating"),
                     value: car.rating,
                   },
                   {
-                    label: t("reservation.passengers", "Количество мест"),
+                    label: t("reservation.passengers"),
                     value: car.passengers,
                   },
                   {
-                    label: t("reservation.transmission", "Коробка"),
-                    value: car.transmission,
+                    label: t("reservation.transmission"),
+                    value: translateCarSpec(
+                      "transmission",
+                      car.transmission,
+                      t
+                    ),
                   },
                   {
-                    label: t("reservation.year", "Год выпуска"),
+                    label: t("reservation.year"),
                     value: car.year,
                   },
                   {
-                    label: t("reservation.engine", "Двигатель"),
+                    label: t("reservation.engine"),
                     value: car.engine,
                   },
                 ]}
-                title={t(
-                  "reservation.featuresTitle",
-                  "Характеристики автомобиля"
-                )}
+                title={t("reservation.featuresTitle")}
                 colorCenter="bg-yellow-400 text-black"
                 colorSide="bg-gray-800 text-white opacity-60"
               />
@@ -810,7 +837,7 @@ const CarReservationModal = ({
               {/* Календарь и время */}
               <div className="w-full max-w-md mx-auto">
                 <h3 className="text-xl font-bold text-center mb-2">
-                  {t("reservation.calendarTitle", "Период аренды")}
+                  {t("reservation.calendarTitle")}
                 </h3>
                 <div className="flex flex-col items-center gap-2">
                   <ShadcnCalendar
@@ -902,7 +929,7 @@ const CarReservationModal = ({
                   {/* После календаря: */}
                   <div className="mt-4 w-full">
                     <h3 className="text-xl font-bold text-center mb-2">
-                      {t("reservation.pickupTime", "Время выдачи")}
+                      {t("reservation.pickupTime")}
                     </h3>
                     <TimePicker
                       value={formData.pickupTime}
@@ -921,15 +948,10 @@ const CarReservationModal = ({
               {/* Доп. услуги */}
               <div className="w-full max-w-md sm:max-w-full mx-auto mb-2">
                 <h3 className="text-xl font-bold text-center mb-2">
-                  {t("reservation.extraServices", "Дополнительные услуги")}
+                  {t("reservation.extraServices")}
                 </h3>
                 <div className="flex items-center justify-between bg-gray-700 rounded-lg px-4 py-3 mb-2">
-                  <span>
-                    {t(
-                      "reservation.unlimitedMileage",
-                      "Безлимитный километраж"
-                    )}
-                  </span>
+                  <span>{t("reservation.unlimitedMileage")}</span>
                   <Checkbox
                     checked={!!wizardData.unlimitedMileage}
                     onCheckedChange={(checked) =>
@@ -946,7 +968,7 @@ const CarReservationModal = ({
               {/* Как забрать машину */}
               <div className="w-full max-w-md sm:max-w-full mx-auto mb-2">
                 <h3 className="text-xl font-bold text-center mb-2">
-                  {t("reservation.pickupType", "Как забрать машину")}
+                  {t("reservation.pickupType")}
                 </h3>
                 <RadioGroup
                   value={wizardData.pickupType || "office"}
@@ -959,18 +981,14 @@ const CarReservationModal = ({
                   className="flex flex-col gap-2 bg-gray-700 rounded-lg px-4 py-3 mb-2"
                 >
                   <label className="flex items-center justify-between cursor-pointer">
-                    <span>
-                      {t("reservation.pickupOffice", "Заберу из офиса")}
-                    </span>
+                    <span>{t("reservation.pickupOffice")}</span>
                     <RadioGroupItem
                       value="office"
                       className="data-[state=checked]:bg-yellow-400 border-yellow-400"
                     />
                   </label>
                   <label className="flex items-center justify-between cursor-pointer">
-                    <span>
-                      {t("reservation.pickupAirport", "Заберу из аэропорта")}
-                    </span>
+                    <span>{t("reservation.pickupAirport")}</span>
                     <RadioGroupItem
                       value="airport"
                       className="data-[state=checked]:bg-yellow-400 border-yellow-400"
@@ -979,18 +997,12 @@ const CarReservationModal = ({
                   <div className="border-t border-yellow-500 my-2"></div>
                   <label className="flex flex-col gap-1 cursor-pointer">
                     <span className="text-center">
-                      {t(
-                        "reservation.pickupAddress",
-                        "Или доставить по адресу"
-                      )}
+                      {t("reservation.pickupAddress")}
                     </span>
                     <Input
                       type="text"
                       className="bg-gray-800 rounded px-2 py-1 text-white"
-                      placeholder={t(
-                        "reservation.enterAddress",
-                        "Введите адрес"
-                      )}
+                      placeholder={t("reservation.enterAddress")}
                       value={
                         wizardData.pickupType === "address"
                           ? wizardData.pickupAddress || ""
@@ -1014,7 +1026,7 @@ const CarReservationModal = ({
               {/* Индикатор шага перед кнопкой */}
               <div className="w-full flex justify-center mb-1">
                 <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
-                  {t("reservation.step", "Шаг")} {stepIndicator}
+                  {t("reservation.step")} {stepIndicator}
                 </span>
               </div>
               {/* Шаг 1: компактные отступы */}
@@ -1023,14 +1035,14 @@ const CarReservationModal = ({
                 onClick={goNext}
                 disabled={!formData.pickupDate || !formData.returnDate}
               >
-                {t("reservation.next", "Продолжить")}
+                {t("reservation.next")}
               </Button>
               <Button
                 className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl"
                 variant="outline"
                 onClick={goBack}
               >
-                {t("reservation.back", "Назад")}
+                {t("reservation.back")}
               </Button>
             </div>
           )}
@@ -1038,39 +1050,40 @@ const CarReservationModal = ({
             <div className="w-full max-w-md sm:max-w-full mx-auto pb-4">
               {/* Заголовок */}
               <div className="text-2xl font-bold mb-4 text-white text-center">
-                {t("reservation.confirmTitle", "Подтверждение")}
+                {t("reservation.confirmTitle")}
               </div>
 
               {/* Период аренды */}
               <div className="mb-3">
                 <div className="text-lg font-bold text-yellow-400 mb-1">
-                  {t("reservation.periodTitle", "Период аренды")}
+                  {t("reservation.periodTitle")}
                 </div>
                 <div className="bg-zinc-900 rounded-xl px-4 py-3 flex flex-col gap-1 border border-yellow-400">
                   {formData.pickupDate && formData.returnDate ? (
                     <div className="text-white text-base font-semibold text-center">
-                      {new Date(formData.pickupDate).toLocaleDateString(
-                        "ru-RU",
-                        {
-                          day: "2-digit",
-                          month: "long",
-                        }
-                      )}
-                      <span className="mx-2 text-yellow-400 font-bold">—</span>
-                      {new Date(formData.returnDate).toLocaleDateString(
-                        "ru-RU",
-                        {
-                          day: "2-digit",
-                          month: "long",
-                        }
-                      )}
-                      <span className="ml-2 text-yellow-400 font-bold">
-                        {formData.pickupTime}
-                      </span>
+                      {(() => {
+                        const dates = formatDateRange(
+                          formData.pickupDate,
+                          formData.returnDate,
+                          i18n.language
+                        );
+                        return (
+                          <>
+                            {dates.start}
+                            <span className="mx-2 text-yellow-400 font-bold">
+                              —
+                            </span>
+                            {dates.end}
+                            <span className="ml-2 text-yellow-400 font-bold">
+                              {formData.pickupTime}
+                            </span>
+                          </>
+                        );
+                      })()}
                     </div>
                   ) : (
                     <span className="text-zinc-400">
-                      {t("reservation.periodNotSelected", "Не выбрано")}
+                      {t("reservation.periodNotSelected")}
                     </span>
                   )}
                 </div>
@@ -1079,31 +1092,21 @@ const CarReservationModal = ({
               {/* Геолокация */}
               <div className="mb-3">
                 <div className="text-lg font-bold text-yellow-400 mb-1">
-                  {t("reservation.geoTitle", "Геолокация")}
+                  {t("reservation.geoTitle")}
                 </div>
                 <div className="bg-zinc-900 rounded-xl px-4 py-3 text-base text-white border border-yellow-400">
                   {wizardData.pickupType === "office" || !wizardData.pickupType
-                    ? t(
-                        "reservation.officeAddress",
-                        "Город Кишинев, Проспект Мирча чел Бэтрын 4/4"
-                      )
+                    ? t("reservation.officeAddress")
                     : wizardData.pickupType === "airport"
-                    ? t(
-                        "reservation.airportAddress",
-                        "Аэропорт Кишинев, Dacia 80/3"
-                      )
-                    : wizardData.pickupAddress ||
-                      t("reservation.enterAddress", "Введите адрес")}
+                    ? t("reservation.airportAddress")
+                    : wizardData.pickupAddress || t("reservation.enterAddress")}
                 </div>
               </div>
 
               {/* Правила пользования автомобилем */}
               <div className="mb-3">
                 <div className="text-lg font-bold mb-2 text-yellow-400">
-                  {t(
-                    "reservation.rulesTitle",
-                    "Правила пользования автомобилем"
-                  )}
+                  {t("reservation.rulesTitle")}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-zinc-900 rounded-xl p-4 border border-yellow-400">
                   <div className="flex items-center gap-3 text-white">
@@ -1112,62 +1115,39 @@ const CarReservationModal = ({
                       alt="Не курить"
                       className="w-7 h-7"
                     />
-                    <span>{t("reservation.ruleNoSmoke", "Не курить")}</span>
+                    <span>{t("reservation.ruleNoSmoke")}</span>
                   </div>
                   <div className="flex items-center gap-3 text-white">
-                    <img
-                      src={NoPetsIcon}
-                      alt="Без животных"
-                      className="w-7 h-7"
-                    />
-                    <span>{t("reservation.ruleNoPets", "Без животных")}</span>
+                    <img src={NoPetsIcon} alt="No pets" className="w-7 h-7" />
+                    <span>{t("reservation.ruleNoPets")}</span>
                   </div>
                   <div className="flex items-center gap-3 text-white">
-                    <img
-                      src={FuelIcon}
-                      alt="Возврат с тем же уровнем топлива"
-                      className="w-7 h-7"
-                    />
-                    <span>
-                      {t(
-                        "reservation.ruleFuel",
-                        "Возврат с тем же уровнем топлива"
-                      )}
-                    </span>
+                    <img src={FuelIcon} alt="Fuel return" className="w-7 h-7" />
+                    <span>{t("reservation.ruleFuel")}</span>
                   </div>
                   <div className="flex items-center gap-3 text-white">
                     <img
                       src={NoDepositIcon}
-                      alt="Без залога"
+                      alt="No deposit"
                       className="w-7 h-7"
                     />
-                    <span>{t("reservation.ruleNoDeposit", "Без залога")}</span>
+                    <span>{t("reservation.ruleNoDeposit")}</span>
                   </div>
                   <div className="flex items-center gap-3 text-white">
                     <img
                       src={SpeedIcon}
-                      alt="Максимальная скорость 120 км/ч"
+                      alt="Speed limit"
                       className="w-7 h-7"
                     />
-                    <span>
-                      {t(
-                        "reservation.ruleSpeed",
-                        "Максимальная скорость 120 км/ч"
-                      )}
-                    </span>
+                    <span>{t("reservation.ruleSpeed")}</span>
                   </div>
                   <div className="flex items-center gap-3 text-white">
                     <img
                       src={AggressiveIcon}
-                      alt="Без агрессивной езды"
+                      alt="No aggressive driving"
                       className="w-7 h-7"
                     />
-                    <span>
-                      {t(
-                        "reservation.ruleNoAggressive",
-                        "Без агрессивной езды"
-                      )}
-                    </span>
+                    <span>{t("reservation.ruleNoAggressive")}</span>
                   </div>
                 </div>
               </div>
@@ -1175,14 +1155,11 @@ const CarReservationModal = ({
               {/* Карта постоянного клиента */}
               <div className="mb-3">
                 <div className="text-xl font-bold text-center mb-2 text-yellow-400">
-                  {t(
-                    "reservation.clientCardTitle",
-                    "Карта постоянного клиента"
-                  )}
+                  {t("reservation.clientCardTitle")}
                 </div>
                 <div className="flex flex-col gap-2 bg-zinc-900 rounded-xl p-4 border border-yellow-400">
                   <label className="flex items-center gap-3 cursor-pointer">
-                    <span>Gold карта</span>
+                    <span>{t("reservation.goldCard")}</span>
                     <Checkbox
                       checked={!!wizardData.goldCard}
                       onCheckedChange={(checked) =>
@@ -1192,7 +1169,7 @@ const CarReservationModal = ({
                     />
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer">
-                    <span>Club карта</span>
+                    <span>{t("reservation.clubCard")}</span>
                     <Checkbox
                       checked={!!wizardData.clubCard}
                       onCheckedChange={(checked) =>
@@ -1207,25 +1184,20 @@ const CarReservationModal = ({
               {/* Стоимость */}
               <div className="mb-0">
                 <div className="text-lg font-bold text-yellow-400 mb-2">
-                  {t("reservation.costTitle", "Стоимость")}
+                  {t("reservation.costTitle")}
                 </div>
                 <div className="bg-zinc-900 rounded-xl p-4 flex flex-col gap-2 text-white border border-yellow-400">
                   <div className="flex justify-between">
+                    <span>{t("reservation.duration")}</span>{" "}
                     <span>
-                      {t("reservation.duration", "Продолжительность аренды")}
-                    </span>{" "}
-                    <span>
-                      {calculateDays()} {t("reservation.days", "дн(я/ей)")}
+                      {calculateDays()} {t("reservation.days")}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>{t("reservation.wash", "Мойка")}</span>{" "}
-                    <span>20 €</span>
+                    <span>{t("reservation.wash")}</span> <span>20 €</span>
                   </div>
                   <div className="flex justify-between font-bold text-lg">
-                    <span>
-                      {t("reservation.rentCost", "Стоимость за аренду авто")}
-                    </span>{" "}
+                    <span>{t("reservation.rentCost")}</span>{" "}
                     <span>{totalPrice} €</span>
                   </div>
                 </div>
@@ -1234,21 +1206,21 @@ const CarReservationModal = ({
               {/* Индикатор шага перед кнопкой */}
               <div className="w-full flex justify-center mb-2 mt-2">
                 <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
-                  {t("reservation.step", "Шаг")} {stepIndicator}
+                  {t("reservation.step")} {stepIndicator}
                 </span>
               </div>
               <Button
                 className="w-full bg-yellow-400 hover:bg-yellow-500 text-black text-lg font-bold py-3 rounded-xl"
                 onClick={goNext}
               >
-                {t("reservation.next", "Продолжить")}
+                {t("reservation.next")}
               </Button>
               <Button
                 className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl"
                 variant="outline"
                 onClick={goBack}
               >
-                {t("reservation.back", "Назад")}
+                {t("reservation.back")}
               </Button>
             </div>
           )}
@@ -1260,15 +1232,17 @@ const CarReservationModal = ({
             >
               {/* Заголовок */}
               <div className="text-2xl font-bold mb-4 text-white text-center">
-                {t("reservation.step3Title", "Данные клиента")}
+                {t("reservation.step3Title")}
               </div>
 
               {/* Всего и стоимость */}
               <div className="flex justify-between items-center border-b border-yellow-400 pb-2 mb-2">
                 <div>
-                  <div className="text-lg font-bold text-yellow-400">Всего</div>
+                  <div className="text-lg font-bold text-yellow-400">
+                    {t("reservation.total")}
+                  </div>
                   <div className="text-sm text-gray-300">
-                    Общая стоимость аренды
+                    {t("reservation.totalCost")}
                   </div>
                 </div>
                 <div className="text-2xl font-bold text-white">
@@ -1282,12 +1256,12 @@ const CarReservationModal = ({
                   htmlFor="firstName"
                   className="text-yellow-400 font-bold"
                 >
-                  Имя
+                  {t("reservation.firstName")}
                 </Label>
                 <Input
                   id="firstName"
                   name="firstName"
-                  placeholder="Введите имя"
+                  placeholder={t("reservation.firstName")}
                   className="bg-zinc-800 text-white border-none mt-1"
                   value={formData.firstName}
                   onChange={handleInputChange}
@@ -1297,12 +1271,12 @@ const CarReservationModal = ({
               {/* Фамилия */}
               <div>
                 <Label htmlFor="lastName" className="text-yellow-400 font-bold">
-                  Фамилия
+                  {t("reservation.lastName")}
                 </Label>
                 <Input
                   id="lastName"
                   name="lastName"
-                  placeholder="Введите фамилию"
+                  placeholder={t("reservation.lastName")}
                   className="bg-zinc-800 text-white border-none mt-1"
                   value={formData.lastName}
                   onChange={handleInputChange}
@@ -1312,13 +1286,13 @@ const CarReservationModal = ({
               {/* Email */}
               <div>
                 <Label htmlFor="email" className="text-yellow-400 font-bold">
-                  Электронная почта
+                  {t("reservation.email")}
                 </Label>
                 <Input
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="Введите e-mail"
+                  placeholder={t("reservation.email")}
                   className="bg-zinc-800 text-white border-none mt-1"
                   value={formData.email}
                   onChange={handleInputChange}
@@ -1328,12 +1302,12 @@ const CarReservationModal = ({
               {/* IDNP */}
               <div>
                 <Label htmlFor="idnp" className="text-yellow-400 font-bold">
-                  IDNP
+                  {t("reservation.idnp")}
                 </Label>
                 <Input
                   id="idnp"
                   name="idnp"
-                  placeholder="Введите IDNP"
+                  placeholder={t("reservation.idnp")}
                   className="bg-zinc-800 text-white border-none mt-1"
                   value={formData.idnp || ""}
                   onChange={handleInputChange}
@@ -1343,7 +1317,7 @@ const CarReservationModal = ({
               {/* Фото удостоверения */}
               <div>
                 <Label className="text-yellow-400 font-bold">
-                  Фотографии удостоверения личности (обе стороны)
+                  {t("reservation.idPhotos")}
                 </Label>
                 <div className="flex gap-4 mt-2">
                   {/* Фронт */}
@@ -1389,7 +1363,7 @@ const CarReservationModal = ({
                             />
                           </svg>
                           <span className="text-xs text-green-400">
-                            Загружено
+                            {t("reservation.uploaded")}
                           </span>
                         </span>
                       ) : (
@@ -1410,19 +1384,19 @@ const CarReservationModal = ({
                             />
                           </svg>
                           <span className="text-xs text-gray-400">
-                            Загрузить
+                            {t("reservation.upload")}
                           </span>
                         </span>
                       )}
                       {/* Пример */}
                       <img
                         src={PasportFront}
-                        alt="Пример (фронт)"
+                        alt={t("reservation.frontExample")}
                         className="absolute bottom-1 left-1 w-16 h-12 object-cover rounded shadow border border-gray-700 bg-black"
                       />
                     </label>
                     <span className="text-xs text-gray-400 mt-1">
-                      Пример (фронт)
+                      {t("reservation.frontExample")}
                     </span>
                   </div>
                   {/* Бэк */}
@@ -1468,7 +1442,7 @@ const CarReservationModal = ({
                             />
                           </svg>
                           <span className="text-xs text-green-400">
-                            Загружено
+                            {t("reservation.uploaded")}
                           </span>
                         </span>
                       ) : (
@@ -1489,19 +1463,19 @@ const CarReservationModal = ({
                             />
                           </svg>
                           <span className="text-xs text-gray-400">
-                            Загрузить
+                            {t("reservation.upload")}
                           </span>
                         </span>
                       )}
                       {/* Пример */}
                       <img
                         src={PasportBack}
-                        alt="Пример (оборот)"
+                        alt={t("reservation.backExample")}
                         className="absolute bottom-1 left-1 w-16 h-12 object-cover rounded shadow border border-gray-700 bg-black"
                       />
                     </label>
                     <span className="text-xs text-gray-400 mt-1">
-                      Пример (оборот)
+                      {t("reservation.backExample")}
                     </span>
                   </div>
                 </div>
@@ -1509,7 +1483,7 @@ const CarReservationModal = ({
               {/* Телефон с регионом */}
               <div>
                 <Label htmlFor="phone" className="text-yellow-400 font-bold">
-                  Телефон
+                  {t("reservation.phone")}
                 </Label>
                 <div className="flex items-center gap-2 mt-1">
                   <Select
@@ -1584,15 +1558,14 @@ const CarReservationModal = ({
                   htmlFor="privacy"
                   className="text-white text-sm select-none"
                 >
-                  Я согласен на сбор и использование моих персональных данных,
-                  описанных в
+                  {t("reservation.privacyPolicy")}{" "}
                   <a
                     href="/privacy-policy.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-yellow-400 underline ml-1"
                   >
-                    политике конфиденциальности
+                    {t("reservation.privacyPolicyLink")}
                   </a>
                   .
                 </label>
@@ -1601,23 +1574,32 @@ const CarReservationModal = ({
               {/* Индикатор шага перед кнопкой */}
               <div className="w-full flex justify-center mb-2 mt-2">
                 <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
-                  {t("reservation.step", "Шаг")} {stepIndicator}
+                  {t("reservation.step")} {stepIndicator}
                 </span>
               </div>
 
               {/* Кнопка */}
               <Button
-                className="w-full bg-yellow-400 hover:bg-yellow-500 text-black text-lg font-bold py-3 rounded-xl"
+                className="w-full bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-black text-lg font-bold py-3 rounded-xl"
                 type="submit"
+                disabled={isSubmitting}
               >
-                Забронировать
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    <span>{t("reservation.submitting")}</span>
+                  </div>
+                ) : (
+                  t("reservation.book")
+                )}
               </Button>
               <Button
-                className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl"
+                className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 variant="outline"
                 onClick={goBack}
+                disabled={isSubmitting}
               >
-                {t("reservation.back", "Назад")}
+                {t("reservation.back")}
               </Button>
             </form>
           )}

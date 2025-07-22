@@ -12,6 +12,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import CarReservationModal from "./CarReservationModal";
 import { useTranslation } from "react-i18next";
+import { translateCarSpec } from "@/lib/carTranslations";
 import logo from "@/assets/logo.png";
 
 export interface CarCardProps {
@@ -41,33 +42,7 @@ export interface CarCardProps {
 
 const PLACEHOLDER_IMG = logo;
 
-// Маппинг значений Airtable к ключам для перевода
-const transmissionReverseMap: Record<string, string> = {
-  Автомат: "automatic",
-  Механика: "manual",
-  Робот: "robot",
-  Вариатор: "variator",
-};
-const fuelReverseMap: Record<string, string> = {
-  Бензин: "petrol",
-  Дизель: "diesel",
-  Электро: "electric",
-  Гибрид: "hybrid",
-};
-const featureReverseMap: Record<string, string> = {
-  "GPS навигация": "gps",
-  Bluetooth: "bluetooth",
-  Кондиционер: "ac",
-  "Камера заднего вида": "rearCamera",
-  "Круиз-контроль": "cruise",
-  "Подогрев сидений": "seatHeating",
-  "Подогрев руля": "steeringWheelHeating",
-  Парктроник: "parktronic",
-  Парктроники: "parktronic",
-  Практроники: "parktronic",
-  Parktronic: "parktronic",
-  "Климат-контроль": "climateControl",
-};
+// Убираем старые маппинги, используем новую систему переводов
 
 const CarCard = memo(
   ({
@@ -168,15 +143,13 @@ const CarCard = memo(
               <div className="flex items-center space-x-2 text-muted-foreground">
                 <Settings className="h-4 w-4" />
                 <span className="text-sm">
-                  {t(
-                    `cars.transmission.${transmissionReverseMap[transmission]}`
-                  ) || transmission}
+                  {translateCarSpec("transmission", transmission, t)}
                 </span>
               </div>
               <div className="flex items-center space-x-2 text-muted-foreground">
                 <Fuel className="h-4 w-4" />
                 <span className="text-sm">
-                  {t(`cars.fuel.${fuelReverseMap[fuel]}`) || fuel}
+                  {translateCarSpec("fuel", fuel, t)}
                 </span>
               </div>
             </div>
@@ -188,9 +161,7 @@ const CarCard = memo(
                   : safeFeatures.slice(0, 3)
                 ).map((feature, index) => (
                   <Badge key={index} variant="outline" className="text-xs">
-                    {featureReverseMap[feature]
-                      ? t(`cars.features.${featureReverseMap[feature]}`)
-                      : feature}
+                    {translateCarSpec("feature", feature, t)}
                   </Badge>
                 ))}
                 {safeFeatures.length > 3 && !showAllFeatures && (
