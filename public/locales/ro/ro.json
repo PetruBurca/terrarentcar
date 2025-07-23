@@ -36,6 +36,7 @@
     "fastDesc": "Documente minime, viteză maximă",
     "years": "ani pe piață",
     "yearsCount": "{{count}} ani",
+    "daysCount": "{{count}} zile",
     "clients": "clienți",
     "cars": "mașini",
     "support": "suport",
@@ -43,6 +44,11 @@
   },
   "footer": {
     "copyright": "© 2024 Toate drepturile rezervate"
+  },
+  "cookie": {
+    "title": "Cookie-uri",
+    "message": "Folosim cookie-uri pentru a îmbunătăți experiența dvs. pe site și pentru a analiza traficul.",
+    "accept": "OK"
   },
   "cars": {
     "title": "Parcul nostru",

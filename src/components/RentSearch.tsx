@@ -53,7 +53,7 @@ const RentSearch = ({ onSearch }) => {
             <p className="text-xl md:text-2xl text-yellow-400 mb-1 font-semibold">
               {t("hero.slogan")}
             </p>
-            <p className="text-lg text-white mb-6 max-w-2xl">
+            <p className="text-lg text-white mb-6 max-w-2xl hidden md:block">
               {t("hero.desc1")}
               <br />
               {t("hero.desc2")}

@@ -72,15 +72,31 @@ const customStyles = `
 `;
 
 // Функция для склонения слова "год" на русском языке
-function getYearWord(years: number) {
-  if (years % 10 === 1 && years % 100 !== 11) return "год";
-  if ([2, 3, 4].includes(years % 10) && ![12, 13, 14].includes(years % 100))
-    return "года";
-  return "лет";
+function getYearWord(years: number, language: string) {
+  if (language === "ru") {
+    if (years % 10 === 1 && years % 100 !== 11) return "год";
+    if ([2, 3, 4].includes(years % 10) && ![12, 13, 14].includes(years % 100))
+      return "года";
+    return "лет";
+  }
+  // Для других языков возвращаем пустую строку, так как склонение обрабатывается в локализации
+  return "";
+}
+
+// Функция для склонения слова "день" на русском языке
+function getDayWord(days: number, language: string) {
+  if (language === "ru") {
+    if (days % 10 === 1 && days % 100 !== 11) return "день";
+    if ([2, 3, 4].includes(days % 10) && ![12, 13, 14].includes(days % 100))
+      return "дня";
+    return "дней";
+  }
+  // Для других языков возвращаем пустую строку, так как склонение обрабатывается в локализации
+  return "";
 }
 
 const About = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const features = [
     {
       icon: Shield,
@@ -243,9 +259,12 @@ const About = () => {
                   <div className="text-4xl font-bold text-primary mb-2">
                     {t("about.yearsCount", {
                       count: diff.years,
-                      yearsWord: getYearWord(diff.years),
+                      yearsWord: getYearWord(diff.years, i18n.language),
                     })}{" "}
-                    {diff.days} дней
+                    {t("about.daysCount", {
+                      count: diff.days,
+                      daysWord: getDayWord(diff.days, i18n.language),
+                    })}
                   </div>
                   <p className="text-muted-foreground mb-6">
                     {t("about.years")}

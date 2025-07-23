@@ -570,15 +570,25 @@ const CarReservationModal = ({
   });
   // Получаем только заявки по этой машине и только подтверждённые
   const carOrders = orders.filter((order) => {
-    const carIds = Array.isArray(order.car)
-      ? order.car.map((id) => String(id).trim())
-      : [String(order.car).trim()];
-    return (
-      carIds.includes(String(car.id).trim()) &&
-      order.status === "подтверждена" &&
-      order.startDate &&
-      order.endDate
-    );
+    console.log("=== DEBUG: CarReservationModal order filtering ===");
+    console.log("Order:", {
+      id: order.id,
+      carIds: order.carIds,
+      status: order.status,
+      startDate: order.startDate,
+      endDate: order.endDate,
+    });
+    console.log("Current car ID:", car.id);
+
+    const hasCarId = order.carIds && order.carIds.includes(car.id);
+    const isConfirmed =
+      order.status === "подтверждена" || order.status === "подтвержден";
+    const hasDates = order.startDate && order.endDate;
+
+    console.log("Filter results:", { hasCarId, isConfirmed, hasDates });
+    console.log("Order matches:", hasCarId && isConfirmed && hasDates);
+
+    return hasCarId && isConfirmed && hasDates;
   });
   // Универсальный парсер дат
   function parseDate(str: string) {

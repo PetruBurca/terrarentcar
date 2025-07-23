@@ -50,14 +50,23 @@ function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-black/90 text-white px-4 py-3 flex flex-col md:flex-row items-center justify-between z-[2000] shadow-lg">
-      <span className="mb-2 md:mb-0 text-sm">{t("cookie.message")}</span>
-      <button
-        onClick={acceptCookies}
-        className="ml-0 md:ml-4 px-6 py-3 bg-primary text-white font-bold text-lg rounded-lg hover:bg-primary/80 hover:scale-105 shadow-lg transition-all duration-300"
-      >
-        {t("cookie.accept")}
-      </button>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[3000] flex items-center justify-center p-4">
+      <div className="bg-black/95 border border-yellow-400 rounded-2xl p-6 max-w-md w-full shadow-2xl shadow-yellow-400/20 transform transition-all duration-300 scale-100">
+        <div className="text-center">
+          <h3 className="text-xl font-bold text-yellow-400 mb-3">
+            🍪 {t("cookie.title", "Файлы cookie")}
+          </h3>
+          <p className="text-white mb-6 leading-relaxed">
+            {t("cookie.message", "Мы используем файлы cookie для улучшения вашего опыта на сайте.")}
+          </p>
+          <button
+            onClick={acceptCookies}
+            className="w-full px-6 py-3 bg-yellow-400 text-black font-bold text-lg rounded-xl hover:bg-yellow-500 hover:scale-105 shadow-lg transition-all duration-300"
+          >
+            {t("cookie.accept", "OK")}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -45,6 +45,11 @@
   "footer": {
     "copyright": "© 2024 All rights reserved"
   },
+  "cookie": {
+    "title": "Cookies",
+    "message": "We use cookies to improve your experience on our site and analyze traffic.",
+    "accept": "OK"
+  },
   "cars": {
     "title": "Our",
     "titleAccent": "Fleet",
