@@ -50,7 +50,7 @@ const RentSearch = ({ onSearch }) => {
               <br />
               <span className="text-white">RENT CAR</span>
             </h1>
-            <p className="text-xl md:text-2xl text-yellow-400 mb-1 font-semibold">
+            <p className="text-xl md:text-2xl text-yellow-400 mb-4 md:mb-1 font-semibold">
               {t("hero.slogan")}
             </p>
             <p className="text-lg text-white mb-6 max-w-2xl hidden md:block">
