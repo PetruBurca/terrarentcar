@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { Car, Menu, X, Phone } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/utils/button";
 import logo from "../assets/logo.png";
 import appstore from "../assets/appstore.svg";
 import { FaInstagram, FaFacebook, FaViber, FaWhatsapp } from "react-icons/fa";

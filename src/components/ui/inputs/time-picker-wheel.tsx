@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/utils/button";
 import { useTranslation } from "react-i18next";
 
 function TimePicker({ value, onChange, onClose }) {

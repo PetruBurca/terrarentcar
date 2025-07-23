@@ -7,9 +7,9 @@ import {
   Star,
   Image as ImageIcon,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/utils/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/layout/card";
+import { Badge } from "@/components/ui/feedback/badge";
 import CarReservationModal from "./CarReservationModal";
 import { useTranslation } from "react-i18next";
 import { translateCarSpec } from "@/lib/carTranslations";

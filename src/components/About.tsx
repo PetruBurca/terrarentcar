@@ -1,5 +1,5 @@
 import { Shield, Clock, Award, Users } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/layout/card";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 

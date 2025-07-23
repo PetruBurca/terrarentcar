@@ -1,18 +1,18 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Calendar, MapPin, Clock, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/utils/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { toast } from "@/hooks/use-toast";
+} from "@/components/ui/overlays/dialog";
+import { Input } from "@/components/ui/inputs/input";
+import { Label } from "@/components/ui/utils/label";
+import { Textarea } from "@/components/ui/inputs/textarea";
+import { Card, CardContent } from "@/components/ui/layout/card";
+import { toast } from "@/components/ui/utils/use-toast";
 import { useTranslation } from "react-i18next";
 import {
   Carousel,
@@ -20,26 +20,26 @@ import {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
-} from "@/components/ui/carousel";
+} from "@/components/ui/media/carousel";
 import { createOrder } from "@/lib/airtable";
 import { translateCarSpec } from "@/lib/carTranslations";
 import { formatDateRange } from "@/lib/dateHelpers";
 import logo from "@/assets/logo.png";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useRef } from "react";
-import { Calendar as ShadcnCalendar } from "@/components/ui/calendar";
+import { Calendar as ShadcnCalendar } from "@/components/ui/data-display/calendar";
 import { useQuery } from "@tanstack/react-query";
 import { fetchOrders } from "@/lib/airtable";
-import TimePicker from "@/components/ui/time-picker-wheel";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import TimePicker from "@/components/ui/inputs/time-picker-wheel";
+import { Checkbox } from "@/components/ui/forms/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/forms/radio-group";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/inputs/select";
 // Импорт SVG-иконок для правил
 import NoSmokeIcon from "@/assets/logorule/no-smoking-sign-svgrepo-com.svg";
 import NoPetsIcon from "@/assets/logorule/no-pets-svgrepo-com.svg";
@@ -1667,6 +1667,12 @@ function CarouselWithCenter({
   colorCenter,
   colorSide,
   valueSuffix = "",
+}: {
+  items: Array<{ label: string; value: string | number }>;
+  title: string;
+  colorCenter: string;
+  colorSide: string;
+  valueSuffix?: string;
 }) {
   // Адаптивное количество видимых элементов
   const [visibleCount, setVisibleCount] = useState(5);
@@ -1695,20 +1701,17 @@ function CarouselWithCenter({
   const swipeThreshold = 30; // Минимальное расстояние для срабатывания свайпа
   const directionThreshold = 15; // Порог для определения направления
 
-  // Нормализация offset для бесконечной прокрутки
-  const normalizeOffset = useCallback(
-    (off: number) => {
-      const mod = off % totalWidth;
-      return mod < 0 ? mod + totalWidth : mod;
-    },
-    [totalWidth]
-  );
+  // Нормализация offset для истинной бесконечной прокрутки
+  const normalizeOffset = useCallback((off: number) => {
+    // Не нормализуем offset, позволяем ему быть любым числом
+    return off;
+  }, []);
 
   // Получение активного индекса на основе offset
   const getActiveIndex = useCallback(() => {
-    const normalizedOffset = normalizeOffset(offset);
-    return Math.round(normalizedOffset / itemWidth) % items.length;
-  }, [offset, normalizeOffset, itemWidth, items.length]);
+    const rawIndex = Math.round(offset / itemWidth);
+    return ((rawIndex % items.length) + items.length) % items.length;
+  }, [offset, itemWidth, items.length]);
 
   // Touch handlers с полной блокировкой вертикального скролла
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -1754,8 +1757,7 @@ function CarouselWithCenter({
           Math.min(maxVisualOffset, deltaX)
         );
 
-        const normalizedOffset = normalizeOffset(offset);
-        const baseIndex = Math.round(normalizedOffset / itemWidth);
+        const baseIndex = Math.round(offset / itemWidth);
         const baseOffset = baseIndex * itemWidth;
         setOffset(baseOffset - limitedDelta);
       }
@@ -1784,8 +1786,7 @@ function CarouselWithCenter({
       // Обрабатываем только горизонтальные свайпы
       if (swipeDirection === "horizontal") {
         const deltaX = dragCurrent.x - dragStart.x;
-        const normalizedOffset = normalizeOffset(offset);
-        const currentIndex = Math.round(normalizedOffset / itemWidth);
+        const currentIndex = Math.round(offset / itemWidth);
         let targetIndex = currentIndex;
 
         // Определяем направление и переходим на 1 шаг
@@ -1799,9 +1800,7 @@ function CarouselWithCenter({
           }
         }
 
-        // Нормализуем индекс
-        targetIndex =
-          ((targetIndex % items.length) + items.length) % items.length;
+        // НЕ нормализуем индекс - оставляем как есть для бесконечности
         const targetOffset = targetIndex * itemWidth;
 
         setIsAnimating(true);
@@ -1809,8 +1808,7 @@ function CarouselWithCenter({
         setTimeout(() => setIsAnimating(false), 250);
       } else {
         // Если не горизонтальный свайп - возвращаем к исходной позиции
-        const normalizedOffset = normalizeOffset(offset);
-        const currentIndex = Math.round(normalizedOffset / itemWidth);
+        const currentIndex = Math.round(offset / itemWidth);
         const targetOffset = currentIndex * itemWidth;
         setOffset(targetOffset);
       }
@@ -1854,8 +1852,7 @@ function CarouselWithCenter({
         Math.min(maxVisualOffset, deltaX)
       );
 
-      const normalizedOffset = normalizeOffset(offset);
-      const baseIndex = Math.round(normalizedOffset / itemWidth);
+      const baseIndex = Math.round(offset / itemWidth);
       const baseOffset = baseIndex * itemWidth;
       setOffset(baseOffset - limitedDelta);
     },
@@ -1868,8 +1865,7 @@ function CarouselWithCenter({
 
     if (swipeDirection === "horizontal") {
       const deltaX = dragCurrent.x - dragStart.x;
-      const normalizedOffset = normalizeOffset(offset);
-      const currentIndex = Math.round(normalizedOffset / itemWidth);
+      const currentIndex = Math.round(offset / itemWidth);
       let targetIndex = currentIndex;
 
       if (Math.abs(deltaX) > swipeThreshold) {
@@ -1880,8 +1876,7 @@ function CarouselWithCenter({
         }
       }
 
-      targetIndex =
-        ((targetIndex % items.length) + items.length) % items.length;
+      // НЕ нормализуем индекс для бесконечности
       const targetOffset = targetIndex * itemWidth;
 
       setIsAnimating(true);
@@ -1912,31 +1907,36 @@ function CarouselWithCenter({
   const prev = useCallback(() => {
     if (isAnimating) return;
     setIsAnimating(true);
-    setOffset((prev) => prev - itemWidth); // Исправлено: двигаем влево
+    setOffset((prev) => prev - itemWidth); // Двигаем влево (к предыдущему)
     setTimeout(() => setIsAnimating(false), 250);
   }, [itemWidth, isAnimating]);
 
   const next = useCallback(() => {
     if (isAnimating) return;
     setIsAnimating(true);
-    setOffset((prev) => prev + itemWidth); // Исправлено: двигаем вправо
+    setOffset((prev) => prev + itemWidth); // Двигаем вправо (к следующему)
     setTimeout(() => setIsAnimating(false), 250);
   }, [itemWidth, isAnimating]);
 
-  // Оптимизированный рендер элементов
+  // Оптимизированный рендер элементов с истинной бесконечностью
   const renderItems = useMemo(() => {
-    const normalizedOffset = normalizeOffset(offset);
     const elements = [];
 
-    // Рендерим только видимые элементы + буфер
-    const visibleRange = visibleCount + 2;
-    for (let i = -visibleRange; i <= visibleRange; i++) {
-      const itemIndex = (i + items.length * 10) % items.length;
+    // Вычисляем центральный индекс на основе текущего offset
+    const centerIndex = Math.round(offset / itemWidth);
+
+    // Рендерим элементы вокруг центрального с достаточным буфером
+    const renderRange = visibleCount + 4; // Увеличиваем буфер
+
+    for (let i = -renderRange; i <= renderRange; i++) {
+      const virtualIndex = centerIndex + i;
+      const itemIndex =
+        ((virtualIndex % items.length) + items.length) % items.length;
       const item = items[itemIndex];
-      const itemPosition = i * itemWidth - normalizedOffset;
+      const itemPosition = virtualIndex * itemWidth - offset;
 
       // Пропускаем элементы, которые слишком далеко
-      if (Math.abs(itemPosition) > itemWidth * 3) continue;
+      if (Math.abs(itemPosition) > itemWidth * (renderRange + 1)) continue;
 
       // Оптимизированные вычисления близости
       const distanceFromCenter = Math.abs(itemPosition) / (itemWidth * 1.2);
@@ -1958,13 +1958,13 @@ function CarouselWithCenter({
 
       elements.push(
         <div
-          key={`${itemIndex}-${i}`}
-          className={`absolute flex flex-col items-center justify-center rounded-lg px-2 py-2 cursor-pointer select-none will-change-transform ${
+          key={`${itemIndex}-${virtualIndex}`}
+          className={`absolute flex flex-col items-center justify-center rounded-lg px-2 py-2 cursor-pointer select-none will-change-transform hover:scale-105 active:scale-95 ${
             isDragging
               ? ""
               : isAnimating
               ? "transition-all duration-400 ease-out"
-              : "transition-all duration-300 ease-out"
+              : "transition-all duration-300 ease-out hover:shadow-lg"
           }`}
           style={{
             left: `calc(50% + ${itemPosition}px)`,
@@ -1989,7 +1989,11 @@ function CarouselWithCenter({
           onClick={() => {
             if (isAnimating || isDragging) return;
             setIsAnimating(true);
-            setOffset(i * itemWidth);
+
+            // Используем виртуальный индекс для плавного перехода
+            const targetOffset = virtualIndex * itemWidth;
+            setOffset(targetOffset);
+
             setTimeout(() => setIsAnimating(false), 250);
           }}
         >
@@ -2028,14 +2032,14 @@ function CarouselWithCenter({
       <button
         onClick={prev}
         disabled={isAnimating}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 transition-all duration-200 disabled:opacity-50"
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 hover:scale-110 active:scale-95 transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-yellow-400/30"
       >
         &#8592;
       </button>
       <button
         onClick={next}
         disabled={isAnimating}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 transition-all duration-200 disabled:opacity-50"
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 hover:scale-110 active:scale-95 transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-yellow-400/30"
       >
         &#8594;
       </button>
@@ -2083,14 +2087,36 @@ function CarouselWithCenter({
             onClick={() => {
               if (isAnimating) return;
               setIsAnimating(true);
-              setOffset(idx * itemWidth);
+
+              // Находим ближайший виртуальный индекс для выбранного элемента
+              const currentIndex = Math.round(offset / itemWidth);
+              const currentLogicalIndex =
+                ((currentIndex % items.length) + items.length) % items.length;
+
+              // Вычисляем минимальное расстояние для перехода
+              let targetVirtualIndex = currentIndex;
+
+              // Проверяем переход через начало/конец массива
+              const distanceForward =
+                (idx - currentLogicalIndex + items.length) % items.length;
+              const distanceBackward =
+                (currentLogicalIndex - idx + items.length) % items.length;
+
+              if (distanceForward <= distanceBackward) {
+                targetVirtualIndex = currentIndex + distanceForward;
+              } else {
+                targetVirtualIndex = currentIndex - distanceBackward;
+              }
+
+              setOffset(targetVirtualIndex * itemWidth);
+
               setTimeout(() => setIsAnimating(false), 250);
             }}
             disabled={isAnimating}
-            className={`h-2 w-2 rounded-full transition-all duration-300 cursor-pointer hover:scale-125 disabled:cursor-default ${
+            className={`h-2 w-2 rounded-full transition-all duration-300 cursor-pointer hover:scale-125 active:scale-110 disabled:cursor-default ${
               getActiveIndex() === idx
-                ? "bg-yellow-400 scale-125 shadow-md shadow-yellow-400/50"
-                : "bg-gray-600 scale-100 opacity-70 hover:opacity-100"
+                ? "bg-yellow-400 scale-125 shadow-md shadow-yellow-400/50 ring-2 ring-yellow-400/30"
+                : "bg-gray-600 scale-100 opacity-70 hover:opacity-100 hover:bg-gray-500"
             }`}
           />
         ))}

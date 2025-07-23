@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Filter, AlertCircle, RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/utils/button";
+import { Badge } from "@/components/ui/feedback/badge";
+import { Skeleton } from "@/components/ui/feedback/skeleton";
 import CarCard from "./CarCard";
 import { useTranslation } from "react-i18next";
 import { useMediaQuery } from "@/hooks/use-mobile";

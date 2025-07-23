@@ -1,5 +1,5 @@
 import { Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/utils/button";
 import heroVideo from "@/assets/video.mp4";
 import heroPoster from "@/assets/hero-road.jpg";
 import { useTranslation } from "react-i18next";

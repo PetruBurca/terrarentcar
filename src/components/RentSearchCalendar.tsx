@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/utils/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/overlays/dialog";
 import { format, isToday } from "date-fns";
 import { ru, ro, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
