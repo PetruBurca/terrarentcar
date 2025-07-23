@@ -304,6 +304,11 @@ function MonthCalendar({ month, range, onSelect, locale }) {
     range.from && range.to && date > range.from && date < range.to;
   const isRangeStart = (date) => isSameDay(date, range.from);
   const isRangeEnd = (date) => isSameDay(date, range.to);
+  const isPastDate = (date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  };
   return (
     <div className="mb-2">
       <div className="text-lg font-bold text-yellow-400 mb-1 text-center">
@@ -356,12 +361,15 @@ function MonthCalendar({ month, range, onSelect, locale }) {
                 const start = isRangeStart(date);
                 const end = isRangeEnd(date);
                 const inRange = isInRange(date);
+                const pastDate = isPastDate(date);
                 return (
                   <button
                     key={date.toISOString()}
                     className={[
                       "h-10 w-10 flex items-center justify-center font-bold transition-colors duration-150 relative",
-                      start || end
+                      pastDate
+                        ? "text-gray-500 line-through cursor-not-allowed opacity-50"
+                        : start || end
                         ? "bg-yellow-400 text-black z-10 rounded-xl border-2 border-yellow-400"
                         : inRange
                         ? "text-black z-10"
@@ -370,7 +378,8 @@ function MonthCalendar({ month, range, onSelect, locale }) {
                         : "text-white hover:bg-yellow-400 hover:text-black z-10 rounded-full",
                     ].join(" ")}
                     style={{ gridColumn: i + 1 }}
-                    onClick={() => onSelect(date)}
+                    onClick={() => !pastDate && onSelect(date)}
+                    disabled={pastDate}
                   >
                     {date.getDate()}
                   </button>

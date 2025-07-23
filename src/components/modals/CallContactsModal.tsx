@@ -98,3 +98,5 @@ export const CallContactsModal: React.FC<CallContactsModalProps> = ({
     </div>
   );
 };
+
+export default CallContactsModal;

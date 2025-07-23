@@ -1,10 +1,12 @@
-import Header from "@/components/Header";
-import RentSearch from "@/components/RentSearch";
-import LogoMarquee from "@/components/LogoMarquee";
-import About from "@/components/About";
-import Cars from "@/components/Cars";
-import Contact from "@/components/Contact";
-import Footer from "@/components/Footer";
+import {
+  Header,
+  Footer,
+  RentSearch,
+  LogoMarquee,
+  About,
+  Cars,
+  Contact,
+} from "@/components";
 import { useState } from "react";
 
 const Index = () => {

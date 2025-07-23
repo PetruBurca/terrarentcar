@@ -1,16 +1,12 @@
 import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { Car, Menu, X, Phone } from "lucide-react";
 import { Button } from "@/components/ui/utils/button";
-import logo from "../assets/logo.png";
-import appstore from "../assets/appstore.svg";
+import logo from "../../assets/logo.png";
+import appstore from "../../assets/appstore.svg";
 import { FaInstagram, FaFacebook, FaViber, FaWhatsapp } from "react-icons/fa";
 import { FaGlobe } from "react-icons/fa";
 import { FaPhoneSquareAlt } from "react-icons/fa";
-const CallContactsModal = lazy(() =>
-  import("./CallContactsModal").then((mod) => ({
-    default: mod.CallContactsModal,
-  }))
-);
+const CallContactsModal = lazy(() => import("../modals/CallContactsModal"));
 import { useTranslation } from "react-i18next";
 import { loadLocale } from "@/lib/i18n";
 

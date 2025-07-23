@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/utils/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/layout/card";
 import { Badge } from "@/components/ui/feedback/badge";
-import CarReservationModal from "./CarReservationModal";
+import { CarReservationModal } from "../modals";
 import { useTranslation } from "react-i18next";
 import { translateCarSpec } from "@/lib/carTranslations";
 import logo from "@/assets/logo.png";

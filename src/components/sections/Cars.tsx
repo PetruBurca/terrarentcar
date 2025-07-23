@@ -3,11 +3,11 @@ import { Filter, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/utils/button";
 import { Badge } from "@/components/ui/feedback/badge";
 import { Skeleton } from "@/components/ui/feedback/skeleton";
-import CarCard from "./CarCard";
+import { CarCard } from "../car";
+import type { CarCardProps } from "../car/CarCard";
 import { useTranslation } from "react-i18next";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
-import type { CarCardProps } from "./CarCard";
 import { fetchCars, fetchOrders } from "@/lib/airtable";
 
 const categoryMap = {
