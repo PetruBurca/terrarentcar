@@ -258,7 +258,12 @@
     "totalCost": "Costul total al închirierii",
     "hours": "ore",
     "minutes": "minute",
-    "ok": "OK"
+    "ok": "OK",
+    "successTitle": "Cerere trimisă!",
+    "successMessage": "Cererea dvs. pentru închirierea",
+    "successMessageEnd": "a fost trimisă cu succes!",
+    "contactSoon": "Vă vom contacta în curând pentru a confirma rezervarea.",
+    "okButton": "Am înțeles, mulțumesc!"
   },
   "validation": {
     "error": "Eroare de validare",

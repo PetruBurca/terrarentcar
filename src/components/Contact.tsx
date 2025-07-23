@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/layout/card";
 import { toast } from "@/components/ui/utils/use-toast";
 import { useTranslation } from "react-i18next";
-import { createOrder } from "@/lib/airtable";
+import { createContactRequest } from "@/lib/airtable";
 
 const Contact = () => {
   const { t } = useTranslation();
@@ -35,17 +35,48 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await createOrder({
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email,
-        comment: formData.message,
+    
+    // Валидация полей
+    if (!formData.name.trim()) {
+      toast({
+        title: t("validation.error", "Ошибка"),
+        description: t("validation.nameRequired", "Введите ваше имя"),
+        variant: "destructive",
       });
+      return;
+    }
+    
+    if (!formData.email.trim()) {
+      toast({
+        title: t("validation.error", "Ошибка"),
+        description: t("validation.emailRequired", "Введите email"),
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!formData.phone.trim()) {
+      toast({
+        title: t("validation.error", "Ошибка"),
+        description: t("validation.phoneRequired", "Введите телефон"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await createContactRequest({
+        fullName: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+      });
+      
       toast({
         title: t("contact.messageSentTitle"),
         description: t("contact.messageSentDesc"),
       });
+      
       setFormData({
         name: "",
         email: "",

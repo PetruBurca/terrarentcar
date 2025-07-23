@@ -1,5 +1,6 @@
 const AIRTABLE_BASE_ID = "app2zFP3OOvuIAxHq";
 const AIRTABLE_TABLE_NAME = "Автомобили (Cars)"; // Имя таблицы в Airtable (точно как в базе)
+const AIRTABLE_CONTACT_TABLE = "Заявки на связь"; // Новая таблица для контактных форм
 const AIRTABLE_TOKEN =
   "patKvCVhLU4cB94Gz.bfe322360c9044bfa0994f438f4cd451106309491786577e01eb3c4fe9b3ec26";
 
@@ -281,4 +282,54 @@ export async function fetchOrders() {
       status: (fields["Статус заявки"] || "").toLowerCase(),
     };
   });
+}
+
+// Функция для создания заявки на связь
+export async function createContactRequest({
+  fullName,
+  email,
+  phone,
+  message,
+}: {
+  fullName: string;
+  email: string;
+  phone: string;
+  message: string;
+}) {
+  console.log("=== DEBUG: Creating contact request ===");
+  console.log({ fullName, email, phone, message });
+
+  const body = {
+    fields: {
+      "Полное имя": fullName,
+      Email: email,
+      Телефон: phone,
+      Сообщение: message,
+      "Дата создания": new Date().toISOString().split("T")[0], // YYYY-MM-DD формат
+    },
+  };
+
+  console.log("Request body:", JSON.stringify(body, null, 2));
+
+  const response = await fetch(
+    `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_CONTACT_TABLE}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Airtable contact error:", errorText);
+    throw new Error(`Ошибка отправки заявки: ${response.status}`);
+  }
+
+  const result = await response.json();
+  console.log("Contact request created:", result);
+  return result;
 }

@@ -177,7 +177,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
       </div>
       {onRequestClose && (
         <button
-          className="mt-2 w-full py-3 rounded-xl bg-yellow-400 text-black font-bold text-lg shadow-md hover:bg-yellow-300 active:bg-yellow-500 transition"
+          className="mt-2 w-full py-3 rounded-xl bg-red-500 text-black font-bold text-lg shadow-md hover:bg-yellow-300 active:bg-yellow-500 transition"
           onClick={onRequestClose}
         >
           Готово

@@ -112,6 +112,7 @@ const CarReservationModal = ({
   });
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -121,7 +122,6 @@ const CarReservationModal = ({
     returnDate: "",
     pickupTime: "10:00", // Устанавливаю начальное значение
     returnTime: "",
-    pickupLocation: "",
     message: "",
     pickupType: "office", // по умолчанию 'заберу из офиса'
     idnp: "", // добавлено поле idnp
@@ -138,7 +138,6 @@ const CarReservationModal = ({
     returnDate: string;
     pickupTime: string;
     returnTime: string;
-    pickupLocation: string;
     message: string;
     pickupType: string;
     idnp: string;
@@ -243,32 +242,9 @@ const CarReservationModal = ({
         idPhotoBack: formDataObj.get("idPhotoBack") as File,
         totalCost: totalPrice + 20,
       });
-      toast({
-        title: t("reservation.sentTitle"),
-        description: t("reservation.sentDesc", { car: car.name }),
-      });
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        pickupDate: "",
-        returnDate: "",
-        pickupTime: "10:00", // Сброс на начальное значение
-        returnTime: "",
-        pickupLocation: "",
-        message: "",
-        pickupType: "office",
-        idnp: "", // сброс idnp
-        pickupAddress: "",
-        unlimitedMileage: false,
-        goldCard: false,
-        clubCard: false,
-      });
-      setUploadedPhotos({ front: false, back: false });
-      setPrivacyAccepted(false);
+      // Показываем модальное окно успеха
+      setShowSuccessModal(true);
       setIsSubmitting(false);
-      onClose();
     } catch (e) {
       toast({
         title: t("reservation.errorTitle"),
@@ -553,6 +529,33 @@ const CarReservationModal = ({
   };
   const goBack = () => setCurrentStep((s) => Math.max(s - 1, 0));
 
+  // Функция для закрытия модального окна успеха
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    // Сбрасываем форму
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      pickupDate: "",
+      returnDate: "",
+      pickupTime: "10:00",
+      returnTime: "",
+      message: "",
+      pickupType: "office",
+      idnp: "",
+      pickupAddress: "",
+      unlimitedMileage: false,
+      goldCard: false,
+      clubCard: false,
+    });
+    setUploadedPhotos({ front: false, back: false });
+    setPrivacyAccepted(false);
+    setCurrentStep(0);
+    onClose();
+  };
+
   // Сброс состояния при закрытии модала
   useEffect(() => {
     if (!isOpen) {
@@ -560,6 +563,7 @@ const CarReservationModal = ({
       setIsSubmitting(false);
       setPrivacyAccepted(false);
       setUploadedPhotos({ front: false, back: false });
+      setShowSuccessModal(false);
     }
   }, [isOpen]);
 
@@ -680,942 +684,1024 @@ const CarReservationModal = ({
   ];
 
   return (
-    <Dialog open={isOpen} onOpenChange={isSubmitting ? undefined : onClose}>
-      <DialogContent
-        className={
-          isMobile
-            ? "fixed inset-0 w-full max-w-[400px] sm:max-w-[98vw] min-w-0 min-h-[100dvh] h-[100dvh] top-0 left-0 z-[3000] bg-background overflow-y-auto rounded-none p-0 pt-4 pb-[env(safe-area-inset-bottom,12px)] px-4 sm:px-2 box-border"
-            : "max-w-4xl max-h-[90vh] overflow-y-auto z-[3000] !top-1/2 !left-1/2 !translate-x-[-50%] !translate-y-[-50%] sm:max-w-lg md:max-w-2xl p-6 md:px-8 box-border"
-        }
-        style={
-          isMobile
-            ? { zIndex: 3000, maxWidth: "100vw", minWidth: 0 }
-            : { zIndex: 3000 }
-        }
-      >
-        {/* Крестик всегда сверху справа */}
-        <button
-          onClick={isSubmitting ? undefined : onClose}
-          className={`absolute top-3 right-3 z-20 text-3xl text-yellow-400 hover:text-yellow-200 transition md:top-4 md:right-4 ${
-            isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-          aria-label={t("reservation.cancel")}
-          disabled={isSubmitting}
+    <>
+      <Dialog open={isOpen} onOpenChange={isSubmitting ? undefined : onClose}>
+        <DialogContent
+          className={
+            isMobile
+              ? "fixed inset-0 w-full max-w-[400px] sm:max-w-[98vw] min-w-0 min-h-[100dvh] h-[100dvh] top-0 left-0 z-[3000] bg-background overflow-y-auto rounded-none p-0 pt-4 pb-[env(safe-area-inset-bottom,12px)] px-4 sm:px-2 box-border"
+              : "max-w-4xl max-h-[90vh] overflow-y-auto z-[3000] !top-1/2 !left-1/2 !translate-x-[-50%] !translate-y-[-50%] sm:max-w-lg md:max-w-2xl p-6 md:px-8 box-border"
+          }
+          style={
+            isMobile
+              ? { zIndex: 3000, maxWidth: "100vw", minWidth: 0 }
+              : { zIndex: 3000 }
+          }
         >
-          <X />
-        </button>
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">
-            {t("reservation.title")}
-          </DialogTitle>
-          <DialogDescription className="sr-only">
-            {t(
-              "reservation.dialogDescription",
-              "Форма бронирования автомобиля. Заполните все поля и отправьте заявку."
-            )}
-          </DialogDescription>
-        </DialogHeader>
+          {/* Крестик всегда сверху справа */}
+          <button
+            onClick={isSubmitting ? undefined : onClose}
+            className={`absolute top-3 right-3 z-20 text-3xl text-yellow-400 hover:text-yellow-200 transition md:top-4 md:right-4 ${
+              isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            aria-label={t("reservation.cancel")}
+            disabled={isSubmitting}
+          >
+            <X />
+          </button>
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">
+              {t("reservation.title")}
+            </DialogTitle>
+            <DialogDescription className="sr-only">
+              {t(
+                "reservation.dialogDescription",
+                "Форма бронирования автомобиля. Заполните все поля и отправьте заявку."
+              )}
+            </DialogDescription>
+          </DialogHeader>
 
-        {/* Wizard steps */}
-        <div className="w-full pb-4">
-          {currentStep === 0 && (
-            <div className="flex flex-col items-center gap-1 pb-4">
-              {/* Фото (carousel) */}
-              <div className="w-full flex flex-col items-center">
-                <h2 className="text-2xl font-bold text-center mb-2 text-white">
-                  {car.name}
-                </h2>
-                <div className="relative w-full max-w-md mx-auto">
-                  <img
-                    src={car.images[activeIndex] || logo}
-                    alt={car.name}
-                    className="w-full h-64 object-cover rounded-lg border border-gray-800"
-                  />
-                  {/* Стрелки */}
+          {/* Wizard steps */}
+          <div className="w-full pb-4">
+            {currentStep === 0 && (
+              <div className="flex flex-col items-center gap-1 pb-4">
+                {/* Фото (carousel) */}
+                <div className="w-full flex flex-col items-center">
+                  <h2 className="text-2xl font-bold text-center mb-2 text-white">
+                    {car.name}
+                  </h2>
+                  <div className="relative w-full max-w-md mx-auto">
+                    <img
+                      src={car.images[activeIndex] || logo}
+                      alt={car.name}
+                      className="w-full h-64 object-cover rounded-lg border border-gray-800"
+                    />
+                    {/* Стрелки */}
+                    {car.images && car.images.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={handlePrev}
+                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-yellow-400 rounded-full p-1 hover:bg-yellow-500 transition"
+                          aria-label="Prev"
+                        >
+                          &#8592;
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleNext}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-yellow-400 rounded-full p-1 hover:bg-yellow-500 transition"
+                          aria-label="Next"
+                        >
+                          &#8594;
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  {/* Миниатюры */}
                   {car.images && car.images.length > 1 && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={handlePrev}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-yellow-400 rounded-full p-1 hover:bg-yellow-500 transition"
-                        aria-label="Prev"
-                      >
-                        &#8592;
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleNext}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-yellow-400 rounded-full p-1 hover:bg-yellow-500 transition"
-                        aria-label="Next"
-                      >
-                        &#8594;
-                      </button>
-                    </>
+                    <div className="flex justify-center gap-2 mt-2">
+                      {car.images.map((img, idx) => (
+                        <img
+                          key={idx}
+                          src={img}
+                          alt={`thumb-${idx}`}
+                          className={`w-14 h-14 object-cover rounded cursor-pointer border-2 ${
+                            activeIndex === idx
+                              ? "border-yellow-400"
+                              : "border-gray-700"
+                          }`}
+                          onClick={() => setActiveIndex(idx)}
+                        />
+                      ))}
+                    </div>
                   )}
                 </div>
-                {/* Миниатюры */}
-                {car.images && car.images.length > 1 && (
-                  <div className="flex justify-center gap-2 mt-2">
-                    {car.images.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={img}
-                        alt={`thumb-${idx}`}
-                        className={`w-14 h-14 object-cover rounded cursor-pointer border-2 ${
-                          activeIndex === idx
-                            ? "border-yellow-400"
-                            : "border-gray-700"
-                        }`}
-                        onClick={() => setActiveIndex(idx)}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
 
-              {/* Стоимость (carousel) */}
-              <CarouselWithCenter
-                items={[
-                  {
-                    label: t("reservation.pricePerDay"),
-                    value: car.pricePerDay,
-                  },
-                  {
-                    label: t("reservation.price2to10"),
-                    value: car.price2to10,
-                  },
-                  {
-                    label: t("reservation.price11to20"),
-                    value: car.price11to20,
-                  },
-                  {
-                    label: t("reservation.price21to29"),
-                    value: car.price21to29,
-                  },
-                  {
-                    label: t("reservation.price30plus"),
-                    value: car.price30plus,
-                  },
-                ]}
-                title={t("reservation.priceTitle")}
-                colorCenter="bg-yellow-400 text-black"
-                colorSide="bg-gray-800 text-white opacity-60"
-                valueSuffix="€"
-              />
+                {/* Стоимость (carousel) */}
+                <CarouselWithCenter
+                  items={[
+                    {
+                      label: t("reservation.pricePerDay"),
+                      value: car.pricePerDay,
+                    },
+                    {
+                      label: t("reservation.price2to10"),
+                      value: car.price2to10,
+                    },
+                    {
+                      label: t("reservation.price11to20"),
+                      value: car.price11to20,
+                    },
+                    {
+                      label: t("reservation.price21to29"),
+                      value: car.price21to29,
+                    },
+                    {
+                      label: t("reservation.price30plus"),
+                      value: car.price30plus,
+                    },
+                  ]}
+                  title={t("reservation.priceTitle")}
+                  colorCenter="bg-yellow-400 text-black"
+                  colorSide="bg-gray-800 text-white opacity-60"
+                  valueSuffix="€"
+                />
 
-              {/* Характеристики (carousel) */}
-              <CarouselWithCenter
-                items={[
-                  {
-                    label: t("reservation.drive"),
-                    value: translateCarSpec("drive", car.drive, t),
-                  },
-                  {
-                    label: t("reservation.fuel"),
-                    value: translateCarSpec("fuel", car.fuel, t),
-                  },
-                  {
-                    label: t("reservation.rating"),
-                    value: car.rating,
-                  },
-                  {
-                    label: t("reservation.passengers"),
-                    value: car.passengers,
-                  },
-                  {
-                    label: t("reservation.transmission"),
-                    value: translateCarSpec(
-                      "transmission",
-                      car.transmission,
-                      t
-                    ),
-                  },
-                  {
-                    label: t("reservation.year"),
-                    value: car.year,
-                  },
-                  {
-                    label: t("reservation.engine"),
-                    value: car.engine,
-                  },
-                ]}
-                title={t("reservation.featuresTitle")}
-                colorCenter="bg-yellow-400 text-black"
-                colorSide="bg-gray-800 text-white opacity-60"
-              />
+                {/* Характеристики (carousel) */}
+                <CarouselWithCenter
+                  items={[
+                    {
+                      label: t("reservation.drive"),
+                      value: translateCarSpec("drive", car.drive, t),
+                    },
+                    {
+                      label: t("reservation.fuel"),
+                      value: translateCarSpec("fuel", car.fuel, t),
+                    },
+                    {
+                      label: t("reservation.rating"),
+                      value: car.rating,
+                    },
+                    {
+                      label: t("reservation.passengers"),
+                      value: car.passengers,
+                    },
+                    {
+                      label: t("reservation.transmission"),
+                      value: translateCarSpec(
+                        "transmission",
+                        car.transmission,
+                        t
+                      ),
+                    },
+                    {
+                      label: t("reservation.year"),
+                      value: car.year,
+                    },
+                    {
+                      label: t("reservation.engine"),
+                      value: car.engine,
+                    },
+                  ]}
+                  title={t("reservation.featuresTitle")}
+                  colorCenter="bg-yellow-400 text-black"
+                  colorSide="bg-gray-800 text-white opacity-60"
+                />
 
-              {/* Календарь и время */}
-              <div className="w-full max-w-md mx-auto">
-                <h3 className="text-xl font-bold text-center mb-2">
-                  {t("reservation.calendarTitle")}
-                </h3>
-                <div className="flex flex-col items-center gap-2">
-                  <ShadcnCalendar
-                    mode="range"
-                    selected={selected}
-                    onSelect={(range) => {
-                      // Проверка на disabled
-                      const isDisabled = (date: Date | undefined) =>
-                        !!date &&
-                        disabledDays.some(
-                          (dd) =>
-                            dd.getFullYear() === date.getFullYear() &&
-                            dd.getMonth() === date.getMonth() &&
-                            dd.getDate() === date.getDate()
-                        );
+                {/* Календарь и время */}
+                <div className="w-full max-w-md mx-auto">
+                  <h3 className="text-xl font-bold text-center mb-2">
+                    {t("reservation.calendarTitle")}
+                  </h3>
+                  <div className="flex flex-col items-center gap-2">
+                    <ShadcnCalendar
+                      mode="range"
+                      selected={selected}
+                      onSelect={(range) => {
+                        // Проверка на disabled
+                        const isDisabled = (date: Date | undefined) =>
+                          !!date &&
+                          disabledDays.some(
+                            (dd) =>
+                              dd.getFullYear() === date.getFullYear() &&
+                              dd.getMonth() === date.getMonth() &&
+                              dd.getDate() === date.getDate()
+                          );
 
-                      // Если клик по disabled — сброс
-                      if (isDisabled(range?.from) || isDisabled(range?.to)) {
-                        toast({
-                          title: t(
-                            "reservation.disabledRangeTitle",
-                            "Нельзя выбрать эти даты"
-                          ),
-                          description: t(
-                            "reservation.disabledRangeDesc",
-                            "В выбранном диапазоне есть занятые дни. Пожалуйста, выберите другой период."
-                          ),
-                          variant: "destructive",
-                        });
+                        // Если клик по disabled — сброс
+                        if (isDisabled(range?.from) || isDisabled(range?.to)) {
+                          toast({
+                            title: t(
+                              "reservation.disabledRangeTitle",
+                              "Нельзя выбрать эти даты"
+                            ),
+                            description: t(
+                              "reservation.disabledRangeDesc",
+                              "В выбранном диапазоне есть занятые дни. Пожалуйста, выберите другой период."
+                            ),
+                            variant: "destructive",
+                          });
+                          setFormData((prev) => ({
+                            ...prev,
+                            pickupDate: "",
+                            returnDate: "",
+                          }));
+                          return;
+                        }
+
+                        // Если диапазон выбран и пользователь кликает на дату раньше from — сброс и новая дата выдачи
+                        if (range?.from && range?.to && range.to < range.from) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            pickupDate: toLocalDateString(range.to),
+                            returnDate: "",
+                          }));
+                          return;
+                        }
+
+                        // Если только from выбран — это дата выдачи
+                        if (range?.from && !range?.to) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            pickupDate: toLocalDateString(range.from),
+                            returnDate: "",
+                          }));
+                          return;
+                        }
+
+                        // Если выбран валидный диапазон
+                        if (range?.from && range?.to) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            pickupDate: toLocalDateString(range.from),
+                            returnDate: toLocalDateString(range.to),
+                          }));
+                          return;
+                        }
+
+                        // Если ничего не выбрано — сброс
                         setFormData((prev) => ({
                           ...prev,
                           pickupDate: "",
                           returnDate: "",
                         }));
-                        return;
-                      }
-
-                      // Если диапазон выбран и пользователь кликает на дату раньше from — сброс и новая дата выдачи
-                      if (range?.from && range?.to && range.to < range.from) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          pickupDate: toLocalDateString(range.to),
-                          returnDate: "",
-                        }));
-                        return;
-                      }
-
-                      // Если только from выбран — это дата выдачи
-                      if (range?.from && !range?.to) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          pickupDate: toLocalDateString(range.from),
-                          returnDate: "",
-                        }));
-                        return;
-                      }
-
-                      // Если выбран валидный диапазон
-                      if (range?.from && range?.to) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          pickupDate: toLocalDateString(range.from),
-                          returnDate: toLocalDateString(range.to),
-                        }));
-                        return;
-                      }
-
-                      // Если ничего не выбрано — сброс
-                      setFormData((prev) => ({
-                        ...prev,
-                        pickupDate: "",
-                        returnDate: "",
-                      }));
-                    }}
-                    disabled={disabledDays}
-                    fromDate={new Date()}
-                    className="rounded-xl bg-zinc-900/80 border border-zinc-700 shadow-lg p-2 text-white"
-                    classNames={{
-                      day_selected:
-                        "bg-yellow-400 text-black hover:bg-yellow-500",
-                      day_range_end: "bg-yellow-500 text-black",
-                      day_today: "border-yellow-400 border-2",
-                      nav_button: "hover:bg-yellow-400/20",
-                    }}
-                    modifiersClassNames={{
-                      disabled: "calendar-day-disabled-strike",
-                    }}
-                  />
-                  {/* После календаря: */}
-                  <div className="mt-4 w-full">
-                    <h3 className="text-xl font-bold text-center mb-2">
-                      {t("reservation.pickupTime")}
-                    </h3>
-                    <TimePicker
-                      value={formData.pickupTime}
-                      onChange={(val) => {
-                        setFormData((prev) => {
-                          const newData = { ...prev, pickupTime: val };
-                          return newData;
-                        });
                       }}
-                      onClose={() => {}}
+                      disabled={disabledDays}
+                      fromDate={new Date()}
+                      className="rounded-xl bg-zinc-900/80 border border-zinc-700 shadow-lg p-2 text-white"
+                      classNames={{
+                        day_selected:
+                          "bg-yellow-400 text-black hover:bg-yellow-500",
+                        day_range_end: "bg-yellow-500 text-black",
+                        day_today: "border-yellow-400 border-2",
+                        nav_button: "hover:bg-yellow-400/20",
+                      }}
+                      modifiersClassNames={{
+                        disabled: "calendar-day-disabled-strike",
+                      }}
                     />
+                    {/* После календаря: */}
+                    <div className="mt-4 w-full">
+                      <h3 className="text-xl font-bold text-center mb-2">
+                        {t("reservation.pickupTime")}
+                      </h3>
+                      <TimePicker
+                        value={formData.pickupTime}
+                        onChange={(val) => {
+                          setFormData((prev) => {
+                            const newData = { ...prev, pickupTime: val };
+                            return newData;
+                          });
+                        }}
+                        onClose={() => {}}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Доп. услуги */}
-              <div className="w-full max-w-md sm:max-w-full mx-auto mb-2">
-                <h3 className="text-xl font-bold text-center mb-2">
-                  {t("reservation.extraServices")}
-                </h3>
-                <div className="flex items-center justify-between bg-gray-700 rounded-lg px-4 py-3 mb-2">
-                  <span>{t("reservation.unlimitedMileage")}</span>
-                  <Checkbox
-                    checked={!!wizardData.unlimitedMileage}
-                    onCheckedChange={(checked) =>
-                      setWizardData((d) => ({
-                        ...d,
-                        unlimitedMileage: !!checked,
-                      }))
-                    }
-                    className="data-[state=checked]:bg-yellow-400 border-yellow-400"
-                  />
-                </div>
-              </div>
-
-              {/* Как забрать машину */}
-              <div className="w-full max-w-md sm:max-w-full mx-auto mb-2">
-                <h3 className="text-xl font-bold text-center mb-2">
-                  {t("reservation.pickupType")}
-                </h3>
-                <RadioGroup
-                  value={wizardData.pickupType || "office"}
-                  onValueChange={(val) =>
-                    setWizardData((d) => ({
-                      ...d,
-                      pickupType: val as "office" | "airport" | "address",
-                    }))
-                  }
-                  className="flex flex-col gap-2 bg-gray-700 rounded-lg px-4 py-3 mb-2"
-                >
-                  <label className="flex items-center justify-between cursor-pointer">
-                    <span>{t("reservation.pickupOffice")}</span>
-                    <RadioGroupItem
-                      value="office"
-                      className="data-[state=checked]:bg-yellow-400 border-yellow-400"
-                    />
-                  </label>
-                  <label className="flex items-center justify-between cursor-pointer">
-                    <span>{t("reservation.pickupAirport")}</span>
-                    <RadioGroupItem
-                      value="airport"
-                      className="data-[state=checked]:bg-yellow-400 border-yellow-400"
-                    />
-                  </label>
-                  <div className="border-t border-yellow-500 my-2"></div>
-                  <label className="flex flex-col gap-1 cursor-pointer">
-                    <span className="text-center">
-                      {t("reservation.pickupAddress")}
-                    </span>
-                    <Input
-                      type="text"
-                      className="bg-gray-800 rounded px-2 py-1 text-white"
-                      placeholder={t("reservation.enterAddress")}
-                      value={
-                        wizardData.pickupType === "address"
-                          ? wizardData.pickupAddress || ""
-                          : ""
-                      }
-                      onFocus={() =>
-                        setWizardData((d) => ({ ...d, pickupType: "address" }))
-                      }
-                      onChange={(e) =>
+                {/* Доп. услуги */}
+                <div className="w-full max-w-md sm:max-w-full mx-auto mb-2">
+                  <h3 className="text-xl font-bold text-center mb-2">
+                    {t("reservation.extraServices")}
+                  </h3>
+                  <div className="flex items-center justify-between bg-gray-700 rounded-lg px-4 py-3 mb-2">
+                    <span>{t("reservation.unlimitedMileage")}</span>
+                    <Checkbox
+                      checked={!!wizardData.unlimitedMileage}
+                      onCheckedChange={(checked) =>
                         setWizardData((d) => ({
                           ...d,
-                          pickupType: "address" as const,
-                          pickupAddress: e.target.value,
+                          unlimitedMileage: !!checked,
                         }))
                       }
-                    />
-                  </label>
-                </RadioGroup>
-              </div>
-
-              {/* Индикатор шага перед кнопкой */}
-              <div className="w-full flex justify-center mb-1">
-                <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
-                  {t("reservation.step")} {stepIndicator}
-                </span>
-              </div>
-              {/* Шаг 1: компактные отступы */}
-              <Button
-                className="w-full bg-yellow-400 hover:bg-yellow-500 text-black text-lg font-bold py-3 rounded-xl"
-                onClick={goNext}
-                disabled={!formData.pickupDate || !formData.returnDate}
-              >
-                {t("reservation.next")}
-              </Button>
-              <Button
-                className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl"
-                variant="outline"
-                onClick={goBack}
-              >
-                {t("reservation.back")}
-              </Button>
-            </div>
-          )}
-          {currentStep === 1 && (
-            <div className="w-full max-w-md sm:max-w-full mx-auto pb-4">
-              {/* Заголовок */}
-              <div className="text-2xl font-bold mb-4 text-white text-center">
-                {t("reservation.confirmTitle")}
-              </div>
-
-              {/* Период аренды */}
-              <div className="mb-3">
-                <div className="text-lg font-bold text-yellow-400 mb-1">
-                  {t("reservation.periodTitle")}
-                </div>
-                <div className="bg-zinc-900 rounded-xl px-4 py-3 flex flex-col gap-1 border border-yellow-400">
-                  {formData.pickupDate && formData.returnDate ? (
-                    <div className="text-white text-base font-semibold text-center">
-                      {(() => {
-                        const dates = formatDateRange(
-                          formData.pickupDate,
-                          formData.returnDate,
-                          i18n.language
-                        );
-                        return (
-                          <>
-                            {dates.start}
-                            <span className="mx-2 text-yellow-400 font-bold">
-                              —
-                            </span>
-                            {dates.end}
-                            <span className="ml-2 text-yellow-400 font-bold">
-                              {formData.pickupTime}
-                            </span>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  ) : (
-                    <span className="text-zinc-400">
-                      {t("reservation.periodNotSelected")}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Геолокация */}
-              <div className="mb-3">
-                <div className="text-lg font-bold text-yellow-400 mb-1">
-                  {t("reservation.geoTitle")}
-                </div>
-                <div className="bg-zinc-900 rounded-xl px-4 py-3 text-base text-white border border-yellow-400">
-                  {wizardData.pickupType === "office" || !wizardData.pickupType
-                    ? t("reservation.officeAddress")
-                    : wizardData.pickupType === "airport"
-                    ? t("reservation.airportAddress")
-                    : wizardData.pickupAddress || t("reservation.enterAddress")}
-                </div>
-              </div>
-
-              {/* Правила пользования автомобилем */}
-              <div className="mb-3">
-                <div className="text-lg font-bold mb-2 text-yellow-400">
-                  {t("reservation.rulesTitle")}
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-zinc-900 rounded-xl p-4 border border-yellow-400">
-                  <div className="flex items-center gap-3 text-white">
-                    <img
-                      src={NoSmokeIcon}
-                      alt="Не курить"
-                      className="w-7 h-7"
-                    />
-                    <span>{t("reservation.ruleNoSmoke")}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-white">
-                    <img src={NoPetsIcon} alt="No pets" className="w-7 h-7" />
-                    <span>{t("reservation.ruleNoPets")}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-white">
-                    <img src={FuelIcon} alt="Fuel return" className="w-7 h-7" />
-                    <span>{t("reservation.ruleFuel")}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-white">
-                    <img
-                      src={NoDepositIcon}
-                      alt="No deposit"
-                      className="w-7 h-7"
-                    />
-                    <span>{t("reservation.ruleNoDeposit")}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-white">
-                    <img
-                      src={SpeedIcon}
-                      alt="Speed limit"
-                      className="w-7 h-7"
-                    />
-                    <span>{t("reservation.ruleSpeed")}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-white">
-                    <img
-                      src={AggressiveIcon}
-                      alt="No aggressive driving"
-                      className="w-7 h-7"
-                    />
-                    <span>{t("reservation.ruleNoAggressive")}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Карта постоянного клиента */}
-              <div className="mb-3">
-                <div className="text-xl font-bold text-center mb-2 text-yellow-400">
-                  {t("reservation.clientCardTitle")}
-                </div>
-                <div className="flex flex-col gap-2 bg-zinc-900 rounded-xl p-4 border border-yellow-400">
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <span>{t("reservation.goldCard")}</span>
-                    <Checkbox
-                      checked={!!wizardData.goldCard}
-                      onCheckedChange={(checked) =>
-                        setWizardData((d) => ({ ...d, goldCard: !!checked }))
-                      }
                       className="data-[state=checked]:bg-yellow-400 border-yellow-400"
                     />
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <span>{t("reservation.clubCard")}</span>
-                    <Checkbox
-                      checked={!!wizardData.clubCard}
-                      onCheckedChange={(checked) =>
-                        setWizardData((d) => ({ ...d, clubCard: !!checked }))
-                      }
-                      className="data-[state=checked]:bg-yellow-400 border-yellow-400"
-                    />
-                  </label>
+                  </div>
                 </div>
-              </div>
 
-              {/* Стоимость */}
-              <div className="mb-0">
-                <div className="text-lg font-bold text-yellow-400 mb-2">
-                  {t("reservation.costTitle")}
-                </div>
-                <div className="bg-zinc-900 rounded-xl p-4 flex flex-col gap-2 text-white border border-yellow-400">
-                  <div className="flex justify-between">
-                    <span>{t("reservation.duration")}</span>{" "}
-                    <span>
-                      {calculateDays()} {t("reservation.days")}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t("reservation.wash")}</span> <span>20 €</span>
-                  </div>
-                  <div className="flex justify-between font-bold text-lg">
-                    <span>{t("reservation.rentCost")}</span>{" "}
-                    <span>{totalPrice} €</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Индикатор шага перед кнопкой */}
-              <div className="w-full flex justify-center mb-2 mt-2">
-                <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
-                  {t("reservation.step")} {stepIndicator}
-                </span>
-              </div>
-              <Button
-                className="w-full bg-yellow-400 hover:bg-yellow-500 text-black text-lg font-bold py-3 rounded-xl"
-                onClick={goNext}
-              >
-                {t("reservation.next")}
-              </Button>
-              <Button
-                className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl"
-                variant="outline"
-                onClick={goBack}
-              >
-                {t("reservation.back")}
-              </Button>
-            </div>
-          )}
-          {currentStep === 2 && (
-            <form
-              className="w-full max-w-md sm:max-w-full mx-auto flex flex-col gap-1 pb-4"
-              onSubmit={handleSubmit}
-              encType="multipart/form-data"
-            >
-              {/* Заголовок */}
-              <div className="text-2xl font-bold mb-4 text-white text-center">
-                {t("reservation.step3Title")}
-              </div>
-
-              {/* Всего и стоимость */}
-              <div className="flex justify-between items-center border-b border-yellow-400 pb-2 mb-2">
-                <div>
-                  <div className="text-lg font-bold text-yellow-400">
-                    {t("reservation.total")}
-                  </div>
-                  <div className="text-sm text-gray-300">
-                    {t("reservation.totalCost")}
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-white">
-                  {totalPrice + 20} €
-                </div>
-              </div>
-
-              {/* Имя */}
-              <div>
-                <Label
-                  htmlFor="firstName"
-                  className="text-yellow-400 font-bold"
-                >
-                  {t("reservation.firstName")}
-                </Label>
-                <Input
-                  id="firstName"
-                  name="firstName"
-                  placeholder={t("reservation.firstName")}
-                  className="bg-zinc-800 text-white border-none mt-1"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              {/* Фамилия */}
-              <div>
-                <Label htmlFor="lastName" className="text-yellow-400 font-bold">
-                  {t("reservation.lastName")}
-                </Label>
-                <Input
-                  id="lastName"
-                  name="lastName"
-                  placeholder={t("reservation.lastName")}
-                  className="bg-zinc-800 text-white border-none mt-1"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              {/* Email */}
-              <div>
-                <Label htmlFor="email" className="text-yellow-400 font-bold">
-                  {t("reservation.email")}
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder={t("reservation.email")}
-                  className="bg-zinc-800 text-white border-none mt-1"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              {/* IDNP */}
-              <div>
-                <Label htmlFor="idnp" className="text-yellow-400 font-bold">
-                  {t("reservation.idnp")}
-                </Label>
-                <Input
-                  id="idnp"
-                  name="idnp"
-                  placeholder={t("reservation.idnp")}
-                  className="bg-zinc-800 text-white border-none mt-1"
-                  value={formData.idnp || ""}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              {/* Фото удостоверения */}
-              <div>
-                <Label className="text-yellow-400 font-bold">
-                  {t("reservation.idPhotos")}
-                </Label>
-                <div className="flex gap-4 mt-2">
-                  {/* Фронт */}
-                  <div className="flex flex-col items-center gap-1">
-                    <label
-                      className={`relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed rounded-lg cursor-pointer hover:bg-zinc-800 transition group ${
-                        uploadedPhotos.front
-                          ? "border-green-400"
-                          : "border-yellow-400"
-                      }`}
-                    >
-                      <input
-                        type="file"
-                        accept="image/*"
-                        name="idPhotoFront"
-                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                        required
-                        onChange={(e) => {
-                          if (e.target.files && e.target.files[0]) {
-                            setUploadedPhotos((prev) => ({
-                              ...prev,
-                              front: true,
-                            }));
-                          }
-                        }}
-                      />
-                      {/* Иконка */}
-                      {uploadedPhotos.front ? (
-                        <span className="flex flex-col items-center justify-center z-0">
-                          <svg
-                            width="36"
-                            height="36"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            className="text-green-400 mb-1"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                          <span className="text-xs text-green-400">
-                            {t("reservation.uploaded")}
-                          </span>
-                        </span>
-                      ) : (
-                        <span className="flex flex-col items-center justify-center z-0">
-                          <svg
-                            width="36"
-                            height="36"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            className="text-yellow-400 mb-1"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M12 4v16m8-8H4"
-                            />
-                          </svg>
-                          <span className="text-xs text-gray-400">
-                            {t("reservation.upload")}
-                          </span>
-                        </span>
-                      )}
-                      {/* Пример */}
-                      <img
-                        src={PasportFront}
-                        alt={t("reservation.frontExample")}
-                        className="absolute bottom-1 left-1 w-16 h-12 object-cover rounded shadow border border-gray-700 bg-black"
-                      />
-                    </label>
-                    <span className="text-xs text-gray-400 mt-1">
-                      {t("reservation.frontExample")}
-                    </span>
-                  </div>
-                  {/* Бэк */}
-                  <div className="flex flex-col items-center gap-1">
-                    <label
-                      className={`relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed rounded-lg cursor-pointer hover:bg-zinc-800 transition group ${
-                        uploadedPhotos.back
-                          ? "border-green-400"
-                          : "border-yellow-400"
-                      }`}
-                    >
-                      <input
-                        type="file"
-                        accept="image/*"
-                        name="idPhotoBack"
-                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                        required
-                        onChange={(e) => {
-                          if (e.target.files && e.target.files[0]) {
-                            setUploadedPhotos((prev) => ({
-                              ...prev,
-                              back: true,
-                            }));
-                          }
-                        }}
-                      />
-                      {/* Иконка */}
-                      {uploadedPhotos.back ? (
-                        <span className="flex flex-col items-center justify-center z-0">
-                          <svg
-                            width="36"
-                            height="36"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            className="text-green-400 mb-1"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                          <span className="text-xs text-green-400">
-                            {t("reservation.uploaded")}
-                          </span>
-                        </span>
-                      ) : (
-                        <span className="flex flex-col items-center justify-center z-0">
-                          <svg
-                            width="36"
-                            height="36"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            className="text-yellow-400 mb-1"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M12 4v16m8-8H4"
-                            />
-                          </svg>
-                          <span className="text-xs text-gray-400">
-                            {t("reservation.upload")}
-                          </span>
-                        </span>
-                      )}
-                      {/* Пример */}
-                      <img
-                        src={PasportBack}
-                        alt={t("reservation.backExample")}
-                        className="absolute bottom-1 left-1 w-16 h-12 object-cover rounded shadow border border-gray-700 bg-black"
-                      />
-                    </label>
-                    <span className="text-xs text-gray-400 mt-1">
-                      {t("reservation.backExample")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              {/* Телефон с регионом */}
-              <div>
-                <Label htmlFor="phone" className="text-yellow-400 font-bold">
-                  {t("reservation.phone")}
-                </Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <Select
-                    value={selectedCountryCode}
-                    onValueChange={setSelectedCountryCode}
-                  >
-                    <SelectTrigger className="w-40 bg-zinc-800 text-white border-none hover:bg-zinc-700">
-                      <SelectValue>
-                        <span className="flex items-center gap-2">
-                          <span>
-                            {
-                              countries.find(
-                                (c) => c.code === selectedCountryCode
-                              )?.flag
-                            }
-                          </span>
-                          <span>{selectedCountryCode}</span>
-                        </span>
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-800 border-zinc-700 z-[3001] max-h-60">
-                      {countries.map((country) => (
-                        <SelectItem
-                          key={country.code}
-                          value={country.code}
-                          className="text-white hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span>{country.flag}</span>
-                            <span>{country.code}</span>
-                            <span className="text-gray-400 text-sm">
-                              {country.name}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    placeholder="___ ___ ___"
-                    className="bg-zinc-800 text-white border-none flex-1"
-                    value={formData.phone.replace(
-                      new RegExp(`^\\${selectedCountryCode}`),
-                      ""
-                    )}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        phone:
-                          selectedCountryCode +
-                          e.target.value.replace(/\D/g, ""),
-                      })
+                {/* Как забрать машину */}
+                <div className="w-full max-w-md sm:max-w-full mx-auto mb-2">
+                  <h3 className="text-xl font-bold text-center mb-2">
+                    {t("reservation.pickupType")}
+                  </h3>
+                  <RadioGroup
+                    value={wizardData.pickupType || "office"}
+                    onValueChange={(val) =>
+                      setWizardData((d) => ({
+                        ...d,
+                        pickupType: val as "office" | "airport" | "address",
+                      }))
                     }
-                    pattern="[0-9]{7,12}"
+                    className="flex flex-col gap-2 bg-gray-700 rounded-lg px-4 py-3 mb-2"
+                  >
+                    <label className="flex items-center justify-between cursor-pointer">
+                      <span>{t("reservation.pickupOffice")}</span>
+                      <RadioGroupItem
+                        value="office"
+                        className="data-[state=checked]:bg-yellow-400 border-yellow-400"
+                      />
+                    </label>
+                    <label className="flex items-center justify-between cursor-pointer">
+                      <span>{t("reservation.pickupAirport")}</span>
+                      <RadioGroupItem
+                        value="airport"
+                        className="data-[state=checked]:bg-yellow-400 border-yellow-400"
+                      />
+                    </label>
+                    <div className="border-t border-yellow-500 my-2"></div>
+                    <label className="flex flex-col gap-1 cursor-pointer">
+                      <span className="text-center">
+                        {t("reservation.pickupAddress")}
+                      </span>
+                      <Input
+                        type="text"
+                        className="bg-gray-800 rounded px-2 py-1 text-white"
+                        placeholder={t("reservation.enterAddress")}
+                        value={
+                          wizardData.pickupType === "address"
+                            ? wizardData.pickupAddress || ""
+                            : ""
+                        }
+                        onFocus={() =>
+                          setWizardData((d) => ({
+                            ...d,
+                            pickupType: "address",
+                          }))
+                        }
+                        onChange={(e) =>
+                          setWizardData((d) => ({
+                            ...d,
+                            pickupType: "address" as const,
+                            pickupAddress: e.target.value,
+                          }))
+                        }
+                      />
+                    </label>
+                  </RadioGroup>
+                </div>
+
+                {/* Индикатор шага перед кнопкой */}
+                <div className="w-full flex justify-center mb-1">
+                  <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
+                    {t("reservation.step")} {stepIndicator}
+                  </span>
+                </div>
+                {/* Шаг 1: компактные отступы */}
+                <Button
+                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-black text-lg font-bold py-3 rounded-xl"
+                  onClick={goNext}
+                  disabled={!formData.pickupDate || !formData.returnDate}
+                >
+                  {t("reservation.next")}
+                </Button>
+                <Button
+                  className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl"
+                  variant="outline"
+                  onClick={goBack}
+                >
+                  {t("reservation.back")}
+                </Button>
+              </div>
+            )}
+            {currentStep === 1 && (
+              <div className="w-full max-w-md sm:max-w-full mx-auto pb-4">
+                {/* Заголовок */}
+                <div className="text-2xl font-bold mb-4 text-white text-center">
+                  {t("reservation.confirmTitle")}
+                </div>
+
+                {/* Период аренды */}
+                <div className="mb-3">
+                  <div className="text-lg font-bold text-yellow-400 mb-1">
+                    {t("reservation.periodTitle")}
+                  </div>
+                  <div className="bg-zinc-900 rounded-xl px-4 py-3 flex flex-col gap-1 border border-yellow-400">
+                    {formData.pickupDate && formData.returnDate ? (
+                      <div className="text-white text-base font-semibold text-center">
+                        {(() => {
+                          const dates = formatDateRange(
+                            formData.pickupDate,
+                            formData.returnDate,
+                            i18n.language
+                          );
+                          return (
+                            <>
+                              {dates.start}
+                              <span className="mx-2 text-yellow-400 font-bold">
+                                —
+                              </span>
+                              {dates.end}
+                              <span className="ml-2 text-yellow-400 font-bold">
+                                {formData.pickupTime}
+                              </span>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    ) : (
+                      <span className="text-zinc-400">
+                        {t("reservation.periodNotSelected")}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Геолокация */}
+                <div className="mb-3">
+                  <div className="text-lg font-bold text-yellow-400 mb-1">
+                    {t("reservation.geoTitle")}
+                  </div>
+                  <div className="bg-zinc-900 rounded-xl px-4 py-3 text-base text-white border border-yellow-400">
+                    {wizardData.pickupType === "office" ||
+                    !wizardData.pickupType
+                      ? t("reservation.officeAddress")
+                      : wizardData.pickupType === "airport"
+                      ? t("reservation.airportAddress")
+                      : wizardData.pickupAddress ||
+                        t("reservation.enterAddress")}
+                  </div>
+                </div>
+
+                {/* Правила пользования автомобилем */}
+                <div className="mb-3">
+                  <div className="text-lg font-bold mb-2 text-yellow-400">
+                    {t("reservation.rulesTitle")}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-zinc-900 rounded-xl p-4 border border-yellow-400">
+                    <div className="flex items-center gap-3 text-white">
+                      <img
+                        src={NoSmokeIcon}
+                        alt="Не курить"
+                        className="w-7 h-7"
+                      />
+                      <span>{t("reservation.ruleNoSmoke")}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-white">
+                      <img src={NoPetsIcon} alt="No pets" className="w-7 h-7" />
+                      <span>{t("reservation.ruleNoPets")}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-white">
+                      <img
+                        src={FuelIcon}
+                        alt="Fuel return"
+                        className="w-7 h-7"
+                      />
+                      <span>{t("reservation.ruleFuel")}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-white">
+                      <img
+                        src={NoDepositIcon}
+                        alt="No deposit"
+                        className="w-7 h-7"
+                      />
+                      <span>{t("reservation.ruleNoDeposit")}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-white">
+                      <img
+                        src={SpeedIcon}
+                        alt="Speed limit"
+                        className="w-7 h-7"
+                      />
+                      <span>{t("reservation.ruleSpeed")}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-white">
+                      <img
+                        src={AggressiveIcon}
+                        alt="No aggressive driving"
+                        className="w-7 h-7"
+                      />
+                      <span>{t("reservation.ruleNoAggressive")}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Карта постоянного клиента */}
+                <div className="mb-3">
+                  <div className="text-xl font-bold text-center mb-2 text-yellow-400">
+                    {t("reservation.clientCardTitle")}
+                  </div>
+                  <div className="flex flex-col gap-2 bg-zinc-900 rounded-xl p-4 border border-yellow-400">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <span>{t("reservation.goldCard")}</span>
+                      <Checkbox
+                        checked={!!wizardData.goldCard}
+                        onCheckedChange={(checked) =>
+                          setWizardData((d) => ({ ...d, goldCard: !!checked }))
+                        }
+                        className="data-[state=checked]:bg-yellow-400 border-yellow-400"
+                      />
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <span>{t("reservation.clubCard")}</span>
+                      <Checkbox
+                        checked={!!wizardData.clubCard}
+                        onCheckedChange={(checked) =>
+                          setWizardData((d) => ({ ...d, clubCard: !!checked }))
+                        }
+                        className="data-[state=checked]:bg-yellow-400 border-yellow-400"
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Стоимость */}
+                <div className="mb-0">
+                  <div className="text-lg font-bold text-yellow-400 mb-2">
+                    {t("reservation.costTitle")}
+                  </div>
+                  <div className="bg-zinc-900 rounded-xl p-4 flex flex-col gap-2 text-white border border-yellow-400">
+                    <div className="flex justify-between">
+                      <span>{t("reservation.duration")}</span>{" "}
+                      <span>
+                        {calculateDays()} {t("reservation.days")}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>{t("reservation.wash")}</span> <span>20 €</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-lg">
+                      <span>{t("reservation.rentCost")}</span>{" "}
+                      <span>{totalPrice} €</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Индикатор шага перед кнопкой */}
+                <div className="w-full flex justify-center mb-2 mt-2">
+                  <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
+                    {t("reservation.step")} {stepIndicator}
+                  </span>
+                </div>
+                <Button
+                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-black text-lg font-bold py-3 rounded-xl"
+                  onClick={goNext}
+                >
+                  {t("reservation.next")}
+                </Button>
+                <Button
+                  className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl"
+                  variant="outline"
+                  onClick={goBack}
+                >
+                  {t("reservation.back")}
+                </Button>
+              </div>
+            )}
+            {currentStep === 2 && (
+              <form
+                className="w-full max-w-md sm:max-w-full mx-auto flex flex-col gap-1 pb-4"
+                onSubmit={handleSubmit}
+                encType="multipart/form-data"
+              >
+                {/* Заголовок */}
+                <div className="text-2xl font-bold mb-4 text-white text-center">
+                  {t("reservation.step3Title")}
+                </div>
+
+                {/* Всего и стоимость */}
+                <div className="flex justify-between items-center border-b border-yellow-400 pb-2 mb-2">
+                  <div>
+                    <div className="text-lg font-bold text-yellow-400">
+                      {t("reservation.total")}
+                    </div>
+                    <div className="text-sm text-gray-300">
+                      {t("reservation.totalCost")}
+                    </div>
+                  </div>
+                  <div className="text-2xl font-bold text-white">
+                    {totalPrice + 20} €
+                  </div>
+                </div>
+
+                {/* Имя */}
+                <div>
+                  <Label
+                    htmlFor="firstName"
+                    className="text-yellow-400 font-bold"
+                  >
+                    {t("reservation.firstName")}
+                  </Label>
+                  <Input
+                    id="firstName"
+                    name="firstName"
+                    placeholder={t("reservation.firstName")}
+                    className="bg-zinc-800 text-white border-none mt-1"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
                     required
                   />
                 </div>
-              </div>
-              {/* Чекбокс согласия */}
-              <div className="flex items-start gap-2 mt-2">
-                <Checkbox
-                  id="privacy"
-                  checked={privacyAccepted}
-                  onCheckedChange={(checked) => setPrivacyAccepted(!!checked)}
-                  required
-                  className="mt-1 border-yellow-400 data-[state=checked]:bg-yellow-400 data-[state=checked]:border-yellow-400"
-                />
-                <label
-                  htmlFor="privacy"
-                  className="text-white text-sm select-none"
-                >
-                  {t("reservation.privacyPolicy")}{" "}
-                  <a
-                    href="/privacy-policy.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-yellow-400 underline ml-1"
+                {/* Фамилия */}
+                <div>
+                  <Label
+                    htmlFor="lastName"
+                    className="text-yellow-400 font-bold"
                   >
-                    {t("reservation.privacyPolicyLink")}
-                  </a>
-                  .
-                </label>
-              </div>
-
-              {/* Индикатор шага перед кнопкой */}
-              <div className="w-full flex justify-center mb-2 mt-2">
-                <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
-                  {t("reservation.step")} {stepIndicator}
-                </span>
-              </div>
-
-              {/* Кнопка */}
-              <Button
-                className="w-full bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-black text-lg font-bold py-3 rounded-xl"
-                type="submit"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                    <span>{t("reservation.submitting")}</span>
+                    {t("reservation.lastName")}
+                  </Label>
+                  <Input
+                    id="lastName"
+                    name="lastName"
+                    placeholder={t("reservation.lastName")}
+                    className="bg-zinc-800 text-white border-none mt-1"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                {/* Email */}
+                <div>
+                  <Label htmlFor="email" className="text-yellow-400 font-bold">
+                    {t("reservation.email")}
+                  </Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder={t("reservation.email")}
+                    className="bg-zinc-800 text-white border-none mt-1"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                {/* IDNP */}
+                <div>
+                  <Label htmlFor="idnp" className="text-yellow-400 font-bold">
+                    {t("reservation.idnp")}
+                  </Label>
+                  <Input
+                    id="idnp"
+                    name="idnp"
+                    placeholder={t("reservation.idnp")}
+                    className="bg-zinc-800 text-white border-none mt-1"
+                    value={formData.idnp || ""}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                {/* Фото удостоверения */}
+                <div>
+                  <Label className="text-yellow-400 font-bold">
+                    {t("reservation.idPhotos")}
+                  </Label>
+                  <div className="flex gap-4 mt-2">
+                    {/* Фронт */}
+                    <div className="flex flex-col items-center gap-1">
+                      <label
+                        className={`relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed rounded-lg cursor-pointer hover:bg-zinc-800 transition group ${
+                          uploadedPhotos.front
+                            ? "border-green-400"
+                            : "border-yellow-400"
+                        }`}
+                      >
+                        <input
+                          type="file"
+                          accept="image/*"
+                          name="idPhotoFront"
+                          className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                          required
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              setUploadedPhotos((prev) => ({
+                                ...prev,
+                                front: true,
+                              }));
+                            }
+                          }}
+                        />
+                        {/* Иконка */}
+                        {uploadedPhotos.front ? (
+                          <span className="flex flex-col items-center justify-center z-0">
+                            <svg
+                              width="36"
+                              height="36"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              className="text-green-400 mb-1"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                            <span className="text-xs text-green-400">
+                              {t("reservation.uploaded")}
+                            </span>
+                          </span>
+                        ) : (
+                          <span className="flex flex-col items-center justify-center z-0">
+                            <svg
+                              width="36"
+                              height="36"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              className="text-yellow-400 mb-1"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M12 4v16m8-8H4"
+                              />
+                            </svg>
+                            <span className="text-xs text-gray-400">
+                              {t("reservation.upload")}
+                            </span>
+                          </span>
+                        )}
+                        {/* Пример */}
+                        <img
+                          src={PasportFront}
+                          alt={t("reservation.frontExample")}
+                          className="absolute bottom-1 left-1 w-16 h-12 object-cover rounded shadow border border-gray-700 bg-black"
+                        />
+                      </label>
+                      <span className="text-xs text-gray-400 mt-1">
+                        {t("reservation.frontExample")}
+                      </span>
+                    </div>
+                    {/* Бэк */}
+                    <div className="flex flex-col items-center gap-1">
+                      <label
+                        className={`relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed rounded-lg cursor-pointer hover:bg-zinc-800 transition group ${
+                          uploadedPhotos.back
+                            ? "border-green-400"
+                            : "border-yellow-400"
+                        }`}
+                      >
+                        <input
+                          type="file"
+                          accept="image/*"
+                          name="idPhotoBack"
+                          className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                          required
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              setUploadedPhotos((prev) => ({
+                                ...prev,
+                                back: true,
+                              }));
+                            }
+                          }}
+                        />
+                        {/* Иконка */}
+                        {uploadedPhotos.back ? (
+                          <span className="flex flex-col items-center justify-center z-0">
+                            <svg
+                              width="36"
+                              height="36"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              className="text-green-400 mb-1"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                            <span className="text-xs text-green-400">
+                              {t("reservation.uploaded")}
+                            </span>
+                          </span>
+                        ) : (
+                          <span className="flex flex-col items-center justify-center z-0">
+                            <svg
+                              width="36"
+                              height="36"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              className="text-yellow-400 mb-1"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M12 4v16m8-8H4"
+                              />
+                            </svg>
+                            <span className="text-xs text-gray-400">
+                              {t("reservation.upload")}
+                            </span>
+                          </span>
+                        )}
+                        {/* Пример */}
+                        <img
+                          src={PasportBack}
+                          alt={t("reservation.backExample")}
+                          className="absolute bottom-1 left-1 w-16 h-12 object-cover rounded shadow border border-gray-700 bg-black"
+                        />
+                      </label>
+                      <span className="text-xs text-gray-400 mt-1">
+                        {t("reservation.backExample")}
+                      </span>
+                    </div>
                   </div>
-                ) : (
-                  t("reservation.book")
-                )}
-              </Button>
-              <Button
-                className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                variant="outline"
-                onClick={goBack}
-                disabled={isSubmitting}
+                </div>
+                {/* Телефон с регионом */}
+                <div>
+                  <Label htmlFor="phone" className="text-yellow-400 font-bold">
+                    {t("reservation.phone")}
+                  </Label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Select
+                      value={selectedCountryCode}
+                      onValueChange={setSelectedCountryCode}
+                    >
+                      <SelectTrigger className="w-40 bg-zinc-800 text-white border-none hover:bg-zinc-700">
+                        <SelectValue>
+                          <span className="flex items-center gap-2">
+                            <span>
+                              {
+                                countries.find(
+                                  (c) => c.code === selectedCountryCode
+                                )?.flag
+                              }
+                            </span>
+                            <span>{selectedCountryCode}</span>
+                          </span>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="bg-zinc-800 border-zinc-700 z-[3001] max-h-60">
+                        {countries.map((country) => (
+                          <SelectItem
+                            key={country.code}
+                            value={country.code}
+                            className="text-white hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span>{country.flag}</span>
+                              <span>{country.code}</span>
+                              <span className="text-gray-400 text-sm">
+                                {country.name}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      placeholder="___ ___ ___"
+                      className="bg-zinc-800 text-white border-none flex-1"
+                      value={formData.phone.replace(
+                        new RegExp(`^\\${selectedCountryCode}`),
+                        ""
+                      )}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          phone:
+                            selectedCountryCode +
+                            e.target.value.replace(/\D/g, ""),
+                        })
+                      }
+                      pattern="[0-9]{7,12}"
+                      required
+                    />
+                  </div>
+                </div>
+                {/* Чекбокс согласия */}
+                <div className="flex items-start gap-2 mt-2">
+                  <Checkbox
+                    id="privacy"
+                    checked={privacyAccepted}
+                    onCheckedChange={(checked) => setPrivacyAccepted(!!checked)}
+                    required
+                    className="mt-1 border-yellow-400 data-[state=checked]:bg-yellow-400 data-[state=checked]:border-yellow-400"
+                  />
+                  <label
+                    htmlFor="privacy"
+                    className="text-white text-sm select-none"
+                  >
+                    {t("reservation.privacyPolicy")}{" "}
+                    <a
+                      href="/privacy-policy.pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-yellow-400 underline ml-1"
+                    >
+                      {t("reservation.privacyPolicyLink")}
+                    </a>
+                    .
+                  </label>
+                </div>
+
+                {/* Индикатор шага перед кнопкой */}
+                <div className="w-full flex justify-center mb-2 mt-2">
+                  <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
+                    {t("reservation.step")} {stepIndicator}
+                  </span>
+                </div>
+
+                {/* Кнопка */}
+                <Button
+                  className="w-full bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-black text-lg font-bold py-3 rounded-xl"
+                  type="submit"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                      <span>{t("reservation.submitting")}</span>
+                    </div>
+                  ) : (
+                    t("reservation.book")
+                  )}
+                </Button>
+                <Button
+                  className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  variant="outline"
+                  onClick={goBack}
+                  disabled={isSubmitting}
+                >
+                  {t("reservation.back")}
+                </Button>
+              </form>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Модальное окно успешного оформления заявки */}
+      <Dialog open={showSuccessModal} onOpenChange={() => {}}>
+        <DialogContent
+          className="max-w-md mx-auto bg-gradient-to-br from-zinc-900 to-black border-2 border-yellow-400 shadow-2xl shadow-yellow-400/20"
+          style={{ zIndex: 4000 }}
+        >
+          <div className="text-center p-6">
+            {/* Иконка успеха */}
+            <div className="mx-auto mb-6 w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center shadow-lg shadow-yellow-400/30 animate-pulse">
+              <svg
+                className="w-10 h-10 text-black"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                {t("reservation.back")}
-              </Button>
-            </form>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={4}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+
+            {/* Заголовок */}
+            <h2 className="text-3xl font-bold text-white mb-4">
+              🚗 {t("reservation.successTitle", "Заявка отправлена!")}
+            </h2>
+
+            {/* Описание */}
+            <div className="bg-zinc-800/50 rounded-xl p-4 mb-4 border border-yellow-400/30">
+              <p className="text-white mb-2 text-base leading-relaxed">
+                {t("reservation.successMessage", "Ваша заявка на аренду")}
+              </p>
+              <div className="text-2xl font-bold text-yellow-400 mb-2">
+                {car.name}
+              </div>
+              <p className="text-white text-base">
+                {t("reservation.successMessageEnd", "успешно отправлена!")}
+              </p>
+            </div>
+
+            <div className="bg-yellow-400/10 rounded-lg p-3 mb-6 border border-yellow-400/20">
+              <p className="text-yellow-200 text-sm leading-relaxed">
+                📞{" "}
+                {t(
+                  "reservation.contactSoon",
+                  "Мы свяжемся с вами в ближайшее время для подтверждения бронирования."
+                )}
+              </p>
+            </div>
+
+            {/* Кнопка ОК */}
+            <Button
+              onClick={handleSuccessModalClose}
+              className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-lg py-4 rounded-xl shadow-lg shadow-yellow-400/30 transform transition hover:scale-105 glow-effect"
+            >
+              ✓ {t("reservation.okButton", "Понятно, спасибо!")}
+            </Button>
+
+            {/* Декоративные элементы */}
+            <div className="absolute top-4 left-4 w-3 h-3 bg-yellow-400/30 rounded-full animate-ping"></div>
+            <div className="absolute top-6 right-6 w-2 h-2 bg-yellow-400/50 rounded-full animate-pulse"></div>
+            <div className="absolute bottom-8 left-6 w-2 h-2 bg-yellow-400/40 rounded-full animate-bounce"></div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
@@ -1686,9 +1772,11 @@ function CarouselWithCenter({
   }, []);
 
   const [offset, setOffset] = useState(0); // Смещение в пикселях
+  const [dragOffset, setDragOffset] = useState(0); // Временное смещение при перетаскивании
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [dragCurrent, setDragCurrent] = useState({ x: 0, y: 0 });
+  const [dragStartTime, setDragStartTime] = useState(0);
   const [swipeDirection, setSwipeDirection] = useState<
     "horizontal" | "vertical" | null
   >(null);
@@ -1698,8 +1786,8 @@ function CarouselWithCenter({
 
   const itemWidth = 120; // Ширина одного элемента
   const totalWidth = items.length * itemWidth;
-  const swipeThreshold = 30; // Минимальное расстояние для срабатывания свайпа
-  const directionThreshold = 15; // Порог для определения направления
+  const swipeThreshold = 10; // Минимальное расстояние для срабатывания свайпа
+  const directionThreshold = 5; // Порог для определения направления
 
   // Нормализация offset для истинной бесконечной прокрутки
   const normalizeOffset = useCallback((off: number) => {
@@ -1719,6 +1807,8 @@ function CarouselWithCenter({
     setIsDragging(true);
     setDragStart({ x: touch.clientX, y: touch.clientY });
     setDragCurrent({ x: touch.clientX, y: touch.clientY });
+    setDragOffset(0); // Сброс временного смещения
+    setDragStartTime(Date.now());
     setSwipeDirection(null);
     setIsAnimating(false);
   }, []);
@@ -1750,16 +1840,8 @@ function CarouselWithCenter({
         e.stopPropagation();
         setDragCurrent({ x: touch.clientX, y: touch.clientY });
 
-        // Ограниченная визуальная обратная связь (максимум 30% от ширины элемента)
-        const maxVisualOffset = itemWidth * 0.3;
-        const limitedDelta = Math.max(
-          -maxVisualOffset,
-          Math.min(maxVisualOffset, deltaX)
-        );
-
-        const baseIndex = Math.round(offset / itemWidth);
-        const baseOffset = baseIndex * itemWidth;
-        setOffset(baseOffset - limitedDelta);
+        // Плавное перемещение через dragOffset (НЕ изменяем основной offset)
+        setDragOffset(-deltaX);
       }
 
       // Если вертикальный свайп - НЕ блокируем, позволяем странице скроллиться
@@ -1770,7 +1852,6 @@ function CarouselWithCenter({
       swipeDirection,
       directionThreshold,
       itemWidth,
-      normalizeOffset,
       offset,
     ]
   );
@@ -1782,35 +1863,26 @@ function CarouselWithCenter({
       e.preventDefault();
       e.stopPropagation();
       setIsDragging(false);
+      setDragOffset(0); // Сброс временного смещения
 
-      // Обрабатываем только горизонтальные свайпы
+      // Определяем какая ячейка должна быть по центру после перемещения
       if (swipeDirection === "horizontal") {
-        const deltaX = dragCurrent.x - dragStart.x;
-        const currentIndex = Math.round(offset / itemWidth);
-        let targetIndex = currentIndex;
-
-        // Определяем направление и переходим на 1 шаг
-        if (Math.abs(deltaX) > swipeThreshold) {
-          if (deltaX > 0) {
-            // Свайп вправо - предыдущий элемент
-            targetIndex = currentIndex - 1;
-          } else {
-            // Свайп влево - следующий элемент
-            targetIndex = currentIndex + 1;
-          }
-        }
-
-        // НЕ нормализуем индекс - оставляем как есть для бесконечности
+        // Эффективная позиция с учетом перемещения
+        const effectiveOffset = offset + dragOffset;
+        const targetIndex = Math.round(effectiveOffset / itemWidth);
         const targetOffset = targetIndex * itemWidth;
 
         setIsAnimating(true);
         setOffset(targetOffset);
         setTimeout(() => setIsAnimating(false), 250);
       } else {
-        // Если не горизонтальный свайп - возвращаем к исходной позиции
+        // Если не горизонтальный свайп - возвращаем к текущей позиции
         const currentIndex = Math.round(offset / itemWidth);
         const targetOffset = currentIndex * itemWidth;
+
+        setIsAnimating(true);
         setOffset(targetOffset);
+        setTimeout(() => setIsAnimating(false), 250);
       }
 
       setSwipeDirection(null);
@@ -1834,6 +1906,8 @@ function CarouselWithCenter({
     setIsDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
     setDragCurrent({ x: e.clientX, y: e.clientY });
+    setDragOffset(0); // Сброс временного смещения
+    setDragStartTime(Date.now());
     setSwipeDirection("horizontal"); // Для мыши всегда горизонтально
     setIsAnimating(false);
   }, []);
@@ -1845,38 +1919,21 @@ function CarouselWithCenter({
       const deltaX = e.clientX - dragStart.x;
       setDragCurrent({ x: e.clientX, y: e.clientY });
 
-      // Ограниченная визуальная обратная связь
-      const maxVisualOffset = itemWidth * 0.3;
-      const limitedDelta = Math.max(
-        -maxVisualOffset,
-        Math.min(maxVisualOffset, deltaX)
-      );
-
-      const baseIndex = Math.round(offset / itemWidth);
-      const baseOffset = baseIndex * itemWidth;
-      setOffset(baseOffset - limitedDelta);
+      // Плавное перемещение через dragOffset (НЕ изменяем основной offset)
+      setDragOffset(-deltaX);
     },
-    [isDragging, swipeDirection, dragStart, itemWidth, normalizeOffset, offset]
+    [isDragging, swipeDirection, dragStart, itemWidth, offset]
   );
 
   const handleMouseUp = useCallback(() => {
     if (!isDragging) return;
     setIsDragging(false);
+    setDragOffset(0); // Сброс временного смещения
 
     if (swipeDirection === "horizontal") {
-      const deltaX = dragCurrent.x - dragStart.x;
-      const currentIndex = Math.round(offset / itemWidth);
-      let targetIndex = currentIndex;
-
-      if (Math.abs(deltaX) > swipeThreshold) {
-        if (deltaX > 0) {
-          targetIndex = currentIndex - 1;
-        } else {
-          targetIndex = currentIndex + 1;
-        }
-      }
-
-      // НЕ нормализуем индекс для бесконечности
+      // Определяем какая ячейка должна быть по центру
+      const effectiveOffset = offset + dragOffset;
+      const targetIndex = Math.round(effectiveOffset / itemWidth);
       const targetOffset = targetIndex * itemWidth;
 
       setIsAnimating(true);
@@ -1922,8 +1979,10 @@ function CarouselWithCenter({
   const renderItems = useMemo(() => {
     const elements = [];
 
-    // Вычисляем центральный индекс на основе текущего offset
+    // Вычисляем центральный индекс на основе текущего offset (без учета dragOffset)
     const centerIndex = Math.round(offset / itemWidth);
+    // Эффективный offset с учетом перетаскивания
+    const effectiveOffset = offset + dragOffset;
 
     // Рендерим элементы вокруг центрального с достаточным буфером
     const renderRange = visibleCount + 4; // Увеличиваем буфер
@@ -1933,7 +1992,7 @@ function CarouselWithCenter({
       const itemIndex =
         ((virtualIndex % items.length) + items.length) % items.length;
       const item = items[itemIndex];
-      const itemPosition = virtualIndex * itemWidth - offset;
+      const itemPosition = virtualIndex * itemWidth - effectiveOffset;
 
       // Пропускаем элементы, которые слишком далеко
       if (Math.abs(itemPosition) > itemWidth * (renderRange + 1)) continue;
@@ -1949,23 +2008,38 @@ function CarouselWithCenter({
 
       // Упрощенная логика цвета
       const isCenter = proximity > 0.6;
-      const bgOpacity = isCenter ? proximity * 0.9 : 0.7;
+      const isAdjacent = proximity > 0.3 && !isCenter; // Соседние элементы
+
+      const bgOpacity = isCenter ? proximity * 0.9 : isAdjacent ? 0.8 : 0.7;
       const bgColor = isCenter
         ? `rgba(250, 204, 21, ${bgOpacity})`
+        : isAdjacent
+        ? `rgba(250, 204, 21, 0.3)` // Слегка подсвечиваем соседние
         : `rgba(63, 63, 70, ${bgOpacity})`;
 
-      const textColor = isCenter ? "#000" : "#fff";
+      const textColor = isCenter ? "#000" : isAdjacent ? "#facc15" : "#fff";
 
       elements.push(
         <div
           key={`${itemIndex}-${virtualIndex}`}
-          className={`absolute flex flex-col items-center justify-center rounded-lg px-2 py-2 cursor-pointer select-none will-change-transform hover:scale-105 active:scale-95 ${
+          className={`absolute flex flex-col items-center justify-center rounded-lg px-2 py-2 cursor-pointer select-none will-change-transform ${
+            isCenter
+              ? "hover:scale-105 active:scale-95"
+              : isAdjacent
+              ? "hover:scale-110 active:scale-100 hover:shadow-yellow-400/30 hover:ring-1 hover:ring-yellow-400/50"
+              : "hover:scale-105 active:scale-95"
+          } ${
             isDragging
-              ? ""
+              ? "" // Полностью убираем transitions во время drag для максимальной плавности
               : isAnimating
-              ? "transition-all duration-400 ease-out"
-              : "transition-all duration-300 ease-out hover:shadow-lg"
+              ? "transition-all duration-250 ease-out"
+              : "transition-all duration-150 ease-out hover:shadow-lg"
           }`}
+          title={
+            isAdjacent
+              ? `Выбрать ${item.label}: ${item.value}${valueSuffix}`
+              : ""
+          }
           style={{
             left: `calc(50% + ${itemPosition}px)`,
             transform: `translateX(-50%) scale(${scale})`,
@@ -1975,24 +2049,39 @@ function CarouselWithCenter({
             color: textColor,
             width: `${itemWidth - 10}px`,
             height: "80px",
-            zIndex: Math.round(proximity * 10),
+            zIndex: Math.round(proximity * 10) + 10,
             boxShadow: isCenter
               ? "0 4px 12px rgba(250, 204, 21, 0.25)"
+              : isAdjacent
+              ? "0 2px 8px rgba(250, 204, 21, 0.15)"
               : "none",
+            border: isAdjacent ? "1px solid rgba(250, 204, 21, 0.3)" : "none",
             position: "absolute",
             top: "50%",
             marginTop: "-40px", // Половина высоты элемента для центрирования
-            pointerEvents: isDragging ? "none" : "auto",
+            pointerEvents: "auto",
             backfaceVisibility: "hidden",
             perspective: "1000px",
+            cursor: isCenter ? "default" : isAdjacent ? "pointer" : "pointer",
           }}
-          onClick={() => {
-            if (isAnimating || isDragging) return;
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (isAnimating) return;
+
+            console.log(`Clicked on item: ${item.label} - ${item.value}`);
             setIsAnimating(true);
 
-            // Используем виртуальный индекс для плавного перехода
-            const targetOffset = virtualIndex * itemWidth;
-            setOffset(targetOffset);
+            // Определяем центральный элемент
+            const currentCenterIndex = Math.round(offset / itemWidth);
+
+            // Если кликнули не на центральный элемент - перемещаем его в центр
+            if (virtualIndex !== currentCenterIndex) {
+              const targetOffset = virtualIndex * itemWidth;
+              setOffset(targetOffset);
+              console.log(`Moving to offset: ${targetOffset}`);
+            }
 
             setTimeout(() => setIsAnimating(false), 250);
           }}
@@ -2015,7 +2104,7 @@ function CarouselWithCenter({
     return elements;
   }, [
     offset,
-    normalizeOffset,
+    dragOffset,
     itemWidth,
     items,
     visibleCount,
@@ -2032,14 +2121,24 @@ function CarouselWithCenter({
       <button
         onClick={prev}
         disabled={isAnimating}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 hover:scale-110 active:scale-95 transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-yellow-400/30"
+        className="absolute left-0 z-20 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 hover:scale-110 active:scale-95 transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-yellow-400/30"
+        style={{
+          top: "50%",
+          transform: "translateY(-50%)",
+          marginTop: "12px", // Компенсируем высоту заголовка (48px / 4)
+        }}
       >
         &#8592;
       </button>
       <button
         onClick={next}
         disabled={isAnimating}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 hover:scale-110 active:scale-95 transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-yellow-400/30"
+        className="absolute right-0 z-20 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 hover:scale-110 active:scale-95 transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-yellow-400/30"
+        style={{
+          top: "50%",
+          transform: "translateY(-50%)",
+          marginTop: "12px", // Компенсируем высоту заголовка (48px / 4)
+        }}
       >
         &#8594;
       </button>
@@ -2073,6 +2172,7 @@ function CarouselWithCenter({
             overscrollBehavior: "contain",
             overscrollBehaviorX: "none",
             overscrollBehaviorY: "auto",
+            pointerEvents: "auto",
           } as React.CSSProperties
         }
       >

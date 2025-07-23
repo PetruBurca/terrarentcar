@@ -258,7 +258,12 @@
     "totalCost": "Total cost of rental",
     "hours": "hours",
     "minutes": "minutes",
-    "ok": "OK"
+    "ok": "OK",
+    "successTitle": "Request sent!",
+    "successMessage": "Your rental request for",
+    "successMessageEnd": "has been successfully sent!",
+    "contactSoon": "We will contact you soon to confirm your booking.",
+    "okButton": "Got it, thanks!"
   },
   "validation": {
     "error": "Validation error",
