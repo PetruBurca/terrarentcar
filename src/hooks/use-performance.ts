@@ -11,7 +11,6 @@ export const usePerformance = () => {
         performanceRef.current = new PerformanceObserver((list) => {
           const entries = list.getEntries();
           const lastEntry = entries[entries.length - 1];
-          console.log("LCP:", lastEntry.startTime);
         });
         performanceRef.current.observe({
           entryTypes: ["largest-contentful-paint"],
@@ -21,7 +20,7 @@ export const usePerformance = () => {
         const fidObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries();
           entries.forEach((entry) => {
-            console.log("FID:", entry.processingStart - entry.startTime);
+            // FID measurement
           });
         });
         fidObserver.observe({ entryTypes: ["first-input"] });
@@ -35,7 +34,6 @@ export const usePerformance = () => {
               clsValue += entry.value;
             }
           });
-          console.log("CLS:", clsValue);
         });
         clsObserver.observe({ entryTypes: ["layout-shift"] });
 
@@ -54,7 +52,6 @@ export const usePerformance = () => {
     const start = performance.now();
     fn();
     const end = performance.now();
-    console.log(`${name} took ${end - start}ms`);
   };
 
   return { measureTime };

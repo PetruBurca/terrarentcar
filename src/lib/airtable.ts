@@ -109,7 +109,6 @@ async function uploadFileToAirtable(file: File): Promise<string> {
     }
 
     const uploadData = await uploadResponse.json();
-    console.log("Файл успешно загружен в Airtable:", uploadData);
     return uploadData.id; // Возвращаем ID загруженного файла
   } catch (error) {
     console.error("Ошибка загрузки файла в Airtable:", error);
@@ -180,18 +179,15 @@ export async function createOrder(order: {
   // Загружаем фото документов в Firebase, затем отправляем URL в Airtable
   try {
     if (order.idPhotoFront) {
-      console.log("Загружаем фото лицевой стороны в Firebase...");
       const frontPhotoURL = await uploadFileToFirebase(
         order.idPhotoFront,
         "passport-front"
       );
       // Отправляем URL в формате для Attachment поля
       fields["Фото документа (фронт)"] = [{ url: frontPhotoURL }];
-      console.log("Фото лицевой стороны загружено:", frontPhotoURL);
     }
 
     if (order.idPhotoBack) {
-      console.log("Загружаем фото оборотной стороны в Firebase...");
       const backPhotoURL = await uploadFileToFirebase(
         order.idPhotoBack,
         "passport-back"
@@ -265,27 +261,7 @@ export async function createOrder(order: {
     fields["Общая стоимость"] = order.totalCost;
   }
 
-  console.log("=== ДИАГНОСТИКА ОТПРАВКИ ===");
-  console.log("Order data:", order);
-  console.log("Fields to send:", fields);
-  console.log("Fields count:", Object.keys(fields).length);
-  console.log("JSON payload:", JSON.stringify({ fields }, null, 2));
 
-  // Проверяем, что URL корректные
-  if (fields["Фото документа (фронт)"]) {
-    console.log("Front photo URL:", fields["Фото документа (фронт)"]);
-    console.log(
-      "Front photo URL type:",
-      typeof fields["Фото документа (фронт)"]
-    );
-  }
-  if (fields["Фото документа (оборот)"]) {
-    console.log("Back photo URL:", fields["Фото документа (оборот)"]);
-    console.log(
-      "Back photo URL type:",
-      typeof fields["Фото документа (оборот)"]
-    );
-  }
 
   const res = await fetch(
     `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_ORDERS_TABLE}`,
@@ -352,20 +328,9 @@ export async function fetchOrders() {
   if (!res.ok) throw new Error("Ошибка загрузки заявок из Airtable");
   const data = await res.json();
 
-  console.log("=== DEBUG: fetchOrders data ===");
-  console.log("Raw orders from Airtable:", data.records);
-
   return data.records.map((rec: AirtableOrderRecord) => {
     const fields = rec.fields || {};
     const carIds = fields["Выбранный автомобиль"] || [];
-
-    console.log("Order record:", {
-      id: rec.id,
-      carIds,
-      startDate: fields["Дата начала аренды"],
-      endDate: fields["Дата окончания аренды"],
-      status: fields["Статус заявки"],
-    });
 
     return {
       id: rec.id,
@@ -389,9 +354,6 @@ export async function createContactRequest({
   phone: string;
   message: string;
 }) {
-  console.log("=== DEBUG: Creating contact request ===");
-  console.log({ fullName, email, phone, message });
-
   const body = {
     fields: {
       "Полное имя": fullName,
@@ -401,8 +363,6 @@ export async function createContactRequest({
       "Дата создания": new Date().toISOString().split("T")[0], // YYYY-MM-DD формат
     },
   };
-
-  console.log("Request body:", JSON.stringify(body, null, 2));
 
   const response = await fetch(
     `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_CONTACT_TABLE}`,
@@ -423,6 +383,5 @@ export async function createContactRequest({
   }
 
   const result = await response.json();
-  console.log("Contact request created:", result);
   return result;
 }

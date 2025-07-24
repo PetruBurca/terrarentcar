@@ -530,23 +530,10 @@ const CarReservationModal = ({
   });
   // Получаем только заявки по этой машине и только подтверждённые
   const carOrders = orders.filter((order) => {
-    console.log("=== DEBUG: CarReservationModal order filtering ===");
-    console.log("Order:", {
-      id: order.id,
-      carIds: order.carIds,
-      status: order.status,
-      startDate: order.startDate,
-      endDate: order.endDate,
-    });
-    console.log("Current car ID:", car.id);
-
     const hasCarId = order.carIds && order.carIds.includes(car.id);
     const isConfirmed =
       order.status === "подтверждена" || order.status === "подтвержден";
     const hasDates = order.startDate && order.endDate;
-
-    console.log("Filter results:", { hasCarId, isConfirmed, hasDates });
-    console.log("Order matches:", hasCarId && isConfirmed && hasDates);
 
     return hasCarId && isConfirmed && hasDates;
   });
@@ -2036,7 +2023,6 @@ function CarouselWithCenter({
 
             if (isAnimating) return;
 
-            console.log(`Clicked on item: ${item.label} - ${item.value}`);
             setIsAnimating(true);
 
             // Определяем центральный элемент
@@ -2046,7 +2032,6 @@ function CarouselWithCenter({
             if (virtualIndex !== currentCenterIndex) {
               const targetOffset = virtualIndex * itemWidth;
               setOffset(targetOffset);
-              console.log(`Moving to offset: ${targetOffset}`);
             }
 
             setTimeout(() => setIsAnimating(false), 250);

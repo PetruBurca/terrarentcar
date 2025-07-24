@@ -283,9 +283,5 @@
     "frontPhotoRequired": "Încărcați fotografia din față a documentului",
     "backPhotoRequired": "Încărcați fotografia din spate a documentului",
     "privacyRequired": "Este necesară consimțământul pentru prelucrarea datelor personale"
-  },
-  "cookie": {
-    "message": "Acest site folosește cookie-uri pentru a vă îmbunătăți experiența. Continuând să utilizați site-ul, sunteți de acord cu utilizarea cookie-urilor.",
-    "accept": "Acceptă și continuă"
   }
 }

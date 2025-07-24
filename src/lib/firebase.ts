@@ -31,11 +31,9 @@ export async function uploadFileToFirebase(
 
     // Загружаем файл
     const snapshot = await uploadBytes(storageRef, file);
-    console.log("Файл загружен в Firebase:", snapshot.metadata.name);
 
     // Получаем URL для скачивания
     const downloadURL = await getDownloadURL(snapshot.ref);
-    console.log("URL файла:", downloadURL);
 
     return downloadURL;
   } catch (error) {

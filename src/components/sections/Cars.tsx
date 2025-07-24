@@ -85,13 +85,7 @@ const Cars = ({ searchDates }) => {
   // Фильтрация по доступности
   let availableCars = cars;
   if (searchDates?.from && searchDates?.to) {
-    console.log("=== DEBUG: Filtering cars ===");
-    console.log("Search dates:", searchDates);
-    console.log("All orders:", orders);
-
     availableCars = cars.filter((car) => {
-      console.log(`\n--- Checking car: ${car.name} (ID: ${car.id}) ---`);
-
       // Фильтруем заявки для этого автомобиля
       const carOrders = orders.filter((order) => {
         const hasCarId = order.carIds && order.carIds.includes(car.id);
@@ -99,24 +93,10 @@ const Cars = ({ searchDates }) => {
           order.status === "подтверждена" || order.status === "подтвержден";
         const hasDates = order.startDate && order.endDate;
 
-        console.log(`Order ${order.id}:`, {
-          carIds: order.carIds,
-          status: order.status,
-          startDate: order.startDate,
-          endDate: order.endDate,
-          hasCarId,
-          isConfirmed,
-          hasDates,
-          matches: hasCarId && isConfirmed && hasDates,
-        });
-
         return hasCarId && isConfirmed && hasDates;
       });
 
-      console.log(`Found ${carOrders.length} confirmed orders for ${car.name}`);
-
       if (carOrders.length === 0) {
-        console.log(`✅ Car ${car.name} is available (no orders)`);
         return true;
       }
 
@@ -142,30 +122,11 @@ const Cars = ({ searchDates }) => {
 
         const overlap = isDateOverlap(from, to, orderStart, orderEnd);
 
-        console.log(`Date overlap check:`, {
-          searchRange: `${from.toISOString().split("T")[0]} - ${
-            to.toISOString().split("T")[0]
-          }`,
-          orderRange: `${orderStart.toISOString().split("T")[0]} - ${
-            orderEnd.toISOString().split("T")[0]
-          }`,
-          overlap,
-        });
-
         return overlap;
       });
 
-      console.log(
-        `${isAvailable ? "✅" : "❌"} Car ${car.name} is ${
-          isAvailable ? "available" : "NOT available"
-        }`
-      );
       return isAvailable;
     });
-
-    console.log(
-      `\n=== RESULT: ${availableCars.length}/${cars.length} cars available ===`
-    );
   }
 
   // Check if user has scrolled to the end and hide scroll hint

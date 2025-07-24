@@ -9,7 +9,6 @@ export function useLocalStorage<T>(
     try {
       const item = window.localStorage.getItem(key);
       const parsed = item ? JSON.parse(item) : initialValue;
-      console.log(`📥 Загружено из кэша [${key}]:`, parsed);
       return parsed;
     } catch (error) {
       console.error(`Error reading localStorage key "${key}":`, error);
@@ -26,7 +25,6 @@ export function useLocalStorage<T>(
       setStoredValue(valueToStore);
       // Сохраняем в localStorage
       window.localStorage.setItem(key, JSON.stringify(valueToStore));
-      console.log(`💾 Сохранено в кэш [${key}]:`, valueToStore);
     } catch (error) {
       console.error(`Error setting localStorage key "${key}":`, error);
     }
@@ -39,7 +37,6 @@ export function useLocalStorage<T>(
         try {
           const newValue = JSON.parse(e.newValue);
           setStoredValue(newValue);
-          console.log(`🔄 Синхронизация кэша [${key}]:`, newValue);
         } catch (error) {
           console.error(`Error parsing localStorage key "${key}":`, error);
         }
@@ -95,7 +92,6 @@ export function useReservationForm() {
 
   // Очистка кэша при успешной отправке
   const clearCache = () => {
-    console.log("🧹 Очистка кэша формы бронирования...");
     localStorage.removeItem("reservation-form");
     localStorage.removeItem("search-dates");
     localStorage.removeItem("reservation-step");
@@ -126,7 +122,6 @@ export function useSelectedCar() {
   );
 
   const clearSelectedCar = () => {
-    console.log("🧹 Очистка кэша выбранной машины...");
     localStorage.removeItem("selected-car-id");
   };
 

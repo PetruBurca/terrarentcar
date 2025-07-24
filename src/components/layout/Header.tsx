@@ -22,10 +22,12 @@ const Header = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const { t, i18n } = useTranslation();
-  const [currentLang, setCurrentLang] = useState(i18n.language || "ru");
+  const [currentLang, setCurrentLang] = useState(i18n.language || "ro");
   const [iconSpin, setIconSpin] = useState<"spin-in" | "spin-out" | "">("");
   const modalRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const menuButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleModal = () => {
@@ -62,6 +64,30 @@ const Header = () => {
     loadLocale(lang);
   };
 
+  // Синхронизируем язык при загрузке компонента
+  useEffect(() => {
+    const savedLang = localStorage.getItem("app-language") || "ro";
+
+    // Убеждаемся, что язык загружен в i18n
+    if (i18n.language !== savedLang) {
+      loadLocale(savedLang);
+    }
+
+    setCurrentLang(savedLang);
+  }, []);
+
+  // Слушаем изменения языка в i18n
+  useEffect(() => {
+    const handleLanguageChange = (lng: string) => {
+      setCurrentLang(lng);
+    };
+
+    i18n.on("languageChanged", handleLanguageChange);
+    return () => {
+      i18n.off("languageChanged", handleLanguageChange);
+    };
+  }, [i18n]);
+
   // Закрытие модалки по клику вне
   useEffect(() => {
     const closeOnOutsideClick = (e: MouseEvent) => {
@@ -75,6 +101,34 @@ const Header = () => {
     if (modalOpen) document.addEventListener("mousedown", closeOnOutsideClick);
     return () => document.removeEventListener("mousedown", closeOnOutsideClick);
   }, [modalOpen]);
+
+  // Закрытие мобильного меню по клику вне и по Escape
+  useEffect(() => {
+    const closeMenuOnOutsideClick = (e: MouseEvent) => {
+      if (
+        !menuRef.current?.contains(e.target as Node) &&
+        !menuButtonRef.current?.contains(e.target as Node)
+      ) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    const closeMenuOnEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener("mousedown", closeMenuOnOutsideClick);
+      document.addEventListener("keydown", closeMenuOnEscape);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", closeMenuOnOutsideClick);
+      document.removeEventListener("keydown", closeMenuOnEscape);
+    };
+  }, [isMenuOpen]);
 
   return (
     <>
@@ -207,6 +261,7 @@ const Header = () => {
 
           {/* Бургер-меню */}
           <button
+            ref={menuButtonRef}
             onClick={toggleMenu}
             className="md:hidden p-2 text-white hover:text-primary transition-colors"
           >
@@ -220,6 +275,7 @@ const Header = () => {
 
         {/* Mobile Menu */}
         <div
+          ref={menuRef}
           className={`
             md:hidden
             origin-top
@@ -241,7 +297,19 @@ const Header = () => {
                   : "opacity-0 -translate-y-2 delay-0"
               }`}
             style={{ transitionProperty: "opacity, transform" }}
-            onClick={toggleMenu}
+            onClick={() => {
+              toggleMenu();
+              // Плавный скролл к элементу
+              setTimeout(() => {
+                const element = document.getElementById("car-search");
+                if (element) {
+                  element.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                }
+              }, 300);
+            }}
           >
             {t("header.chooseCar", "Выбор машины")}
           </a>
@@ -254,7 +322,19 @@ const Header = () => {
                   : "opacity-0 -translate-y-2 delay-0"
               }`}
             style={{ transitionProperty: "opacity, transform" }}
-            onClick={toggleMenu}
+            onClick={() => {
+              toggleMenu();
+              // Плавный скролл к элементу
+              setTimeout(() => {
+                const element = document.getElementById("about");
+                if (element) {
+                  element.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                }
+              }, 300);
+            }}
           >
             {t("header.about")}
           </a>
@@ -267,7 +347,19 @@ const Header = () => {
                   : "opacity-0 -translate-y-2 delay-0"
               }`}
             style={{ transitionProperty: "opacity, transform" }}
-            onClick={toggleMenu}
+            onClick={() => {
+              toggleMenu();
+              // Плавный скролл к элементу
+              setTimeout(() => {
+                const element = document.getElementById("cars");
+                if (element) {
+                  element.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                }
+              }, 300);
+            }}
           >
             {t("header.cars")}
           </a>
@@ -280,7 +372,19 @@ const Header = () => {
                   : "opacity-0 -translate-y-2 delay-0"
               }`}
             style={{ transitionProperty: "opacity, transform" }}
-            onClick={toggleMenu}
+            onClick={() => {
+              toggleMenu();
+              // Плавный скролл к элементу
+              setTimeout(() => {
+                const element = document.getElementById("contact");
+                if (element) {
+                  element.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                }
+              }, 300);
+            }}
           >
             {t("header.contact")}
           </a>

@@ -95,11 +95,9 @@ export const RentSearchCalendar = ({ onSearch }) => {
       if (isSameDateAsFrom) {
         // Если кликнули по той же дате - это однодневная аренда
         setRange((r) => ({ ...r, to: date }));
-        console.log("🎯 Однодневная аренда:", format(date, "dd.MM.yyyy"));
       } else if (date < range.from!) {
         // Если выбрали дату раньше чем "from", меняем местами
         setRange({ from: date, to: range.from });
-        console.log("🔄 Поменяли местами даты");
       } else {
         // Обычный выбор даты "до"
         setRange((r) => ({ ...r, to: date }));
@@ -113,10 +111,6 @@ export const RentSearchCalendar = ({ onSearch }) => {
 
     // Если кликнули дважды по одной дате - устанавливаем её как дату выдачи
     setRange((r) => ({ from: date, to: date }));
-    console.log(
-      "🎯 Двойной клик - однодневная аренда:",
-      format(date, "dd.MM.yyyy")
-    );
   };
 
   const handleSearch = () => {

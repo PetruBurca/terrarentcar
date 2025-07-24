@@ -121,7 +121,7 @@ const CarCard = memo(
                 variant="secondary"
                 className="bg-primary text-primary-foreground"
               >
-                {category}
+                {translateCarSpec("category", category, t)}
               </Badge>
             </div>
             <div className="absolute top-4 right-4 flex items-center space-x-1 bg-background/80 backdrop-blur px-2 py-1 rounded-full">

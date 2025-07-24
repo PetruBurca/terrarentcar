@@ -77,6 +77,27 @@ const featureMap: Record<string, string> = {
   "Scaune din piele": "leatherSeats",
 };
 
+const categoryMap: Record<string, string> = {
+  Седан: "sedan",
+  Sedan: "sedan",
+  Внедорожник: "suv",
+  SUV: "suv",
+  Хэтчбэк: "hatchback",
+  Hatchback: "hatchback",
+  Универсал: "wagon",
+  Wagon: "wagon",
+  Break: "wagon",
+  Кроссовер: "crossover",
+  Crossover: "crossover",
+  Купе: "coupe",
+  Coupe: "coupe",
+  Кабриолет: "convertible",
+  Convertible: "convertible",
+  Convertibil: "convertible",
+  Пикап: "pickup",
+  Pickup: "pickup",
+};
+
 // Функция для перевода коробки передач
 export function translateTransmission(value: string, t: TFunction): string {
   const key = transmissionMap[value];
@@ -101,9 +122,15 @@ export function translateFeature(value: string, t: TFunction): string {
   return key ? t(`cars.features.${key}`) : value;
 }
 
+// Функция для перевода категорий
+export function translateCategory(value: string, t: TFunction): string {
+  const key = categoryMap[value];
+  return key ? t(`cars.category.${key}`) : value;
+}
+
 // Универсальная функция для перевода любой характеристики автомобиля
 export function translateCarSpec(
-  type: "transmission" | "fuel" | "drive" | "feature",
+  type: "transmission" | "fuel" | "drive" | "feature" | "category",
   value: string,
   t: TFunction
 ): string {
@@ -116,6 +143,8 @@ export function translateCarSpec(
       return translateDrive(value, t);
     case "feature":
       return translateFeature(value, t);
+    case "category":
+      return translateCategory(value, t);
     default:
       return value;
   }

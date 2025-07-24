@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Language Test</title>
+  </head>
+  <body>
+    <h1>Language Test</h1>
+    <button onclick="setLanguage('ru')">Set Russian</button>
+    <button onclick="setLanguage('en')">Set English</button>
+    <button onclick="setLanguage('ro')">Set Romanian</button>
+    <button onclick="checkLanguage()">Check Current Language</button>
+    <button onclick="clearStorage()">Clear Storage</button>
+
+    <div id="result"></div>
+
+    <script>
+      function setLanguage(lang) {
+        localStorage.setItem("app-language", lang);
+        document.getElementById(
+          "result"
+        ).innerHTML = `Language set to: ${lang}`;
+      }
+
+      function checkLanguage() {
+        const lang = localStorage.getItem("app-language") || "ro";
+        document.getElementById(
+          "result"
+        ).innerHTML = `Current language: ${lang}`;
+      }
+
+      function clearStorage() {
+        localStorage.removeItem("app-language");
+        document.getElementById("result").innerHTML = "Storage cleared";
+      }
+
+      // Check on load
+      checkLanguage();
+    </script>
+  </body>
+</html>
