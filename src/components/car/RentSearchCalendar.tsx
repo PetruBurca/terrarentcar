@@ -102,6 +102,18 @@ export const RentSearchCalendar = ({ onSearch }) => {
     }
   };
 
+  // Новая функция для обработки двойного клика по одной дате
+  const handleDateDoubleClick = (date: Date | undefined) => {
+    if (!date) return;
+
+    // Если кликнули дважды по одной дате - устанавливаем её как дату выдачи
+    setRange((r) => ({ from: date, to: date }));
+    console.log(
+      "🎯 Двойной клик - однодневная аренда:",
+      format(date, "dd.MM.yyyy")
+    );
+  };
+
   const handleSearch = () => {
     setModalOpen(false);
     onSearch?.({
@@ -239,6 +251,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
                     month={month}
                     range={range}
                     onSelect={handleCalendarSelect}
+                    onDoubleClick={handleDateDoubleClick}
                     locale={locale}
                   />
                 </div>
@@ -269,7 +282,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
 };
 
 // Календарь одного месяца с выделением today и кастомными стилями
-function MonthCalendar({ month, range, onSelect, locale }) {
+function MonthCalendar({ month, range, onSelect, onDoubleClick, locale }) {
   const daysInMonth = new Date(
     month.getFullYear(),
     month.getMonth() + 1,
@@ -379,6 +392,7 @@ function MonthCalendar({ month, range, onSelect, locale }) {
                     ].join(" ")}
                     style={{ gridColumn: i + 1 }}
                     onClick={() => !pastDate && onSelect(date)}
+                    onDoubleClick={() => !pastDate && onDoubleClick(date)}
                     disabled={pastDate}
                   >
                     {date.getDate()}

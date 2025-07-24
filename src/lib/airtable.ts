@@ -79,6 +79,68 @@ export async function fetchCars() {
   });
 }
 
+// Функция для загрузки файла в Airtable
+async function uploadFileToAirtable(file: File): Promise<string> {
+  try {
+    // Создаем FormData для загрузки файла
+    const formData = new FormData();
+    formData.append("file", file);
+
+    // Загружаем файл в Airtable
+    const uploadResponse = await fetch(
+      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/attachments`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+        },
+        body: formData,
+      }
+    );
+
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      console.error("Airtable upload error response:", errorText);
+      throw new Error(
+        `Ошибка загрузки файла: ${uploadResponse.status} - ${uploadResponse.statusText}`
+      );
+    }
+
+    const uploadData = await uploadResponse.json();
+    console.log("Файл успешно загружен в Airtable:", uploadData);
+    return uploadData.id; // Возвращаем ID загруженного файла
+  } catch (error) {
+    console.error("Ошибка загрузки файла в Airtable:", error);
+    throw error;
+  }
+}
+
+// Альтернативная функция для загрузки через промежуточный сервер
+async function uploadFileViaServer(file: File): Promise<string> {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("airtableBaseId", AIRTABLE_BASE_ID);
+    formData.append("airtableToken", AIRTABLE_TOKEN);
+
+    // Здесь нужно будет настроить ваш сервер для обработки загрузки
+    const response = await fetch("/api/upload-to-airtable", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Ошибка загрузки через сервер: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.attachmentId;
+  } catch (error) {
+    console.error("Ошибка загрузки через сервер:", error);
+    throw error;
+  }
+}
+
 export async function createOrder(order: {
   name: string;
   phone: string;
@@ -102,23 +164,6 @@ export async function createOrder(order: {
 }) {
   const AIRTABLE_ORDERS_TABLE = "Заявки на аренду";
 
-  // Пока что просто логируем информацию о загруженных фото
-  if (order.idPhotoFront) {
-    console.log(
-      "Фото лицевой стороны получено:",
-      order.idPhotoFront.name,
-      `(${Math.round(order.idPhotoFront.size / 1024)}KB)`
-    );
-  }
-
-  if (order.idPhotoBack) {
-    console.log(
-      "Фото оборотной стороны получено:",
-      order.idPhotoBack.name,
-      `(${Math.round(order.idPhotoBack.size / 1024)}KB)`
-    );
-  }
-
   // Используем точные названия полей как в Airtable
   const fields: Record<string, string | string[] | number | boolean> = {
     "Имя клиента": order.name,
@@ -127,8 +172,25 @@ export async function createOrder(order: {
     "Статус заявки": "новая",
   };
 
-  // Отправляем фото документов в правильные поля вложений
-  // TODO: Реализовать загрузку фото в будущем
+  // Загружаем фото документов в Airtable через промежуточный сервер
+  try {
+    if (order.idPhotoFront) {
+      console.log("Загружаем фото лицевой стороны...");
+      const frontPhotoId = await uploadFileViaServer(order.idPhotoFront);
+      fields["Фото документа (фронт)"] = [frontPhotoId];
+      console.log("Фото лицевой стороны загружено:", frontPhotoId);
+    }
+
+    if (order.idPhotoBack) {
+      console.log("Загружаем фото оборотной стороны...");
+      const backPhotoId = await uploadFileViaServer(order.idPhotoBack);
+      fields["Фото документа (оборот)"] = [backPhotoId];
+      console.log("Фото оборотной стороны загружено:", backPhotoId);
+    }
+  } catch (error) {
+    console.error("Ошибка загрузки фото:", error);
+    // Продолжаем отправку заявки даже если фото не загрузились
+  }
 
   if (order.car) {
     fields["Выбранный автомобиль"] = Array.isArray(order.car)
@@ -228,6 +290,8 @@ interface AirtableOrderFields {
   "Дата начала аренды"?: string;
   "Дата окончания аренды"?: string;
   "Статус заявки"?: string;
+  "Фото документа (фронт)"?: string[]; // Attachment IDs
+  "Фото документа (оборот)"?: string[]; // Attachment IDs
 }
 
 interface AirtableOrderRecord {
