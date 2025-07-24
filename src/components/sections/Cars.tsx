@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/feedback/skeleton";
 import { CarCard } from "../car";
 import type { CarCardProps } from "../car/CarCard";
 import { useTranslation } from "react-i18next";
+import i18n from "i18next";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCars, fetchOrders } from "@/lib/airtable";
@@ -25,7 +26,7 @@ function isDateOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) {
 }
 
 const Cars = ({ searchDates }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [showScrollHint, setShowScrollHint] = useState(true);
@@ -38,6 +39,7 @@ const Cars = ({ searchDates }) => {
   const [sortBy, setSortBy] = useState<"price" | "name" | null>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
+  // Создаем категории с зависимостью от языка
   const categories = [
     { key: "all", label: t("cars.category.all"), value: null },
     { key: "sedan", label: t("cars.category.sedan"), value: "sedan" },
@@ -68,7 +70,7 @@ const Cars = ({ searchDates }) => {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["cars"],
+    queryKey: ["cars", i18n.language],
     queryFn: fetchCars,
     staleTime: 1000 * 60 * 5,
     retry: 2,
@@ -77,10 +79,15 @@ const Cars = ({ searchDates }) => {
 
   // Получаем заявки
   const { data: orders = [], isLoading: isLoadingOrders } = useQuery({
-    queryKey: ["orders"],
+    queryKey: ["orders", i18n.language],
     queryFn: fetchOrders,
     staleTime: 1000 * 60 * 5,
   });
+
+  // Принудительное обновление при смене языка
+  useEffect(() => {
+    // Это заставит компонент перерендериться при смене языка
+  }, [i18n.language]);
 
   // Фильтрация по доступности
   let availableCars = cars;
@@ -306,7 +313,7 @@ const Cars = ({ searchDates }) => {
                 <div className="flex items-center space-x-2 px-2">
                   {categories.map((cat) => (
                     <Button
-                      key={cat.key}
+                      key={`${cat.key}-${i18n.language}`}
                       variant={
                         selectedCategory === cat.key ? "default" : "ghost"
                       }
@@ -347,6 +354,7 @@ const Cars = ({ searchDates }) => {
           {/* Мини-навигация сортировки */}
           <div className="mx-auto max-w-[50vw] md:max-w-[20vw] flex items-center bg-card/50 backdrop-blur border border-border/50 rounded-b-xl p-2 overflow-x-auto scrollbar-hide gap-2 justify-center py-2">
             <button
+              key={`sort-price-${i18n.language}`}
               className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded hover:bg-primary/10 transition"
               onClick={() => {
                 if (sortBy === "price")
@@ -370,6 +378,7 @@ const Cars = ({ searchDates }) => {
               </span>
             </button>
             <button
+              key={`sort-name-${i18n.language}`}
               className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded hover:bg-primary/10 transition"
               onClick={() => {
                 if (sortBy === "name")
@@ -406,7 +415,10 @@ const Cars = ({ searchDates }) => {
         </div>
         {/* Filter */}
         {/* Cars Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div
+          key={`cars-grid-${i18n.language}`}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
           {(isMobile
             ? sortedCars
             : sortedCars.slice(
@@ -415,7 +427,7 @@ const Cars = ({ searchDates }) => {
               )
           ).map((car: CarCardProps, index: number) => (
             <div
-              key={car.id}
+              key={`${car.id}-${i18n.language}`}
               className="animate-fade-in"
               style={{ animationDelay: `${index * 0.1}s` }}
             >

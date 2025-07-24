@@ -217,33 +217,33 @@ const Header = () => {
           <nav className="hidden md:flex items-center space-x-8">
             <a
               href="#car-search"
-              className="font-oswald text-white/90 hover:text-white transition-colors relative after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-0.5 after:bg-white/60 hover:after:w-full after:transition-all after:duration-300"
+              className="font-oswald text-white/90 hover:text-white transition-colors relative after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-0.5 after:bg-white/60 hover:after:w-full after:transition-all after:duration-300 text-lg font-medium"
             >
               {t("header.chooseCar", "Выбор машины")}
             </a>
             <a
               href="#about"
-              className="font-oswald text-white/90 hover:text-white transition-colors relative after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-0.5 after:bg-white/60 hover:after:w-full after:transition-all after:duration-300"
+              className="font-oswald text-white/90 hover:text-white transition-colors relative after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-0.5 after:bg-white/60 hover:after:w-full after:transition-all after:duration-300 text-lg font-medium"
             >
               {t("header.about")}
             </a>
             <a
               href="#cars"
-              className="font-oswald text-white/90 hover:text-white transition-colors relative after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-0.5 after:bg-white/60 hover:after:w-full after:transition-all after:duration-300"
+              className="font-oswald text-white/90 hover:text-white transition-colors relative after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-0.5 after:bg-white/60 hover:after:w-full after:transition-all after:duration-300 text-lg font-medium"
             >
               {t("header.cars")}
             </a>
             <a
               href="#contact"
-              className="font-oswald text-white/90 hover:text-white transition-colors relative after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-0.5 after:bg-white/60 hover:after:w-full after:transition-all after:duration-300"
+              className="font-oswald text-white/90 hover:text-white transition-colors relative after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-0.5 after:bg-white/60 hover:after:w-full after:transition-all after:duration-300 text-lg font-medium"
             >
               {t("header.contact")}
             </a>
           </nav>
 
           {/* Переключатель языков */}
-          <div className="hidden md:flex items-center space-x-2 text-white/80 text-sm font-semibold select-none">
-            <FaGlobe className="w-4 h-4 mr-1 opacity-1" />
+          <div className="hidden md:flex items-center space-x-2 text-white/80 text-base font-semibold select-none">
+            <FaGlobe className="w-5 h-5 mr-1 opacity-1" />
             {LANGS.map((lang, idx) => (
               <span
                 key={lang.code}
@@ -290,7 +290,7 @@ const Header = () => {
         >
           <a
             href="#car-search"
-            className={`block font-oswald text-white/90 hover:text-white transition-all duration-300 transform
+            className={`block font-oswald text-white/90 hover:text-white transition-all duration-300 transform text-lg font-medium
               ${
                 isMenuOpen
                   ? "opacity-100 translate-y-0 delay-50"
@@ -315,7 +315,7 @@ const Header = () => {
           </a>
           <a
             href="#about"
-            className={`block font-oswald text-white/90 hover:text-white transition-all duration-300 transform
+            className={`block font-oswald text-white/90 hover:text-white transition-all duration-300 transform text-lg font-medium
               ${
                 isMenuOpen
                   ? "opacity-100 translate-y-0 delay-100"
@@ -340,7 +340,7 @@ const Header = () => {
           </a>
           <a
             href="#cars"
-            className={`block font-oswald text-white/90 hover:text-white transition-all duration-300 transform
+            className={`block font-oswald text-white/90 hover:text-white transition-all duration-300 transform text-lg font-medium
               ${
                 isMenuOpen
                   ? "opacity-100 translate-y-0 delay-200"
@@ -365,7 +365,7 @@ const Header = () => {
           </a>
           <a
             href="#contact"
-            className={`block font-oswald text-white/90 hover:text-white transition-all duration-300 transform
+            className={`block font-oswald text-white/90 hover:text-white transition-all duration-300 transform text-lg font-medium
               ${
                 isMenuOpen
                   ? "opacity-100 translate-y-0 delay-300"
@@ -388,8 +388,8 @@ const Header = () => {
           >
             {t("header.contact")}
           </a>
-          <div className="flex justify-center items-center space-x-2 text-white/80 text-sm font-semibold mt-2">
-            <FaGlobe className="w-4 h-4 mr-1 opacity-80" />
+          <div className="flex justify-center items-center space-x-2 text-white/80 text-base font-semibold mt-2">
+            <FaGlobe className="w-5 h-5 mr-1 opacity-80" />
             {LANGS.map((lang, idx) => (
               <span
                 key={lang.code}
