@@ -1670,6 +1670,7 @@ const CarReservationModal = ({
   );
 };
 
+export { CarReservationModal };
 export default CarReservationModal;
 
 // Стили для календаря
