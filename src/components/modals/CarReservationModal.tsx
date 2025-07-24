@@ -25,7 +25,7 @@ import { createOrder } from "@/lib/airtable";
 import { translateCarSpec } from "@/lib/carTranslations";
 import { formatDateRange } from "@/lib/dateHelpers";
 import logo from "@/assets/logo.png";
-import { useMediaQuery } from "@/hooks/use-mobile";
+import { useMediaQuery, useReservationForm } from "@/hooks";
 import { useRef } from "react";
 import { Calendar as ShadcnCalendar } from "@/components/ui/data-display/calendar";
 import { useQuery } from "@tanstack/react-query";
@@ -103,49 +103,24 @@ const CarReservationModal = ({
 }: CarReservationModalProps) => {
   const { t, i18n } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 767px)");
-  const [currentStep, setCurrentStep] = useState(0);
+
+  // Используем кэшированное состояние
+  const {
+    formData,
+    setFormData,
+    currentStep,
+    setCurrentStep,
+    uploadedPhotos,
+    setUploadedPhotos,
+    privacyAccepted,
+    setPrivacyAccepted,
+    clearCache,
+  } = useReservationForm();
+
   const [wizardData, setWizardData] = useState<WizardData>({});
   const [selectedCountryCode, setSelectedCountryCode] = useState("+373");
-  const [uploadedPhotos, setUploadedPhotos] = useState({
-    front: false,
-    back: false,
-  });
-  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    pickupDate: "",
-    returnDate: "",
-    pickupTime: "10:00", // Устанавливаю начальное значение
-    returnTime: "",
-    message: "",
-    pickupType: "office", // по умолчанию 'заберу из офиса'
-    idnp: "", // добавлено поле idnp
-    pickupAddress: "",
-    unlimitedMileage: false,
-    goldCard: false,
-    clubCard: false,
-  } as {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    pickupDate: string;
-    returnDate: string;
-    pickupTime: string;
-    returnTime: string;
-    message: string;
-    pickupType: string;
-    idnp: string;
-    pickupAddress: string;
-    unlimitedMileage: boolean;
-    goldCard: boolean;
-    clubCard: boolean;
-  });
   const [activeIndex, setActiveIndex] = useState(0);
   const images = Array.isArray(car.images) ? car.images : [];
   const handlePrev = () =>
@@ -532,27 +507,8 @@ const CarReservationModal = ({
   // Функция для закрытия модального окна успеха
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
-    // Сбрасываем форму
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      pickupDate: "",
-      returnDate: "",
-      pickupTime: "10:00",
-      returnTime: "",
-      message: "",
-      pickupType: "office",
-      idnp: "",
-      pickupAddress: "",
-      unlimitedMileage: false,
-      goldCard: false,
-      clubCard: false,
-    });
-    setUploadedPhotos({ front: false, back: false });
-    setPrivacyAccepted(false);
-    setCurrentStep(0);
+    // Очищаем кэш после успешной отправки
+    clearCache();
     onClose();
   };
 

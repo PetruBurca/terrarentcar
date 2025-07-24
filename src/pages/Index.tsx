@@ -8,12 +8,14 @@ import {
   Contact,
 } from "@/components";
 import { useState } from "react";
+import { useLocalStorage } from "@/hooks";
 
 const Index = () => {
-  const [searchDates, setSearchDates] = useState<{
+  // Используем кэшированные даты поиска
+  const [searchDates, setSearchDates] = useLocalStorage<{
     from: Date | null;
     to: Date | null;
-  }>({ from: null, to: null });
+  }>("search-dates", { from: null, to: null });
 
   const handleSearchDates = (dates: { from: Date | null; to: Date | null }) => {
     setSearchDates(dates);

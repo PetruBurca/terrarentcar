@@ -10,6 +10,7 @@ import { ru, ro, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { X, Search } from "lucide-react";
 import React from "react";
+import { useLocalStorage } from "@/hooks";
 
 const getLocale = (lng: string) =>
   lng === "ru" ? ru : lng === "ro" ? ro : enUS;
@@ -19,7 +20,11 @@ export const RentSearchCalendar = ({ onSearch }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [activeField, setActiveField] = useState<"from" | "to" | null>(null);
 
-  const [range, setRange] = useState<{ from: Date | null; to: Date | null }>({
+  // Используем кэшированные даты поиска
+  const [range, setRange] = useLocalStorage<{
+    from: Date | null;
+    to: Date | null;
+  }>("search-dates", {
     from: null,
     to: null,
   });
