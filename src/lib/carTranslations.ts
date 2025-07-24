@@ -1,4 +1,4 @@
-import { TFunction } from "react-i18next";
+import type { TFunction } from "i18next";
 
 // Маппинг значений из БД к ключам локализации
 const transmissionMap: Record<string, string> = {
@@ -27,7 +27,6 @@ const fuelMap: Record<string, string> = {
   Hybrid: "hybrid",
   Benzină: "petrol",
   Motorină: "diesel",
-  Electric: "electric",
   Hibrid: "hybrid",
 };
 

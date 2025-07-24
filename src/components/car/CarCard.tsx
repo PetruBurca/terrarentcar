@@ -168,7 +168,10 @@ const CarCard = memo(
                   <Badge
                     variant="outline"
                     className="text-xs cursor-pointer hover:bg-primary/10 transition-colors"
-                    onClick={() => setShowAllFeatures(true)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowAllFeatures(true);
+                    }}
                   >
                     +{safeFeatures.length - 3}
                   </Badge>
@@ -177,7 +180,10 @@ const CarCard = memo(
                   <Badge
                     variant="outline"
                     className="text-xs cursor-pointer hover:bg-primary/10 transition-colors"
-                    onClick={() => setShowAllFeatures(false)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowAllFeatures(false);
+                    }}
                   >
                     {t("cars.hide")}
                   </Badge>
