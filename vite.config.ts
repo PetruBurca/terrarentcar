@@ -35,7 +35,7 @@ export default defineConfig(({ mode }) => ({
     // Увеличиваем лимит для больших чанков
     chunkSizeWarningLimit: 1000,
     // Оптимизация для продакшена
-    minify: "terser",
+    minify: mode === "production" ? "terser" : false,
     terserOptions: {
       compress: {
         drop_console: mode === "production",
