@@ -155,7 +155,10 @@
     "messagePlaceholder": "Spuneți-ne despre nevoile dvs. de închiriere auto...",
     "sendMessageButton": "Trimite mesajul",
     "messageSentTitle": "Mesaj trimis!",
-    "messageSentDesc": "Am primit mesajul dvs. și vă vom contacta în curând."
+    "messageSentDesc": "Am primit mesajul dvs. și vă vom contacta în curând.",
+    "sendAnotherMessage": "Trimite alt mesaj",
+    "sending": "Se trimite...",
+    "errorTitle": "Eroare la trimitere"
   },
   "reservation": {
     "title": "Rezervarea automobilului",

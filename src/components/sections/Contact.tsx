@@ -23,6 +23,8 @@ const Contact = () => {
     subject: "",
     message: "",
   });
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -33,9 +35,20 @@ const Contact = () => {
     });
   };
 
+  const handleResetForm = () => {
+    setIsSubmitted(false);
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      subject: "",
+      message: "",
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Валидация полей
     if (!formData.name.trim()) {
       toast({
@@ -45,7 +58,7 @@ const Contact = () => {
       });
       return;
     }
-    
+
     if (!formData.email.trim()) {
       toast({
         title: t("validation.error", "Ошибка"),
@@ -54,7 +67,7 @@ const Contact = () => {
       });
       return;
     }
-    
+
     if (!formData.phone.trim()) {
       toast({
         title: t("validation.error", "Ошибка"),
@@ -64,6 +77,8 @@ const Contact = () => {
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
       await createContactRequest({
         fullName: formData.name,
@@ -71,12 +86,11 @@ const Contact = () => {
         phone: formData.phone,
         message: formData.message,
       });
-      
-      toast({
-        title: t("contact.messageSentTitle"),
-        description: t("contact.messageSentDesc"),
-      });
-      
+
+      setIsSubmitted(true);
+      setIsSubmitting(false);
+
+      // Очищаем форму
       setFormData({
         name: "",
         email: "",
@@ -85,9 +99,10 @@ const Contact = () => {
         message: "",
       });
     } catch (e) {
+      setIsSubmitting(false);
       const error = e instanceof Error ? e : new Error(String(e));
       toast({
-        title: t("contact.errorTitle"),
+        title: t("contact.errorTitle", "Ошибка отправки"),
         description: error.message,
         variant: "destructive",
       });
@@ -235,72 +250,130 @@ const Contact = () => {
             <Card className="bg-card/50 backdrop-blur border-border/50 glow-effect">
               <CardHeader>
                 <CardTitle className="text-2xl">
-                  {t("contact.sendMessageTitle")}
+                  {isSubmitted
+                    ? t("contact.messageSentTitle")
+                    : t("contact.sendMessageTitle")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <Label htmlFor="name">{t("contact.fullNameLabel")}</Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      required
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {isSubmitted ? (
+                  // Сообщение об успехе
+                  <div className="text-center space-y-6">
+                    <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg
+                        className="w-8 h-8 text-green-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </div>
                     <div>
-                      <Label htmlFor="email">{t("contact.emailLabel")}</Label>
+                      <h3 className="text-xl font-semibold text-green-500 mb-2">
+                        {t("contact.messageSentTitle")}
+                      </h3>
+                      <p className="text-muted-foreground">
+                        {t("contact.messageSentDesc")}
+                      </p>
+                    </div>
+                    <Button
+                      onClick={handleResetForm}
+                      variant="outline"
+                      className="mt-4"
+                    >
+                      {t(
+                        "contact.sendAnotherMessage",
+                        "Отправить еще одно сообщение"
+                      )}
+                    </Button>
+                  </div>
+                ) : (
+                  // Форма
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div>
+                      <Label htmlFor="name">{t("contact.fullNameLabel")}</Label>
                       <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
+                        id="name"
+                        name="name"
+                        value={formData.name}
                         onChange={handleInputChange}
                         required
+                        disabled={isSubmitting}
                         className="mt-1"
                       />
                     </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="email">{t("contact.emailLabel")}</Label>
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          required
+                          disabled={isSubmitting}
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="phone">{t("contact.phoneLabel")}</Label>
+                        <Input
+                          id="phone"
+                          name="phone"
+                          type="tel"
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          disabled={isSubmitting}
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+
                     <div>
-                      <Label htmlFor="phone">{t("contact.phoneLabel")}</Label>
-                      <Input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        value={formData.phone}
+                      <Label htmlFor="message">
+                        {t("contact.messageLabel")}
+                      </Label>
+                      <Textarea
+                        id="message"
+                        name="message"
+                        value={formData.message}
                         onChange={handleInputChange}
+                        required
+                        rows={5}
+                        disabled={isSubmitting}
                         className="mt-1"
+                        placeholder={t("contact.messagePlaceholder")}
                       />
                     </div>
-                  </div>
 
-                  <div>
-                    <Label htmlFor="message">{t("contact.messageLabel")}</Label>
-                    <Textarea
-                      id="message"
-                      name="message"
-                      value={formData.message}
-                      onChange={handleInputChange}
-                      required
-                      rows={5}
-                      className="mt-1"
-                      placeholder={t("contact.messagePlaceholder")}
-                    />
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full glow-effect"
-                    size="lg"
-                  >
-                    <Send className="mr-2 h-4 w-4" />
-                    {t("contact.sendMessageButton")}
-                  </Button>
-                </form>
+                    <Button
+                      type="submit"
+                      className="w-full glow-effect"
+                      size="lg"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          {t("contact.sending", "Отправляем...")}
+                        </>
+                      ) : (
+                        <>
+                          <Send className="mr-2 h-4 w-4" />
+                          {t("contact.sendMessageButton")}
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                )}
               </CardContent>
             </Card>
           </div>
