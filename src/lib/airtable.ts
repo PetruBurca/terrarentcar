@@ -4,6 +4,8 @@ const AIRTABLE_CONTACT_TABLE = "Заявки на связь"; // Новая т�
 const AIRTABLE_TOKEN =
   "patKvCVhLU4cB94Gz.bfe322360c9044bfa0994f438f4cd451106309491786577e01eb3c4fe9b3ec26";
 
+import { uploadFileToFirebase } from "./firebase";
+
 interface AirtableImage {
   url: string;
 }
@@ -165,27 +167,38 @@ export async function createOrder(order: {
   const AIRTABLE_ORDERS_TABLE = "Заявки на аренду";
 
   // Используем точные названия полей как в Airtable
-  const fields: Record<string, string | string[] | number | boolean> = {
+  const fields: Record<
+    string,
+    string | string[] | number | boolean | AirtableImage[]
+  > = {
     "Имя клиента": order.name,
     Телефон: order.phone,
     Email: order.email,
     "Статус заявки": "новая",
   };
 
-  // Загружаем фото документов в Airtable через промежуточный сервер
+  // Загружаем фото документов в Firebase, затем отправляем URL в Airtable
   try {
     if (order.idPhotoFront) {
-      console.log("Загружаем фото лицевой стороны...");
-      const frontPhotoId = await uploadFileViaServer(order.idPhotoFront);
-      fields["Фото документа (фронт)"] = [frontPhotoId];
-      console.log("Фото лицевой стороны загружено:", frontPhotoId);
+      console.log("Загружаем фото лицевой стороны в Firebase...");
+      const frontPhotoURL = await uploadFileToFirebase(
+        order.idPhotoFront,
+        "passport-front"
+      );
+      // Отправляем URL в формате для Attachment поля
+      fields["Фото документа (фронт)"] = [{ url: frontPhotoURL }];
+      console.log("Фото лицевой стороны загружено:", frontPhotoURL);
     }
 
     if (order.idPhotoBack) {
-      console.log("Загружаем фото оборотной стороны...");
-      const backPhotoId = await uploadFileViaServer(order.idPhotoBack);
-      fields["Фото документа (оборот)"] = [backPhotoId];
-      console.log("Фото оборотной стороны загружено:", backPhotoId);
+      console.log("Загружаем фото оборотной стороны в Firebase...");
+      const backPhotoURL = await uploadFileToFirebase(
+        order.idPhotoBack,
+        "passport-back"
+      );
+      // Отправляем URL в формате для Attachment поля
+      fields["Фото документа (оборот)"] = [{ url: backPhotoURL }];
+      console.log("Фото оборотной стороны загружено:", backPhotoURL);
     }
   } catch (error) {
     console.error("Ошибка загрузки фото:", error);
@@ -256,7 +269,23 @@ export async function createOrder(order: {
   console.log("Order data:", order);
   console.log("Fields to send:", fields);
   console.log("Fields count:", Object.keys(fields).length);
-  console.log("Фото info:", { frontPhotoUrl: "", backPhotoUrl: "" });
+  console.log("JSON payload:", JSON.stringify({ fields }, null, 2));
+
+  // Проверяем, что URL корректные
+  if (fields["Фото документа (фронт)"]) {
+    console.log("Front photo URL:", fields["Фото документа (фронт)"]);
+    console.log(
+      "Front photo URL type:",
+      typeof fields["Фото документа (фронт)"]
+    );
+  }
+  if (fields["Фото документа (оборот)"]) {
+    console.log("Back photo URL:", fields["Фото документа (оборот)"]);
+    console.log(
+      "Back photo URL type:",
+      typeof fields["Фото документа (оборот)"]
+    );
+  }
 
   const res = await fetch(
     `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_ORDERS_TABLE}`,
@@ -290,8 +319,8 @@ interface AirtableOrderFields {
   "Дата начала аренды"?: string;
   "Дата окончания аренды"?: string;
   "Статус заявки"?: string;
-  "Фото документа (фронт)"?: string[]; // Attachment IDs
-  "Фото документа (оборот)"?: string[]; // Attachment IDs
+  "Фото документа (фронт)"?: AirtableImage[]; // Attachment format
+  "Фото документа (оборот)"?: AirtableImage[]; // Attachment format
 }
 
 interface AirtableOrderRecord {

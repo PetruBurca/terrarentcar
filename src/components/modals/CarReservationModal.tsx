@@ -1640,6 +1640,15 @@ const CarReservationModal = ({
           className="max-w-md mx-auto bg-gradient-to-br from-zinc-900 to-black border-2 border-yellow-400 shadow-2xl shadow-yellow-400/20"
           style={{ zIndex: 4000 }}
         >
+          <DialogTitle className="sr-only">
+            {t("reservation.successTitle", "Заявка отправлена!")}
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            {t(
+              "reservation.successDescription",
+              "Ваша заявка на аренду автомобиля была успешно отправлена. Мы свяжемся с вами в ближайшее время."
+            )}
+          </DialogDescription>
           <div className="text-center p-6">
             {/* Иконка успеха */}
             <div className="mx-auto mb-6 w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center shadow-lg shadow-yellow-400/30 animate-pulse">
