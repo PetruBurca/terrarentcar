@@ -26,30 +26,35 @@ export default defineConfig(({ mode }) => ({
             "./src/components/sections/CarsMobile.tsx",
             "./src/components/car/CarCardMobile.tsx",
           ],
+          i18n: ["react-i18next", "i18next"],
         },
       },
     },
-    chunkSizeWarningLimit: 800, // Уменьшаем лимит для мобильных
+    chunkSizeWarningLimit: 600, // Еще больше уменьшаем лимит для мобильных
     minify: mode === "production" ? "terser" : false,
-    terserOptions: {
-      compress: {
-        drop_console: mode === "production",
-        drop_debugger: mode === "production",
-        pure_funcs:
-          mode === "production" ? ["console.log", "console.info"] : [],
-        passes: mode === "production" ? 2 : 1,
+          terserOptions: {
+        compress: {
+          drop_console: mode === "production",
+          drop_debugger: mode === "production",
+          pure_funcs:
+            mode === "production" ? ["console.log", "console.info", "console.warn"] : [],
+          passes: mode === "production" ? 3 : 1, // Увеличиваем количество проходов
+          dead_code: mode === "production", // Удаляем мертвый код
+          unused: mode === "production", // Удаляем неиспользуемые переменные
+        },
+        mangle:
+          mode === "production"
+            ? {
+                toplevel: true,
+                safari10: true, // Оптимизация для Safari
+              }
+            : false,
       },
-      mangle:
-        mode === "production"
-          ? {
-              toplevel: true,
-            }
-          : false,
-    },
     target: "es2015",
     cssCodeSplit: false, // Отключаем разделение CSS
     sourcemap: false, // Отключаем sourcemap в продакшене
-    assetsInlineLimit: 4096, // Увеличиваем лимит для инлайн ресурсов
+    assetsInlineLimit: 8192, // Увеличиваем лимит для инлайн ресурсов
+    reportCompressedSize: false, // Отключаем отчет о размере для ускорения сборки
   },
   optimizeDeps: {
     include: ["react", "react-dom"],

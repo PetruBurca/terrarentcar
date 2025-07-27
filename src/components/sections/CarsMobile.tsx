@@ -29,13 +29,13 @@ const CarsMobile = ({ searchDates }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [visibleCars, setVisibleCars] = useState<CarCardProps[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const carsPerPage = 4; // Еще меньше машин для мобильных
+  const carsPerPage = 3; // Еще меньше машин для лучшей производительности
   const filterContainerRef = useRef<HTMLDivElement>(null);
   const [sortBy, setSortBy] = useState<"price" | "name" | null>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const prevVisibleCarsRef = useRef<string>("");
 
-  // Мемоизированные категории
+  // Мемоизированные категории с useCallback для стабильности
   const categories = useMemo(
     () => [
       { key: "all", label: t("cars.category.all"), value: null },
@@ -50,6 +50,7 @@ const CarsMobile = ({ searchDates }) => {
     [t]
   );
 
+  // Оптимизированные запросы с увеличенным staleTime
   const {
     data: cars = [],
     isLoading,
@@ -59,18 +60,20 @@ const CarsMobile = ({ searchDates }) => {
   } = useQuery({
     queryKey: ["cars", i18n.language],
     queryFn: fetchCars,
-    staleTime: 1000 * 60 * 5,
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 1000 * 60 * 10, // Увеличиваем до 10 минут
+    retry: 1, // Уменьшаем количество попыток
+    retryDelay: 1000, // Уменьшаем задержку
   });
 
   const { data: orders = [], isLoading: isLoadingOrders } = useQuery({
     queryKey: ["orders", i18n.language],
     queryFn: fetchOrders,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10, // Увеличиваем до 10 минут
+    retry: 1,
+    retryDelay: 1000,
   });
 
-  // Мемоизированная фильтрация
+  // Мемоизированная фильтрация с useCallback
   const availableCars = useMemo(() => {
     if (!searchDates?.from || !searchDates?.to) return cars;
 
@@ -135,8 +138,8 @@ const CarsMobile = ({ searchDates }) => {
 
   const totalPages = Math.ceil(sortedCars.length / carsPerPage);
 
-  // Ленивая загрузка с Intersection Observer
-  useEffect(() => {
+  // Оптимизированная ленивая загрузка с useCallback
+  const updateVisibleCars = useCallback(() => {
     if (sortedCars.length > 0) {
       const startIndex = (currentPage - 1) * carsPerPage;
       const endIndex = startIndex + carsPerPage;
@@ -145,15 +148,18 @@ const CarsMobile = ({ searchDates }) => {
         newVisibleCars.map((car) => car.id)
       );
 
-      // Проверяем, изменились ли видимые машины
       if (newVisibleCarsKey !== prevVisibleCarsRef.current) {
         prevVisibleCarsRef.current = newVisibleCarsKey;
         setVisibleCars(newVisibleCars);
       }
     }
-  }, [sortedCars.length, currentPage, carsPerPage]);
+  }, [sortedCars, currentPage, carsPerPage]);
 
-  // Loading skeleton
+  useEffect(() => {
+    updateVisibleCars();
+  }, [updateVisibleCars]);
+
+  // Loading skeleton с уменьшенным количеством элементов
   if (isLoading || isLoadingOrders) {
     return (
       <section id="cars" className="py-12 relative">
@@ -163,7 +169,7 @@ const CarsMobile = ({ searchDates }) => {
             <Skeleton className="h-4 w-48 mx-auto" />
           </div>
           <div className="grid grid-cols-1 gap-4">
-            {Array.from({ length: 4 }).map((_, index) => (
+            {Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className="space-y-3">
                 <Skeleton className="h-32 w-full rounded-lg" />
                 <Skeleton className="h-4 w-3/4" />
@@ -282,7 +288,7 @@ const CarsMobile = ({ searchDates }) => {
           <p className="text-muted-foreground text-sm">{t("cars.subtitle")}</p>
         </div>
 
-        {/* Список машин */}
+        {/* Список машин с ленивой загрузкой */}
         <div className="space-y-4">
           {visibleCars.map((car: CarCardProps, index: number) => (
             <div key={`${car.id}-${i18n.language}`} className="animate-fade-in">

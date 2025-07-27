@@ -1,4 +1,4 @@
-import { useState, memo, Suspense } from "react";
+import { useState, memo, Suspense, useMemo } from "react";
 import { Users, Fuel, Settings, Star } from "lucide-react";
 import { Button } from "@/components/ui/utils/button";
 import { Card, CardContent } from "@/components/ui/layout/card";
@@ -61,7 +61,10 @@ const CarCardMobile = memo(
   }: CarCardMobileProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { t } = useTranslation();
-    const safeFeatures = Array.isArray(features) ? features.slice(0, 2) : []; // Показываем только 2 фичи
+    const safeFeatures = useMemo(() => 
+      Array.isArray(features) ? features.slice(0, 2) : [], 
+      [features]
+    ); // Мемоизируем фичи
 
     return (
       <>
