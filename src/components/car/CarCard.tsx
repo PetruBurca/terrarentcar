@@ -1,18 +1,12 @@
 import { useState, memo, Suspense } from "react";
-import {
-  Car,
-  Users,
-  Fuel,
-  Settings,
-  Star,
-  Image as ImageIcon,
-} from "lucide-react";
+import { Car, Users, Fuel, Settings, Star } from "lucide-react";
 import { Button } from "@/components/ui/utils/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/layout/card";
 import { Badge } from "@/components/ui/feedback/badge";
 import { CarReservationModal } from "../modals";
 import { useTranslation } from "react-i18next";
 import { translateCarSpec } from "@/lib/carTranslations";
+import { OptimizedImage } from "@/components/ui/utils/image-optimizer";
 import logo from "@/assets/logo.png";
 
 export interface CarCardProps {
@@ -39,8 +33,6 @@ export interface CarCardProps {
   price21to29: number;
   price30plus: number;
 }
-
-const PLACEHOLDER_IMG = logo;
 
 // Убираем старые маппинги, используем новую систему переводов
 
@@ -71,22 +63,8 @@ const CarCard = memo(
   }: CarCardProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showAllFeatures, setShowAllFeatures] = useState(false);
-    const [imageLoaded, setImageLoaded] = useState(false);
-    const [imageError, setImageError] = useState(false);
     const { t } = useTranslation();
     const safeFeatures = Array.isArray(features) ? features : [];
-    const imageUrl =
-      images && images.length > 0 && images[0] ? images[0] : PLACEHOLDER_IMG;
-
-    const handleImageLoad = () => {
-      setImageLoaded(true);
-      setImageError(false);
-    };
-
-    const handleImageError = () => {
-      setImageError(true);
-      setImageLoaded(true);
-    };
 
     return (
       <>
@@ -98,35 +76,38 @@ const CarCard = memo(
             setIsModalOpen(true);
           }}
         >
-          <div className="relative overflow-hidden h-48 w-full flex items-center justify-center bg-background">
-            {(!imageLoaded || imageError) && (
-              <div className="absolute inset-0 flex items-center justify-center bg-muted animate-pulse">
-                <ImageIcon className="h-8 w-8 text-muted-foreground" />
+          {/* Изображение автомобиля */}
+          <div className="relative h-48 overflow-hidden rounded-t-lg">
+            {images && images.length > 0 && images[0] ? (
+              <OptimizedImage
+                src={images[0]}
+                alt={name}
+                className="w-full h-full"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            ) : (
+              <div className="w-full h-full bg-background flex items-center justify-center">
+                <img
+                  src={logo}
+                  alt="Terra Rent Car"
+                  className="w-24 h-24 opacity-50"
+                />
               </div>
             )}
-            <img
-              src={imageError ? PLACEHOLDER_IMG : imageUrl}
-              alt={name}
-              className={`w-full h-48 object-cover transition-all duration-500 ${
-                imageLoaded ? "group-hover:scale-110" : "opacity-0"
-              }`}
-              loading="lazy"
-              onLoad={handleImageLoad}
-              onError={handleImageError}
-              width={400}
-              height={192}
-            />
-            <div className="absolute top-4 left-4">
-              <Badge
-                variant="secondary"
-                className="bg-primary text-primary-foreground"
-              >
+
+            {/* Категория */}
+            <div className="absolute top-2 left-2">
+              <Badge variant="secondary" className="text-xs">
                 {translateCarSpec("category", category, t)}
               </Badge>
             </div>
-            <div className="absolute top-4 right-4 flex items-center space-x-1 bg-background/80 backdrop-blur px-2 py-1 rounded-full">
-              <Star className="h-3 w-3 fill-primary text-primary" />
-              <span className="text-xs font-medium">{rating}</span>
+
+            {/* Рейтинг */}
+            <div className="absolute top-2 right-2">
+              <Badge variant="secondary" className="text-xs">
+                <Star className="w-3 h-3 mr-1" />
+                {rating}
+              </Badge>
             </div>
           </div>
 

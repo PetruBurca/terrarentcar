@@ -33,9 +33,9 @@ export function loadLocale(lang: string) {
 // Автоматически загружаем язык при инициализации
 if (typeof window !== "undefined") {
   // Загружаем язык после того, как DOM готов
-      document.addEventListener("DOMContentLoaded", () => {
-      loadLocale(savedLanguage);
-    });
+  document.addEventListener("DOMContentLoaded", () => {
+    loadLocale(savedLanguage);
+  });
 }
 
 export default i18n;
