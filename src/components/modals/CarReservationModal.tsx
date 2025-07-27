@@ -24,7 +24,7 @@ import {
 import { createOrder } from "@/lib/airtable";
 import { translateCarSpec } from "@/lib/carTranslations";
 import { formatDateRange } from "@/lib/dateHelpers";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.webp";
 import { useMediaQuery, useReservationForm } from "@/hooks";
 import { useRef } from "react";
 import { Calendar as ShadcnCalendar } from "@/components/ui/data-display/calendar";

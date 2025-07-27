@@ -1,6 +1,6 @@
 import React from "react";
 import { FaInstagram, FaViber, FaWhatsapp, FaFacebook } from "react-icons/fa";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.webp";
 import "./Footer.scss";
 
 const Footer: React.FC = () => {
