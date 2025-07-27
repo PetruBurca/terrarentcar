@@ -203,64 +203,73 @@ const CarsMobile = ({ searchDates }) => {
   return (
     <section id="cars" className="py-12 relative">
       <div className="container mx-auto px-4">
-        {/* Упрощенный фильтр для мобильных */}
-        <div className="mb-6">
-          <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide pb-2">
-            <Filter className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            {categories.map((cat) => (
-              <Button
-                key={`${cat.key}-${i18n.language}`}
-                variant={selectedCategory === cat.key ? "default" : "ghost"}
-                size="sm"
-                onClick={() => {
-                  setSelectedCategory(cat.key);
-                  setCurrentPage(1);
-                }}
-                className="whitespace-nowrap"
+        {/* Sticky фильтр и сортировка для мобильных */}
+        <div className="sticky top-[95px] z-30 mb-4">
+          <div className="flex justify-center pt-2">
+            <div className="relative">
+              <div
+                ref={filterContainerRef}
+                className="flex items-center bg-card/50 backdrop-blur border border-border/50 rounded-full p-2 max-w-[90vw] overflow-x-auto scrollbar-hide"
               >
-                {cat.label}
-              </Button>
-            ))}
+                <Filter className="h-4 w-4 text-muted-foreground ml-2 flex-shrink-0" />
+                <div className="flex items-center space-x-2 px-2">
+                  {categories.map((cat) => (
+                    <Button
+                      key={`${cat.key}-${i18n.language}`}
+                      variant={
+                        selectedCategory === cat.key ? "default" : "ghost"
+                      }
+                      size="sm"
+                      onClick={() => {
+                        setSelectedCategory(cat.key);
+                        setCurrentPage(1);
+                      }}
+                      className="whitespace-nowrap"
+                    >
+                      {cat.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Упрощенная сортировка */}
-          <div className="flex space-x-2 mt-3">
-            <Button
-              size="sm"
-              variant={sortBy === "price" ? "default" : "ghost"}
+          {/* Мини-навигация сортировки */}
+          <div className="mx-auto max-w-[50vw] flex items-center bg-card/50 backdrop-blur border border-border/50 rounded-b-xl p-2 overflow-x-auto scrollbar-hide gap-2 justify-center py-2">
+            <button
+              className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded hover:bg-primary/10 transition"
               onClick={() => {
+                if (sortBy === "price")
+                  setSortDir(sortDir === "asc" ? "desc" : "asc");
                 setSortBy("price");
-                setSortDir(sortDir === "asc" ? "desc" : "asc");
               }}
-              className="text-xs"
             >
-              {t("cars.sortByPrice")}
+              {t("cars.sort.price")}
               <span
-                className={`ml-1 transition-transform ${
+                className={`transition-transform ${
                   sortBy === "price" && sortDir === "desc" ? "rotate-180" : ""
-                }`}
+                } text-yellow-400`}
               >
                 ▼
               </span>
-            </Button>
-            <Button
-              size="sm"
-              variant={sortBy === "name" ? "default" : "ghost"}
+            </button>
+            <button
+              className="flex items-center gap-1 text-sm font-medium px-2 py-1 rounded hover:bg-primary/10 transition"
               onClick={() => {
+                if (sortBy === "name")
+                  setSortDir(sortDir === "asc" ? "desc" : "asc");
                 setSortBy("name");
-                setSortDir(sortDir === "asc" ? "desc" : "asc");
               }}
-              className="text-xs"
             >
-              {t("cars.sortByName")}
+              {t("cars.sort.name")}
               <span
-                className={`ml-1 transition-transform ${
+                className={`transition-transform ${
                   sortBy === "name" && sortDir === "desc" ? "rotate-180" : ""
-                }`}
+                } text-yellow-400`}
               >
                 ▼
               </span>
-            </Button>
+            </button>
           </div>
         </div>
 
@@ -309,32 +318,106 @@ const CarsMobile = ({ searchDates }) => {
           </div>
         )}
 
-        {/* Упрощенная пагинация */}
+        {/* Пагинация */}
         {totalPages > 1 && (
           <div className="flex justify-center items-center mt-8 space-x-2">
-            <Button
-              size="sm"
-              variant="outline"
+            {/* Кнопка "Предыдущая" */}
+            <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
+              className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all ${
+                currentPage === 1
+                  ? "bg-muted text-muted-foreground cursor-not-allowed"
+                  : "bg-card/70 text-primary border-border hover:bg-primary/10 hover:scale-105"
+              }`}
             >
               ←
-            </Button>
+            </button>
+            {(() => {
+              const pages = [];
+              const maxVisiblePages = 5; // Меньше страниц для мобильных
 
-            <span className="text-sm text-muted-foreground">
-              {currentPage} / {totalPages}
-            </span>
+              // Функция для добавления кнопки страницы
+              const addPageButton = (pageNum: number) => {
+                pages.push(
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border transition-all ${
+                      currentPage === pageNum
+                        ? "bg-primary text-white border-primary scale-110 shadow-lg"
+                        : "bg-card/70 text-primary border-border hover:bg-primary/10 hover:scale-105"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              };
 
-            <Button
-              size="sm"
-              variant="outline"
+              // Функция для добавления многоточия
+              const addEllipsis = (key: string) => {
+                pages.push(
+                  <span
+                    key={key}
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground"
+                  >
+                    ...
+                  </span>
+                );
+              };
+
+              if (totalPages <= maxVisiblePages) {
+                // Если страниц мало, показываем все
+                for (let i = 1; i <= totalPages; i++) {
+                  addPageButton(i);
+                }
+              } else {
+                // Если страниц много, используем логику с многоточием
+
+                // Всегда показываем первую страницу
+                addPageButton(1);
+
+                if (currentPage <= 3) {
+                  // Если текущая страница в начале
+                  for (let i = 2; i <= 4; i++) {
+                    addPageButton(i);
+                  }
+                  addEllipsis("ellipsis-end");
+                  addPageButton(totalPages);
+                } else if (currentPage >= totalPages - 2) {
+                  // Если текущая страница в конце
+                  addEllipsis("ellipsis-start");
+                  for (let i = totalPages - 3; i <= totalPages - 1; i++) {
+                    addPageButton(i);
+                  }
+                  addPageButton(totalPages);
+                } else {
+                  // Если текущая страница в середине
+                  addEllipsis("ellipsis-start");
+                  for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                    addPageButton(i);
+                  }
+                  addEllipsis("ellipsis-end");
+                  addPageButton(totalPages);
+                }
+              }
+
+              return pages;
+            })()}
+            {/* Кнопка "Следующая" */}
+            <button
               onClick={() =>
                 setCurrentPage(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages}
+              className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all ${
+                currentPage === totalPages
+                  ? "bg-muted text-muted-foreground cursor-not-allowed"
+                  : "bg-card/70 text-primary border-border hover:bg-primary/10 hover:scale-105"
+              }`}
             >
               →
-            </Button>
+            </button>
           </div>
         )}
 

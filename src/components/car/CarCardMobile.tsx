@@ -158,7 +158,7 @@ const CarCardMobile = memo(
                 className="glow-effect"
                 onClick={() => setIsModalOpen(true)}
               >
-                {t("cars.bookNow")}
+                {t("cars.book")}
               </Button>
             </div>
           </CardContent>
