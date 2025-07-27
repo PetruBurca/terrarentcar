@@ -31,8 +31,8 @@ const Cars = ({ searchDates }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showScrollHint, setShowScrollHint] = useState(true);
   const [isAtEnd, setIsAtEnd] = useState(false);
-  const carsPerPage = 9;
   const isMobile = useMediaQuery("(max-width: 767px)");
+  const carsPerPage = isMobile ? 6 : 9; // Меньше машин на мобильных
   const filterContainerRef = useRef<HTMLDivElement>(null);
   const carsListRef = useRef<HTMLDivElement>(null);
   // По умолчанию сортировка по имени по возрастанию
@@ -88,6 +88,8 @@ const Cars = ({ searchDates }) => {
   useEffect(() => {
     // Это заставит компонент перерендериться при смене языка
   }, [i18n.language]);
+
+  // Ленивая загрузка для мобильных - переместим после определения sortedCars
 
   // Фильтрация по доступности
   let availableCars = cars;
@@ -419,34 +421,30 @@ const Cars = ({ searchDates }) => {
           key={`cars-grid-${i18n.language}`}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          {(isMobile
-            ? sortedCars
-            : sortedCars.slice(
-                (currentPage - 1) * carsPerPage,
-                currentPage * carsPerPage
-              )
-          ).map((car: CarCardProps, index: number) => (
-            <div
-              key={`${car.id}-${i18n.language}`}
-              className="animate-fade-in"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <CarCard
-                {...car}
-                pricePerDay={car.pricePerDay}
-                price2to10={car.price2to10}
-                price11to20={car.price11to20}
-                price21to29={car.price21to29}
-                price30plus={car.price30plus}
-                year={car.year}
-                engine={car.engine}
-                drive={car.drive}
-                description_ru={car.description_ru}
-                description_ro={car.description_ro}
-                description_en={car.description_en}
-              />
-            </div>
-          ))}
+          {sortedCars
+            .slice((currentPage - 1) * carsPerPage, currentPage * carsPerPage)
+            .map((car: CarCardProps, index: number) => (
+              <div
+                key={`${car.id}-${i18n.language}`}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <CarCard
+                  {...car}
+                  pricePerDay={car.pricePerDay}
+                  price2to10={car.price2to10}
+                  price11to20={car.price11to20}
+                  price21to29={car.price21to29}
+                  price30plus={car.price30plus}
+                  year={car.year}
+                  engine={car.engine}
+                  drive={car.drive}
+                  description_ru={car.description_ru}
+                  description_ro={car.description_ro}
+                  description_en={car.description_en}
+                />
+              </div>
+            ))}
         </div>
         {filteredCars.length === 0 && (
           <div className="text-center py-12">
@@ -460,22 +458,106 @@ const Cars = ({ searchDates }) => {
             </p>
           </div>
         )}
-        {/* Pagination (desktop only) */}
-        {!isMobile && totalPages > 1 && (
-          <div className="flex justify-center mt-10 space-x-2">
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => setCurrentPage(i + 1)}
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border transition-all ${
-                  currentPage === i + 1
-                    ? "bg-primary text-white border-primary scale-110 shadow-lg"
-                    : "bg-card/70 text-primary border-border hover:bg-primary/10"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center mt-10 space-x-2">
+            {/* Кнопка "Предыдущая" */}
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all ${
+                currentPage === 1
+                  ? "bg-muted text-muted-foreground cursor-not-allowed"
+                  : "bg-card/70 text-primary border-border hover:bg-primary/10 hover:scale-105"
+              }`}
+            >
+              ←
+            </button>
+            {(() => {
+              const pages = [];
+              const maxVisiblePages = 7; // Максимум видимых страниц
+
+              // Функция для добавления кнопки страницы
+              const addPageButton = (pageNum: number) => {
+                pages.push(
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border transition-all ${
+                      currentPage === pageNum
+                        ? "bg-primary text-white border-primary scale-110 shadow-lg"
+                        : "bg-card/70 text-primary border-border hover:bg-primary/10 hover:scale-105"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              };
+
+              // Функция для добавления многоточия
+              const addEllipsis = (key: string) => {
+                pages.push(
+                  <span
+                    key={key}
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground"
+                  >
+                    ...
+                  </span>
+                );
+              };
+
+              if (totalPages <= maxVisiblePages) {
+                // Если страниц мало, показываем все
+                for (let i = 1; i <= totalPages; i++) {
+                  addPageButton(i);
+                }
+              } else {
+                // Если страниц много, используем логику с многоточием
+
+                // Всегда показываем первую страницу
+                addPageButton(1);
+
+                if (currentPage <= 4) {
+                  // Если текущая страница в начале
+                  for (let i = 2; i <= 5; i++) {
+                    addPageButton(i);
+                  }
+                  addEllipsis("ellipsis-end");
+                  addPageButton(totalPages);
+                } else if (currentPage >= totalPages - 3) {
+                  // Если текущая страница в конце
+                  addEllipsis("ellipsis-start");
+                  for (let i = totalPages - 4; i <= totalPages - 1; i++) {
+                    addPageButton(i);
+                  }
+                  addPageButton(totalPages);
+                } else {
+                  // Если текущая страница в середине
+                  addEllipsis("ellipsis-start");
+                  for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                    addPageButton(i);
+                  }
+                  addEllipsis("ellipsis-end");
+                  addPageButton(totalPages);
+                }
+              }
+
+              return pages;
+            })()}
+            {/* Кнопка "Следующая" */}
+            <button
+              onClick={() =>
+                setCurrentPage(Math.min(totalPages, currentPage + 1))
+              }
+              disabled={currentPage === totalPages}
+              className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all ${
+                currentPage === totalPages
+                  ? "bg-muted text-muted-foreground cursor-not-allowed"
+                  : "bg-card/70 text-primary border-border hover:bg-primary/10 hover:scale-105"
+              }`}
+            >
+              →
+            </button>
           </div>
         )}
         {/* CTA */}
