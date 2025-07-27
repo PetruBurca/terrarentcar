@@ -47,23 +47,6 @@ const isMobile = () => {
   );
 };
 
-// Предзагрузка критических ресурсов для мобильных
-if (isMobile()) {
-  // Предзагружаем только критически важные ресурсы
-  const criticalResources = [
-    "/src/components/car/CarCard.tsx",
-    "/src/components/sections/Cars.tsx",
-  ];
-
-  criticalResources.forEach((resource) => {
-    const link = document.createElement("link");
-    link.rel = "preload";
-    link.as = "script";
-    link.href = resource;
-    document.head.appendChild(link);
-  });
-}
-
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
