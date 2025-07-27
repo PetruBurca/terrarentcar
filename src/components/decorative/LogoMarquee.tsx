@@ -19,18 +19,6 @@ const logos = [
 ];
 
 const LogoMarquee: React.FC = () => {
-  // Определяем мобильное устройство
-  const isMobile = () => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
-  };
-
-  // Не отображаем на мобильных для улучшения производительности
-  if (isMobile()) {
-    return null;
-  }
-
   return (
     <div className="logo-marquee-container">
       <div className="logo-marquee">

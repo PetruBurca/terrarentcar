@@ -2,10 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Terra Rent Car - Премиальная аренда автомобилей в Молдове</title>
     <meta
       name="description"
@@ -45,114 +42,30 @@
     />
     <meta name="twitter:image" content="src/assets/logo.png" />
 
-    <!-- Critical CSS inline для быстрой загрузки -->
-    <style>
-      /* Минимальный критический CSS */
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          sans-serif;
-        background-color: #000;
-        color: #fff;
-        overflow-x: hidden;
-      }
-
-      #root {
-        min-height: 100vh;
-      }
-
-      /* Скелетон загрузки */
-      .loading-skeleton {
-        background: linear-gradient(
-          90deg,
-          #f0f0f0 25%,
-          #e0e0e0 50%,
-          #f0f0f0 75%
-        );
-        background-size: 200% 100%;
-        animation: loading 1.5s infinite;
-      }
-
-      @keyframes loading {
-        0% {
-          background-position: 200% 0;
-        }
-        100% {
-          background-position: -200% 0;
-        }
-      }
-
-      /* Оптимизация для мобильных */
-      @media (max-width: 768px) {
-        body {
-          font-size: 16px;
-        }
-      }
-    </style>
-
-    <!-- Preload критических ресурсов -->
+    <!-- Preload critical resources -->
     <link rel="preload" href="/src/main.tsx" as="script" />
     <link rel="preload" href="/src/index.css" as="style" />
-    <link
-      rel="preload"
-      href="src/assets/logo.png"
-      as="image"
-      type="image/png"
-    />
+    <link rel="preload" href="src/assets/logo.png" as="image" />
 
-    <!-- Preload шрифтов -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-    <!-- DNS prefetch для внешних доменов -->
+    <!-- DNS prefetch for external domains -->
     <link rel="dns-prefetch" href="//api.airtable.com" />
-    <link rel="dns-prefetch" href="//firebasestorage.googleapis.com" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="src/assets/logo.png" />
     <link rel="apple-touch-icon" href="src/assets/logo.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="src/assets/logo.png" />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="src/assets/logo.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="src/assets/logo.png"
-    />
 
     <!-- Theme color -->
     <meta name="theme-color" content="#000000" />
     <meta name="msapplication-TileColor" content="#000000" />
 
-    <!-- PWA мета-теги -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
-    <meta name="apple-mobile-web-app-title" content="Terra Rent Car" />
-
     <!-- Security headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-Frame-Options" content="DENY" />
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
-
-    <!-- Resource hints для производительности -->
-    <link rel="preload" href="/src/components/car/CarCard.tsx" as="script" />
-    <link rel="preload" href="/src/components/sections/Cars.tsx" as="script" />
   </head>
 
   <body>
-    <div id="root">
-      <!-- Скелетон загрузки -->
-      <div class="loading-skeleton" style="height: 100vh; width: 100%"></div>
-    </div>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

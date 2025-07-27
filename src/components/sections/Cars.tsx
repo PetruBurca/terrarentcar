@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { Filter, AlertCircle, RefreshCw } from "lucide-react";
+import {
+  Filter,
+  AlertCircle,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/utils/button";
 import { Badge } from "@/components/ui/feedback/badge";
 import { Skeleton } from "@/components/ui/feedback/skeleton";
@@ -10,7 +16,6 @@ import i18n from "i18next";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCars, fetchOrders } from "@/lib/airtable";
-import CarsMobile from "./CarsMobile";
 
 const categoryMap = {
   sedan: "Седан",
@@ -26,16 +31,118 @@ function isDateOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) {
   return aStart <= bEnd && aEnd >= bStart;
 }
 
+// Компонент пагинации с улучшенным отображением
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  isMobile = false,
+}: {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  isMobile?: boolean;
+}) => {
+  const { t } = useTranslation();
+
+  if (totalPages <= 1) return null;
+
+  const getVisiblePages = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    if (currentPage <= 4) {
+      return [1, 2, 3, 4, 5, "...", totalPages];
+    }
+
+    if (currentPage >= totalPages - 3) {
+      return [
+        1,
+        "...",
+        totalPages - 4,
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ];
+    }
+
+    return [
+      1,
+      "...",
+      currentPage - 1,
+      currentPage,
+      currentPage + 1,
+      "...",
+      totalPages,
+    ];
+  };
+
+  const visiblePages = getVisiblePages();
+
+  return (
+    <div className="flex justify-center items-center mt-8 space-x-1">
+      {/* Кнопка "Назад" */}
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className={`p-2 rounded-full transition-all ${
+          currentPage === 1
+            ? "text-muted-foreground/50 cursor-not-allowed"
+            : "text-primary hover:bg-primary/10 hover:scale-110"
+        }`}
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+
+      {/* Номера страниц */}
+      <div className="flex items-center space-x-1">
+        {visiblePages.map((page, index) => (
+          <div key={index}>
+            {page === "..." ? (
+              <span className="px-3 py-2 text-muted-foreground">...</span>
+            ) : (
+              <button
+                onClick={() => onPageChange(page as number)}
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border transition-all ${
+                  currentPage === page
+                    ? "bg-primary text-white border-primary scale-110 shadow-lg"
+                    : "bg-card/70 text-primary border-border hover:bg-primary/10 hover:scale-105"
+                } ${isMobile ? "text-sm" : ""}`}
+              >
+                {page}
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Кнопка "Вперед" */}
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className={`p-2 rounded-full transition-all ${
+          currentPage === totalPages
+            ? "text-muted-foreground/50 cursor-not-allowed"
+            : "text-primary hover:bg-primary/10 hover:scale-110"
+        }`}
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
+    </div>
+  );
+};
+
 const Cars = ({ searchDates }) => {
   const { t, i18n } = useTranslation();
-  const isMobile = useMediaQuery("(max-width: 767px)");
-
-  // Все хуки должны быть объявлены до условного рендеринга
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [showScrollHint, setShowScrollHint] = useState(true);
   const [isAtEnd, setIsAtEnd] = useState(false);
-  const carsPerPage = 9; // Только для десктопа
+  const carsPerPage = 9;
+  const mobileCarsPerPage = 8; // 8 карточек для мобильных
+  const isMobile = useMediaQuery("(max-width: 767px)");
   const filterContainerRef = useRef<HTMLDivElement>(null);
   const carsListRef = useRef<HTMLDivElement>(null);
   // По умолчанию сортировка по имени по возрастанию
@@ -91,6 +198,58 @@ const Cars = ({ searchDates }) => {
   useEffect(() => {
     // Это заставит компонент перерендериться при смене языка
   }, [i18n.language]);
+
+  // Сброс страницы при изменении фильтров
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, sortBy, sortDir]);
+
+  // Фильтрация по доступности
+  let availableCars = cars;
+  if (searchDates?.from && searchDates?.to) {
+    availableCars = cars.filter((car) => {
+      // Фильтруем заявки для этого автомобиля
+      const carOrders = orders.filter((order) => {
+        const hasCarId = order.carIds && order.carIds.includes(car.id);
+        const isConfirmed =
+          order.status === "подтверждена" || order.status === "подтвержден";
+        const hasDates = order.startDate && order.endDate;
+
+        return hasCarId && isConfirmed && hasDates;
+      });
+
+      if (carOrders.length === 0) {
+        return true;
+      }
+
+      const from = new Date(searchDates.from);
+      const to = new Date(searchDates.to);
+
+      const isAvailable = !carOrders.some((order) => {
+        // Пробуем разные форматы дат
+        let orderStart, orderEnd;
+
+        // Если дата в формате "dd.mm.yyyy", заменяем на "mm/dd/yyyy"
+        if (order.startDate.includes(".")) {
+          orderStart = new Date(order.startDate.replace(/\./g, "/"));
+        } else {
+          orderStart = new Date(order.startDate);
+        }
+
+        if (order.endDate.includes(".")) {
+          orderEnd = new Date(order.endDate.replace(/\./g, "/"));
+        } else {
+          orderEnd = new Date(order.endDate);
+        }
+
+        const overlap = isDateOverlap(from, to, orderStart, orderEnd);
+
+        return overlap;
+      });
+
+      return isAvailable;
+    });
+  }
 
   // Check if user has scrolled to the end and hide scroll hint
   useEffect(() => {
@@ -168,58 +327,6 @@ const Cars = ({ searchDates }) => {
     }
   }, [selectedCategory, isMobile]);
 
-  // Рендерим мобильную версию для мобильных устройств
-  if (isMobile) {
-    return <CarsMobile searchDates={searchDates} />;
-  }
-
-  // Фильтрация по доступности
-  let availableCars = cars;
-  if (searchDates?.from && searchDates?.to) {
-    availableCars = cars.filter((car) => {
-      // Фильтруем заявки для этого автомобиля
-      const carOrders = orders.filter((order) => {
-        const hasCarId = order.carIds && order.carIds.includes(car.id);
-        const isConfirmed =
-          order.status === "подтверждена" || order.status === "подтвержден";
-        const hasDates = order.startDate && order.endDate;
-
-        return hasCarId && isConfirmed && hasDates;
-      });
-
-      if (carOrders.length === 0) {
-        return true;
-      }
-
-      const from = new Date(searchDates.from);
-      const to = new Date(searchDates.to);
-
-      const isAvailable = !carOrders.some((order) => {
-        // Пробуем разные форматы дат
-        let orderStart, orderEnd;
-
-        // Если дата в формате "dd.mm.yyyy", заменяем на "mm/dd/yyyy"
-        if (order.startDate.includes(".")) {
-          orderStart = new Date(order.startDate.replace(/\./g, "/"));
-        } else {
-          orderStart = new Date(order.startDate);
-        }
-
-        if (order.endDate.includes(".")) {
-          orderEnd = new Date(order.endDate.replace(/\./g, "/"));
-        } else {
-          orderEnd = new Date(order.endDate);
-        }
-
-        const overlap = isDateOverlap(from, to, orderStart, orderEnd);
-
-        return overlap;
-      });
-
-      return isAvailable;
-    });
-  }
-
   const filteredCars =
     selectedCategory === "all"
       ? availableCars
@@ -243,13 +350,24 @@ const Cars = ({ searchDates }) => {
     );
   }
 
-  const totalPages = Math.ceil(filteredCars.length / carsPerPage);
-  const paginatedCars = isMobile
-    ? filteredCars
-    : filteredCars.slice(
-        (currentPage - 1) * carsPerPage,
-        currentPage * carsPerPage
-      );
+  // Пагинация для мобильных и десктопа
+  const currentCarsPerPage = isMobile ? mobileCarsPerPage : carsPerPage;
+  const totalPages = Math.ceil(sortedCars.length / currentCarsPerPage);
+  const paginatedCars = sortedCars.slice(
+    (currentPage - 1) * currentCarsPerPage,
+    currentPage * currentCarsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Скролл к началу списка машин при смене страницы
+    if (carsListRef.current) {
+      carsListRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
 
   // Loading skeleton
   if (isLoading) {
@@ -427,30 +545,28 @@ const Cars = ({ searchDates }) => {
           key={`cars-grid-${i18n.language}`}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          {sortedCars
-            .slice((currentPage - 1) * carsPerPage, currentPage * carsPerPage)
-            .map((car: CarCardProps, index: number) => (
-              <div
-                key={`${car.id}-${i18n.language}`}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <CarCard
-                  {...car}
-                  pricePerDay={car.pricePerDay}
-                  price2to10={car.price2to10}
-                  price11to20={car.price11to20}
-                  price21to29={car.price21to29}
-                  price30plus={car.price30plus}
-                  year={car.year}
-                  engine={car.engine}
-                  drive={car.drive}
-                  description_ru={car.description_ru}
-                  description_ro={car.description_ro}
-                  description_en={car.description_en}
-                />
-              </div>
-            ))}
+          {paginatedCars.map((car: CarCardProps, index: number) => (
+            <div
+              key={`${car.id}-${i18n.language}`}
+              className="animate-fade-in"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
+              <CarCard
+                {...car}
+                pricePerDay={car.pricePerDay}
+                price2to10={car.price2to10}
+                price11to20={car.price11to20}
+                price21to29={car.price21to29}
+                price30plus={car.price30plus}
+                year={car.year}
+                engine={car.engine}
+                drive={car.drive}
+                description_ru={car.description_ru}
+                description_ro={car.description_ro}
+                description_en={car.description_en}
+              />
+            </div>
+          ))}
         </div>
         {filteredCars.length === 0 && (
           <div className="text-center py-12">
@@ -464,108 +580,15 @@ const Cars = ({ searchDates }) => {
             </p>
           </div>
         )}
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center mt-10 space-x-2">
-            {/* Кнопка "Предыдущая" */}
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all ${
-                currentPage === 1
-                  ? "bg-muted text-muted-foreground cursor-not-allowed"
-                  : "bg-card/70 text-primary border-border hover:bg-primary/10 hover:scale-105"
-              }`}
-            >
-              ←
-            </button>
-            {(() => {
-              const pages = [];
-              const maxVisiblePages = 7; // Максимум видимых страниц
 
-              // Функция для добавления кнопки страницы
-              const addPageButton = (pageNum: number) => {
-                pages.push(
-                  <button
-                    key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border transition-all ${
-                      currentPage === pageNum
-                        ? "bg-primary text-white border-primary scale-110 shadow-lg"
-                        : "bg-card/70 text-primary border-border hover:bg-primary/10 hover:scale-105"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              };
+        {/* Пагинация для всех устройств */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          isMobile={isMobile}
+        />
 
-              // Функция для добавления многоточия
-              const addEllipsis = (key: string) => {
-                pages.push(
-                  <span
-                    key={key}
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-muted-foreground"
-                  >
-                    ...
-                  </span>
-                );
-              };
-
-              if (totalPages <= maxVisiblePages) {
-                // Если страниц мало, показываем все
-                for (let i = 1; i <= totalPages; i++) {
-                  addPageButton(i);
-                }
-              } else {
-                // Если страниц много, используем логику с многоточием
-
-                // Всегда показываем первую страницу
-                addPageButton(1);
-
-                if (currentPage <= 4) {
-                  // Если текущая страница в начале
-                  for (let i = 2; i <= 5; i++) {
-                    addPageButton(i);
-                  }
-                  addEllipsis("ellipsis-end");
-                  addPageButton(totalPages);
-                } else if (currentPage >= totalPages - 3) {
-                  // Если текущая страница в конце
-                  addEllipsis("ellipsis-start");
-                  for (let i = totalPages - 4; i <= totalPages - 1; i++) {
-                    addPageButton(i);
-                  }
-                  addPageButton(totalPages);
-                } else {
-                  // Если текущая страница в середине
-                  addEllipsis("ellipsis-start");
-                  for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-                    addPageButton(i);
-                  }
-                  addEllipsis("ellipsis-end");
-                  addPageButton(totalPages);
-                }
-              }
-
-              return pages;
-            })()}
-            {/* Кнопка "Следующая" */}
-            <button
-              onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
-              }
-              disabled={currentPage === totalPages}
-              className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all ${
-                currentPage === totalPages
-                  ? "bg-muted text-muted-foreground cursor-not-allowed"
-                  : "bg-card/70 text-primary border-border hover:bg-primary/10 hover:scale-105"
-              }`}
-            >
-              →
-            </button>
-          </div>
-        )}
         {/* CTA */}
         <div className="text-center mt-16">
           <div className="bg-card/30 backdrop-blur border border-border/50 rounded-2xl p-8 max-w-2xl mx-auto">

@@ -1,6 +1,4 @@
-const CACHE_NAME = "terra-rent-car-v3";
-const STATIC_CACHE = "static-v3";
-
+const CACHE_NAME = "terra-rent-car-v1";
 const urlsToCache = [
   "/",
   "/index.html",
@@ -12,36 +10,33 @@ const urlsToCache = [
 // Install event
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => {
+    caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(urlsToCache);
     })
   );
 });
 
-// Activate event - очистка старых кэшей
+// Fetch event
+self.addEventListener("fetch", (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      // Return cached version or fetch from network
+      return response || fetch(event.request);
+    })
+  );
+});
+
+// Activate event
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== STATIC_CACHE) {
+          if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
-});
-
-// Fetch event - простая стратегия Cache First
-self.addEventListener("fetch", (event) => {
-  const { request } = event;
-
-  if (request.method === "GET") {
-    event.respondWith(
-      caches.match(request).then((response) => {
-        return response || fetch(request);
-      })
-    );
-  }
 });

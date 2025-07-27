@@ -9,6 +9,7 @@ import {
 } from "@/components";
 import { useState } from "react";
 import { useLocalStorage } from "@/hooks";
+import { useMediaQuery } from "@/hooks/use-mobile";
 
 const Index = () => {
   // Используем кэшированные даты поиска
@@ -16,6 +17,8 @@ const Index = () => {
     from: Date | null;
     to: Date | null;
   }>("search-dates", { from: null, to: null });
+
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   const handleSearchDates = (dates: { from: Date | null; to: Date | null }) => {
     setSearchDates(dates);
@@ -31,7 +34,7 @@ const Index = () => {
       <Header />
       <main>
         <RentSearch onSearch={handleSearchDates} />
-        <LogoMarquee />
+        {!isMobile && <LogoMarquee />}
         <About />
         <Cars searchDates={searchDates} />
         <Contact />

@@ -8,8 +8,6 @@ interface OptimizedImageProps {
   placeholder?: string;
   onLoad?: () => void;
   onError?: () => void;
-  sizes?: string;
-  srcSet?: string;
 }
 
 export function OptimizedImage({
@@ -19,8 +17,6 @@ export function OptimizedImage({
   placeholder,
   onLoad,
   onError,
-  sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
-  srcSet,
 }: OptimizedImageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);

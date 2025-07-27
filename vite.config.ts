@@ -18,45 +18,39 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Оптимизированное разделение для мобильных
+          // Разделяем vendor библиотеки
           vendor: ["react", "react-dom"],
           ui: ["@radix-ui/react-dialog", "@radix-ui/react-select"],
-          utils: ["clsx", "class-variance-authority", "lucide-react"],
-          mobile: [
-            "./src/components/sections/CarsMobile.tsx",
-            "./src/components/car/CarCardMobile.tsx",
+          utils: [
+            "clsx",
+            "class-variance-authority",
+            "lucide-react",
+            "date-fns",
           ],
-          i18n: ["react-i18next", "i18next"],
+          i18n: ["i18next", "react-i18next"],
+          query: ["@tanstack/react-query"],
         },
       },
     },
-    chunkSizeWarningLimit: 600, // Еще больше уменьшаем лимит для мобильных
+    // Увеличиваем лимит для больших чанков
+    chunkSizeWarningLimit: 1000,
+    // Оптимизация для продакшена
     minify: mode === "production" ? "terser" : false,
-          terserOptions: {
-        compress: {
-          drop_console: mode === "production",
-          drop_debugger: mode === "production",
-          pure_funcs:
-            mode === "production" ? ["console.log", "console.info", "console.warn"] : [],
-          passes: mode === "production" ? 3 : 1, // Увеличиваем количество проходов
-          dead_code: mode === "production", // Удаляем мертвый код
-          unused: mode === "production", // Удаляем неиспользуемые переменные
-        },
-        mangle:
-          mode === "production"
-            ? {
-                toplevel: true,
-                safari10: true, // Оптимизация для Safari
-              }
-            : false,
+    terserOptions: {
+      compress: {
+        drop_console: mode === "production",
+        drop_debugger: mode === "production",
       },
-    target: "es2015",
-    cssCodeSplit: false, // Отключаем разделение CSS
-    sourcemap: false, // Отключаем sourcemap в продакшене
-    assetsInlineLimit: 8192, // Увеличиваем лимит для инлайн ресурсов
-    reportCompressedSize: false, // Отключаем отчет о размере для ускорения сборки
+    },
   },
+  // Оптимизация для разработки
   optimizeDeps: {
-    include: ["react", "react-dom"],
+    include: [
+      "react",
+      "react-dom",
+      "@tanstack/react-query",
+      "i18next",
+      "react-i18next",
+    ],
   },
 }));
