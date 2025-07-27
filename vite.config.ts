@@ -18,17 +18,52 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Разделяем vendor библиотеки
+          // Основные React библиотеки
           vendor: ["react", "react-dom"],
+
+          // UI компоненты - разделяем по функциональности
           ui: ["@radix-ui/react-dialog", "@radix-ui/react-select"],
-          utils: [
-            "clsx",
-            "class-variance-authority",
-            "lucide-react",
-            "date-fns",
+          ui_forms: [
+            "@radix-ui/react-checkbox",
+            "@radix-ui/react-radio-group",
+            "@radix-ui/react-switch",
           ],
+          ui_navigation: [
+            "@radix-ui/react-navigation-menu",
+            "@radix-ui/react-tabs",
+          ],
+          ui_overlays: [
+            "@radix-ui/react-popover",
+            "@radix-ui/react-tooltip",
+            "@radix-ui/react-hover-card",
+          ],
+
+          // Утилиты
+          utils: ["clsx", "class-variance-authority", "tailwind-merge"],
+
+          // Интернационализация
           i18n: ["i18next", "react-i18next"],
+
+          // Запросы к API
           query: ["@tanstack/react-query"],
+
+          // Формы
+          forms: ["react-hook-form", "@hookform/resolvers", "zod"],
+
+          // Дата и время
+          date: ["date-fns", "react-day-picker"],
+
+          // Иконки
+          icons: ["lucide-react", "react-icons"],
+
+          // Firebase
+          firebase: ["firebase/app", "firebase/storage"],
+
+          // Карусель
+          carousel: ["embla-carousel-react"],
+
+          // Роутинг
+          router: ["react-router-dom"],
         },
       },
     },
@@ -40,8 +75,21 @@ export default defineConfig(({ mode }) => ({
       compress: {
         drop_console: mode === "production",
         drop_debugger: mode === "production",
+        pure_funcs:
+          mode === "production"
+            ? ["console.log", "console.info", "console.debug"]
+            : [],
+      },
+      mangle: {
+        safari10: true, // Для лучшей совместимости с Safari
       },
     },
+    // Оптимизация CSS
+    cssCodeSplit: true,
+    // Оптимизация assets
+    assetsInlineLimit: 4096, // Inline маленькие assets
+    // Оптимизация для мобильных устройств
+    target: "es2015", // Для лучшей совместимости
   },
   // Оптимизация для разработки
   optimizeDeps: {
@@ -51,6 +99,15 @@ export default defineConfig(({ mode }) => ({
       "@tanstack/react-query",
       "i18next",
       "react-i18next",
+      "clsx",
+      "class-variance-authority",
+      "tailwind-merge",
     ],
+    // Исключаем тяжелые зависимости из pre-bundling
+    exclude: ["firebase"],
+  },
+  // Оптимизация CSS
+  css: {
+    devSourcemap: false, // Отключаем source maps для CSS в продакшене
   },
 }));
