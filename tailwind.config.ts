@@ -162,11 +162,4 @@ export default {
     },
   },
   plugins: [require("tailwindcss-animate")],
-  // Оптимизация для продакшена
-  future: {
-    hoverOnlyWhenSupported: true,
-  },
-  experimental: {
-    optimizeUniversalDefaults: true,
-  },
 } satisfies Config;

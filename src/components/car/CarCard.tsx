@@ -111,7 +111,6 @@ const CarCard = memo(
                 imageLoaded ? "group-hover:scale-110" : "opacity-0"
               }`}
               loading="lazy"
-              decoding="async"
               onLoad={handleImageLoad}
               onError={handleImageError}
               width={400}
