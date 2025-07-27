@@ -20,10 +20,10 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           // Основные библиотеки
           vendor: ["react", "react-dom"],
-
+          
           // UI компоненты
           ui: ["@radix-ui/react-dialog", "@radix-ui/react-select"],
-
+          
           // Утилиты
           utils: [
             "clsx",
@@ -31,13 +31,13 @@ export default defineConfig(({ mode }) => ({
             "lucide-react",
             "date-fns",
           ],
-
+          
           // Интернационализация
           i18n: ["i18next", "react-i18next"],
-
+          
           // React Query
           query: ["@tanstack/react-query"],
-
+          
           // Firebase
           firebase: ["firebase/app", "firebase/storage"],
         },
@@ -57,6 +57,8 @@ export default defineConfig(({ mode }) => ({
     target: "es2015", // Поддержка старых браузеров
     cssCodeSplit: true, // Разделение CSS
     sourcemap: mode === "development",
+    // Оптимизация размера для мобильных
+    assetsInlineLimit: 4096, // Увеличиваем лимит для inline ресурсов
   },
   // Оптимизация для разработки
   optimizeDeps: {

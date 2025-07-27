@@ -28,15 +28,7 @@ export function OptimizedImage({
 
   // Генерируем srcSet если не передан
   const generateSrcSet = (originalSrc: string) => {
-    if (srcSet) return srcSet;
-
-    // Для изображений из Airtable добавляем параметры для разных размеров
-    if (originalSrc.includes("airtable.com")) {
-      const baseUrl = originalSrc.split("?")[0];
-      return `${baseUrl}?w=400 400w, ${baseUrl}?w=800 800w, ${baseUrl}?w=1200 1200w`;
-    }
-
-    return originalSrc;
+    return getMobileSrcSet(originalSrc);
   };
 
   // Проверяем поддержку WebP
@@ -55,6 +47,30 @@ export function OptimizedImage({
         ? `${originalSrc}&format=webp`
         : `${originalSrc}?format=webp`;
     }
+    return originalSrc;
+  };
+
+  // Оптимизация для мобильных устройств
+  const isMobile = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+  };
+
+  // Получаем размеры для мобильных
+  const getMobileSrcSet = (originalSrc: string) => {
+    if (srcSet) return srcSet;
+
+    if (originalSrc.includes("airtable.com")) {
+      const baseUrl = originalSrc.split("?")[0];
+      if (isMobile()) {
+        // Более агрессивное сжатие для мобильных
+        return `${baseUrl}?w=300 300w, ${baseUrl}?w=600 600w, ${baseUrl}?w=900 900w`;
+      } else {
+        return `${baseUrl}?w=400 400w, ${baseUrl}?w=800 800w, ${baseUrl}?w=1200 1200w`;
+      }
+    }
+
     return originalSrc;
   };
 

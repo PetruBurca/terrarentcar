@@ -40,30 +40,45 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Определяем мобильное устройство
+  const isMobile = () => {
+    const userAgent = request.headers.get("user-agent") || "";
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      userAgent
+    );
+  };
+
   // Стратегия для статических ресурсов
   if (request.method === "GET") {
-    // Кэшируем изображения
+    // Кэшируем изображения с приоритетом на мобильные
     if (request.destination === "image") {
       event.respondWith(
         caches.match(request).then((response) => {
-          return (
-            response ||
-            fetch(request).then((fetchResponse) => {
-              return caches.open(DYNAMIC_CACHE).then((cache) => {
-                cache.put(request, fetchResponse.clone());
-                return fetchResponse;
-              });
-            })
-          );
+          if (response) {
+            // Для мобильных используем кэш, для десктопа - network first
+            if (isMobile()) {
+              return response;
+            }
+          }
+          return fetch(request).then((fetchResponse) => {
+            return caches.open(DYNAMIC_CACHE).then((cache) => {
+              cache.put(request, fetchResponse.clone());
+              return fetchResponse;
+            });
+          });
         })
       );
       return;
     }
 
-    // Кэшируем CSS и JS
+    // Кэшируем CSS и JS с оптимизацией для мобильных
     if (request.destination === "style" || request.destination === "script") {
       event.respondWith(
         caches.match(request).then((response) => {
+          if (response && isMobile()) {
+            // Для мобильных используем кэш сразу
+            return response;
+          }
           if (response) {
             // Проверяем актуальность кэша
             return fetch(request)
