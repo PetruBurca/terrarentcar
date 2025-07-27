@@ -26,54 +26,6 @@ export function OptimizedImage({
   const [hasError, setHasError] = useState(false);
   const [imageSrc, setImageSrc] = useState(placeholder || "");
 
-  // Генерируем srcSet если не передан
-  const generateSrcSet = (originalSrc: string) => {
-    return getMobileSrcSet(originalSrc);
-  };
-
-  // Проверяем поддержку WebP
-  const supportsWebP = () => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 1;
-    canvas.height = 1;
-    return canvas.toDataURL("image/webp").indexOf("data:image/webp") === 0;
-  };
-
-  // Получаем оптимальный формат изображения
-  const getOptimalImageSrc = (originalSrc: string) => {
-    if (supportsWebP() && originalSrc.includes("airtable.com")) {
-      // Для Airtable добавляем параметр для WebP
-      return originalSrc.includes("?")
-        ? `${originalSrc}&format=webp`
-        : `${originalSrc}?format=webp`;
-    }
-    return originalSrc;
-  };
-
-  // Оптимизация для мобильных устройств
-  const isMobile = () => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
-  };
-
-  // Получаем размеры для мобильных
-  const getMobileSrcSet = (originalSrc: string) => {
-    if (srcSet) return srcSet;
-
-    if (originalSrc.includes("airtable.com")) {
-      const baseUrl = originalSrc.split("?")[0];
-      if (isMobile()) {
-        // Более агрессивное сжатие для мобильных
-        return `${baseUrl}?w=300 300w, ${baseUrl}?w=600 600w, ${baseUrl}?w=900 900w`;
-      } else {
-        return `${baseUrl}?w=400 400w, ${baseUrl}?w=800 800w, ${baseUrl}?w=1200 1200w`;
-      }
-    }
-
-    return originalSrc;
-  };
-
   useEffect(() => {
     if (!src) {
       setHasError(true);
@@ -112,35 +64,23 @@ export function OptimizedImage({
           <div className="w-8 h-8 border-2 border-gray-300 border-t-primary rounded-full animate-spin"></div>
         </div>
       )}
-      <picture>
-        {/* WebP версия для поддерживаемых браузеров */}
-        <source
-          srcSet={getOptimalImageSrc(generateSrcSet(src))}
-          sizes={sizes}
-          type="image/webp"
-        />
-        {/* Fallback для старых браузеров */}
-        <img
-          src={imageSrc}
-          alt={alt}
-          srcSet={generateSrcSet(src)}
-          sizes={sizes}
-          className={`w-full h-full object-cover transition-opacity duration-300 ${
-            isLoading ? "opacity-0" : "opacity-100"
-          }`}
-          loading="lazy"
-          decoding="async"
-          onLoad={() => {
-            setIsLoading(false);
-            onLoad?.();
-          }}
-          onError={() => {
-            setHasError(true);
-            setIsLoading(false);
-            onError?.();
-          }}
-        />
-      </picture>
+      <img
+        src={imageSrc}
+        alt={alt}
+        className={`w-full h-full object-cover transition-opacity duration-300 ${
+          isLoading ? "opacity-0" : "opacity-100"
+        }`}
+        loading="lazy"
+        onLoad={() => {
+          setIsLoading(false);
+          onLoad?.();
+        }}
+        onError={() => {
+          setHasError(true);
+          setIsLoading(false);
+          onError?.();
+        }}
+      />
     </div>
   );
 }

@@ -47,7 +47,7 @@
 
     <!-- Critical CSS inline для быстрой загрузки -->
     <style>
-      /* Критический CSS для первого экрана */
+      /* Минимальный критический CSS */
       body {
         margin: 0;
         padding: 0;
@@ -86,53 +86,8 @@
       /* Оптимизация для мобильных */
       @media (max-width: 768px) {
         body {
-          font-size: 16px; /* Предотвращает zoom на iOS */
+          font-size: 16px;
         }
-
-        /* Критический CSS для мобильного первого экрана */
-        .hero-section {
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          padding: 1rem;
-        }
-
-        .search-form {
-          background: #fbbf24;
-          border-radius: 1rem;
-          padding: 1.5rem;
-          margin: 1rem 0;
-        }
-
-        .cta-buttons {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-          margin: 1rem 0;
-        }
-
-        .cta-button {
-          background: #fbbf24;
-          color: #000;
-          padding: 1rem 2rem;
-          border-radius: 0.5rem;
-          font-weight: bold;
-          text-align: center;
-          text-decoration: none;
-        }
-      }
-
-      /* Предотвращение layout shift */
-      img {
-        max-width: 100%;
-        height: auto;
-      }
-
-      /* Оптимизация шрифтов */
-      @font-face {
-        font-family: "System Font";
-        font-display: swap;
       }
     </style>
 

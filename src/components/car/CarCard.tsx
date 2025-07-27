@@ -199,31 +199,31 @@ const CarCard = memo(
         </Card>
 
         <Suspense fallback={<div>Загрузка...</div>}>
-          <CarReservationModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            car={{
-              id,
-              name,
-              images,
-              price,
-              rating,
-              passengers,
-              transmission,
-              fuel,
-              year,
-              engine,
-              drive,
-              description_ru,
-              description_ro,
-              description_en,
-              pricePerDay,
-              price2to10,
-              price11to20,
-              price21to29,
-              price30plus,
-            }}
-          />
+        <CarReservationModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          car={{
+            id,
+            name,
+            images,
+            price,
+            rating,
+            passengers,
+            transmission,
+            fuel,
+            year,
+            engine,
+            drive,
+            description_ru,
+            description_ro,
+            description_en,
+            pricePerDay,
+            price2to10,
+            price11to20,
+            price21to29,
+            price30plus,
+          }}
+        />
         </Suspense>
       </>
     );

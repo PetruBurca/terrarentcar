@@ -1,6 +1,5 @@
-const CACHE_NAME = "terra-rent-car-v2";
-const STATIC_CACHE = "static-v2";
-const DYNAMIC_CACHE = "dynamic-v2";
+const CACHE_NAME = "terra-rent-car-v3";
+const STATIC_CACHE = "static-v3";
 
 const urlsToCache = [
   "/",
@@ -8,7 +7,6 @@ const urlsToCache = [
   "/src/main.tsx",
   "/src/App.tsx",
   "/src/index.css",
-  "/src/assets/logo.png",
 ];
 
 // Install event
@@ -26,7 +24,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
+          if (cacheName !== STATIC_CACHE) {
             return caches.delete(cacheName);
           }
         })
@@ -35,112 +33,15 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Fetch event - стратегия кэширования
+// Fetch event - простая стратегия Cache First
 self.addEventListener("fetch", (event) => {
   const { request } = event;
-  const url = new URL(request.url);
 
-  // Определяем мобильное устройство
-  const isMobile = () => {
-    const userAgent = request.headers.get("user-agent") || "";
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      userAgent
-    );
-  };
-
-  // Стратегия для статических ресурсов
   if (request.method === "GET") {
-    // Кэшируем изображения с приоритетом на мобильные
-    if (request.destination === "image") {
-      event.respondWith(
-        caches.match(request).then((response) => {
-          if (response) {
-            // Для мобильных используем кэш, для десктопа - network first
-            if (isMobile()) {
-              return response;
-            }
-          }
-          return fetch(request).then((fetchResponse) => {
-            return caches.open(DYNAMIC_CACHE).then((cache) => {
-              cache.put(request, fetchResponse.clone());
-              return fetchResponse;
-            });
-          });
-        })
-      );
-      return;
-    }
-
-    // Кэшируем CSS и JS с оптимизацией для мобильных
-    if (request.destination === "style" || request.destination === "script") {
-      event.respondWith(
-        caches.match(request).then((response) => {
-          if (response && isMobile()) {
-            // Для мобильных используем кэш сразу
-            return response;
-          }
-          if (response) {
-            // Проверяем актуальность кэша
-            return fetch(request)
-              .then((fetchResponse) => {
-                if (fetchResponse.status === 200) {
-                  caches.open(DYNAMIC_CACHE).then((cache) => {
-                    cache.put(request, fetchResponse.clone());
-                  });
-                }
-                return fetchResponse;
-              })
-              .catch(() => response);
-          }
-          return fetch(request).then((fetchResponse) => {
-            if (fetchResponse.status === 200) {
-              caches.open(DYNAMIC_CACHE).then((cache) => {
-                cache.put(request, fetchResponse.clone());
-              });
-            }
-            return fetchResponse;
-          });
-        })
-      );
-      return;
-    }
-
-    // Для API запросов - Network First
-    if (url.pathname.includes("/api/")) {
-      event.respondWith(
-        fetch(request)
-          .then((response) => {
-            if (response.status === 200) {
-              caches.open(DYNAMIC_CACHE).then((cache) => {
-                cache.put(request, response.clone());
-              });
-            }
-            return response;
-          })
-          .catch(() => {
-            return caches.match(request);
-          })
-      );
-      return;
-    }
-  }
-
-  // Fallback для остальных запросов
-  event.respondWith(
-    caches.match(request).then((response) => {
-      return response || fetch(request);
-    })
-  );
-});
-
-// Background sync для офлайн функциональности
-self.addEventListener("sync", (event) => {
-  if (event.tag === "background-sync") {
-    event.waitUntil(doBackgroundSync());
+    event.respondWith(
+      caches.match(request).then((response) => {
+        return response || fetch(request);
+      })
+    );
   }
 });
-
-async function doBackgroundSync() {
-  // Здесь можно добавить логику для синхронизации данных
-  console.log("Background sync triggered");
-}
