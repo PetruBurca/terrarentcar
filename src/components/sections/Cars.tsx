@@ -10,6 +10,7 @@ import i18n from "i18next";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCars, fetchOrders } from "@/lib/airtable";
+import CarsMobile from "./CarsMobile";
 
 const categoryMap = {
   sedan: "Седан",
@@ -27,12 +28,14 @@ function isDateOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) {
 
 const Cars = ({ searchDates }) => {
   const { t, i18n } = useTranslation();
+  const isMobile = useMediaQuery("(max-width: 767px)");
+
+  // Все хуки должны быть объявлены до условного рендеринга
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [showScrollHint, setShowScrollHint] = useState(true);
   const [isAtEnd, setIsAtEnd] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 767px)");
-  const carsPerPage = isMobile ? 6 : 9; // Меньше машин на мобильных
+  const carsPerPage = 9; // Только для десктопа
   const filterContainerRef = useRef<HTMLDivElement>(null);
   const carsListRef = useRef<HTMLDivElement>(null);
   // По умолчанию сортировка по имени по возрастанию
@@ -88,55 +91,6 @@ const Cars = ({ searchDates }) => {
   useEffect(() => {
     // Это заставит компонент перерендериться при смене языка
   }, [i18n.language]);
-
-  // Ленивая загрузка для мобильных - переместим после определения sortedCars
-
-  // Фильтрация по доступности
-  let availableCars = cars;
-  if (searchDates?.from && searchDates?.to) {
-    availableCars = cars.filter((car) => {
-      // Фильтруем заявки для этого автомобиля
-      const carOrders = orders.filter((order) => {
-        const hasCarId = order.carIds && order.carIds.includes(car.id);
-        const isConfirmed =
-          order.status === "подтверждена" || order.status === "подтвержден";
-        const hasDates = order.startDate && order.endDate;
-
-        return hasCarId && isConfirmed && hasDates;
-      });
-
-      if (carOrders.length === 0) {
-        return true;
-      }
-
-      const from = new Date(searchDates.from);
-      const to = new Date(searchDates.to);
-
-      const isAvailable = !carOrders.some((order) => {
-        // Пробуем разные форматы дат
-        let orderStart, orderEnd;
-
-        // Если дата в формате "dd.mm.yyyy", заменяем на "mm/dd/yyyy"
-        if (order.startDate.includes(".")) {
-          orderStart = new Date(order.startDate.replace(/\./g, "/"));
-        } else {
-          orderStart = new Date(order.startDate);
-        }
-
-        if (order.endDate.includes(".")) {
-          orderEnd = new Date(order.endDate.replace(/\./g, "/"));
-        } else {
-          orderEnd = new Date(order.endDate);
-        }
-
-        const overlap = isDateOverlap(from, to, orderStart, orderEnd);
-
-        return overlap;
-      });
-
-      return isAvailable;
-    });
-  }
 
   // Check if user has scrolled to the end and hide scroll hint
   useEffect(() => {
@@ -213,6 +167,58 @@ const Cars = ({ searchDates }) => {
       }
     }
   }, [selectedCategory, isMobile]);
+
+  // Рендерим мобильную версию для мобильных устройств
+  if (isMobile) {
+    return <CarsMobile searchDates={searchDates} />;
+  }
+
+  // Фильтрация по доступности
+  let availableCars = cars;
+  if (searchDates?.from && searchDates?.to) {
+    availableCars = cars.filter((car) => {
+      // Фильтруем заявки для этого автомобиля
+      const carOrders = orders.filter((order) => {
+        const hasCarId = order.carIds && order.carIds.includes(car.id);
+        const isConfirmed =
+          order.status === "подтверждена" || order.status === "подтвержден";
+        const hasDates = order.startDate && order.endDate;
+
+        return hasCarId && isConfirmed && hasDates;
+      });
+
+      if (carOrders.length === 0) {
+        return true;
+      }
+
+      const from = new Date(searchDates.from);
+      const to = new Date(searchDates.to);
+
+      const isAvailable = !carOrders.some((order) => {
+        // Пробуем разные форматы дат
+        let orderStart, orderEnd;
+
+        // Если дата в формате "dd.mm.yyyy", заменяем на "mm/dd/yyyy"
+        if (order.startDate.includes(".")) {
+          orderStart = new Date(order.startDate.replace(/\./g, "/"));
+        } else {
+          orderStart = new Date(order.startDate);
+        }
+
+        if (order.endDate.includes(".")) {
+          orderEnd = new Date(order.endDate.replace(/\./g, "/"));
+        } else {
+          orderEnd = new Date(order.endDate);
+        }
+
+        const overlap = isDateOverlap(from, to, orderStart, orderEnd);
+
+        return overlap;
+      });
+
+      return isAvailable;
+    });
+  }
 
   const filteredCars =
     selectedCategory === "all"
