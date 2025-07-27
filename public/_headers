@@ -1,0 +1,26 @@
+# Кэширование для статических ресурсов
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Не кэшировать HTML и SW
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Не кэшировать API
+/api/*
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Безопасность
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin 
