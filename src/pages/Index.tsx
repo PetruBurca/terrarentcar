@@ -32,8 +32,9 @@ const Index = () => {
       <main>
         <RentSearch onSearch={handleSearchDates} />
         {/* <LogoMarquee /> */}
-        <About />
         <Cars searchDates={searchDates} />
+        <About />
+       
         <Contact />
       </main>
       <Footer />
