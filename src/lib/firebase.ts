@@ -1,15 +1,14 @@
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-// Конфигурация Firebase для проекта rentcar-26887
+// Конфигурация Firebase для проекта terrarentcar-f1fda
 const firebaseConfig = {
-  apiKey: "AIzaSyA1VhdOVc_Y74p5P6oXanhGQJ2iHerbjXw",
-  authDomain: "rentcar-26887.firebaseapp.com",
-  projectId: "rentcar-26887",
-  storageBucket: "rentcar-26887.firebasestorage.app",
-  messagingSenderId: "693113667561",
-  appId: "1:693113667561:web:bc735d6fa3818fde001578",
-  measurementId: "G-9D32Y58JV2",
+  apiKey: "AIzaSyCnH5K4RB7i5RNgDthSK0wPAiM0wTkYnAE",
+  authDomain: "terrarentcar-f1fda.firebaseapp.com",
+  projectId: "terrarentcar-f1fda",
+  storageBucket: "terrarentcar-f1fda.firebasestorage.app",
+  messagingSenderId: "114261195759",
+  appId: "1:114261195759:web:33356a53fcd35612d2541a"
 };
 
 // Инициализация Firebase

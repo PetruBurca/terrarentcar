@@ -21,7 +21,10 @@ self.addEventListener("install", (event) => {
 // Fetch event с улучшенной стратегией
 self.addEventListener("fetch", (event) => {
   // Для API запросов - всегда сеть
-  if (event.request.url.includes('/api/') || event.request.url.includes('airtable.com')) {
+  if (
+    event.request.url.includes("/api/") ||
+    event.request.url.includes("airtable.com")
+  ) {
     event.respondWith(fetch(event.request));
     return;
   }
@@ -31,15 +34,17 @@ self.addEventListener("fetch", (event) => {
     caches.match(event.request).then((response) => {
       if (response) {
         // Проверяем актуальность кэша
-        return fetch(event.request).then((networkResponse) => {
-          if (networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, networkResponse.clone());
-            });
-            return networkResponse;
-          }
-          return response;
-        }).catch(() => response);
+        return fetch(event.request)
+          .then((networkResponse) => {
+            if (networkResponse.status === 200) {
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(event.request, networkResponse.clone());
+              });
+              return networkResponse;
+            }
+            return response;
+          })
+          .catch(() => response);
       }
       return fetch(event.request);
     })
@@ -49,18 +54,21 @@ self.addEventListener("fetch", (event) => {
 // Activate event с принудительным обновлением
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      // Принудительно берем контроль над всеми клиентами
-      return self.clients.claim();
-    })
+    caches
+      .keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== CACHE_NAME) {
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+      .then(() => {
+        // Принудительно берем контроль над всеми клиентами
+        return self.clients.claim();
+      })
   );
 });
 

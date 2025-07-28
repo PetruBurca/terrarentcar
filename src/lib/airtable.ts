@@ -2,7 +2,7 @@ const AIRTABLE_BASE_ID = "app2zFP3OOvuIAxHq";
 const AIRTABLE_TABLE_NAME = "Автомобили (Cars)"; // Имя таблицы в Airtable (точно как в базе)
 const AIRTABLE_CONTACT_TABLE = "Заявки на связь"; // Новая таблица для контактных форм
 const AIRTABLE_TOKEN =
-  "patKvCVhLU4cB94Gz.bfe322360c9044bfa0994f438f4cd451106309491786577e01eb3c4fe9b3ec26";
+  "patMiGkMfV2eHj8Bz.93dd90b012b1ce19e00368c03986794b45064f1d7d16bd91a99f38c4889aee8c";
 
 import { uploadFileToFirebase } from "./firebase";
 
@@ -260,8 +260,6 @@ export async function createOrder(order: {
   if (order.totalCost !== undefined) {
     fields["Общая стоимость"] = order.totalCost;
   }
-
-
 
   const res = await fetch(
     `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_ORDERS_TABLE}`,
