@@ -1,4 +1,4 @@
-const AIRTABLE_BASE_ID = "app2zFP3OOvuIAxHq";
+const AIRTABLE_BASE_ID = "app2d5VGYA0UjVj9u";
 const AIRTABLE_TABLE_NAME = "Автомобили (Cars)"; // Имя таблицы в Airtable (точно как в базе)
 const AIRTABLE_CONTACT_TABLE = "Заявки на связь"; // Новая таблица для контактных форм
 const AIRTABLE_TOKEN =
