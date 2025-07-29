@@ -76,6 +76,12 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
         console.log("🔄 Жесткая перезагрузка обнаружена");
         clearAllCache();
       }
+      
+      // Дополнительная проверка для продакшена
+      if ((e.metaKey || e.ctrlKey) && e.key === "F5") {
+        console.log("🔄 Альтернативная жесткая перезагрузка обнаружена");
+        clearAllCache();
+      }
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);

@@ -1,26 +1,7 @@
-# Кэширование для статических ресурсов
-/assets/*
-  Cache-Control: public, max-age=31536000, immutable
-
-/js/*
-  Cache-Control: public, max-age=31536000, immutable
-
-/css/*
-  Cache-Control: public, max-age=31536000, immutable
-
-# Не кэшировать HTML и SW
-/*.html
-  Cache-Control: no-cache, no-store, must-revalidate
-
-/sw.js
-  Cache-Control: no-cache, no-store, must-revalidate
-
-# Не кэшировать API
-/api/*
-  Cache-Control: no-cache, no-store, must-revalidate
-
-# Безопасность
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
-  Referrer-Policy: strict-origin-when-cross-origin 
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.airtable.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.airtable.com; frame-src 'none'; object-src 'none' 

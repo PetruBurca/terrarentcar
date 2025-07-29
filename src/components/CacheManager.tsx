@@ -72,6 +72,22 @@ const CacheManager = ({
           console.log("📊 Найденные ключи кэша:", cacheKeys);
           return cacheKeys;
         },
+        // Функция для продакшена
+        forceClearProduction: () => {
+          console.log("🧹 Принудительная очистка для продакшена");
+          // Очищаем все возможные кэши
+          localStorage.clear();
+          sessionStorage.clear();
+          clearAllCache();
+          
+          // Принудительно показываем баннер куки
+          localStorage.removeItem("cookieAccepted");
+          
+          // Перезагружаем страницу
+          setTimeout(() => {
+            window.location.reload();
+          }, 100);
+        },
       };
 
       console.log("🔧 CacheManager доступен в window.cacheManager для отладки");
