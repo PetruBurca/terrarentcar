@@ -2,7 +2,8 @@ import React from "react";
 import { Button } from "@/components/ui/utils/button";
 import { useTranslation } from "react-i18next";
 import { formatDateRange } from "@/lib/dateHelpers";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/forms/radio-group";
+
+import { Switch } from "@/components/ui/forms/switch";
 // Импорт SVG-иконок для правил
 import NoSmokeIcon from "@/assets/logorule/no-smoking-sign-svgrepo-com.svg";
 import NoPetsIcon from "@/assets/logorule/no-pets-svgrepo-com.svg";
@@ -146,28 +147,34 @@ export const ReservationStep2: React.FC<ReservationStep2Props> = ({
         <div className="text-xl font-bold text-center mb-2 text-[#B90003]">
           {t("reservation.clientCardTitle")}
         </div>
-        <RadioGroup
-          value={
-            wizardData.goldCard ? "gold" : wizardData.clubCard ? "club" : "none"
-          }
-          onValueChange={(value) =>
-            setWizardData((d: WizardData) => ({
-              ...d,
-              goldCard: value === "gold",
-              clubCard: value === "club",
-            }))
-          }
-          className="flex flex-col gap-2 bg-zinc-900 rounded-xl p-4 border border-[#B90003]"
-        >
-          <label className="flex items-center gap-3 cursor-pointer">
-            <RadioGroupItem value="gold" className="text-[#B90003]" />
+        <div className="flex flex-col gap-2 bg-zinc-900 rounded-xl p-4 border border-[#B90003]">
+          <label className="flex items-center justify-between cursor-pointer">
             <span>{t("reservation.goldCard")}</span>
+            <Switch
+              checked={wizardData.goldCard}
+              onCheckedChange={(checked) =>
+                setWizardData((d: WizardData) => ({
+                  ...d,
+                  goldCard: checked,
+                  clubCard: checked ? false : d.clubCard, // Отключаем другую карту при включении этой
+                }))
+              }
+            />
           </label>
-          <label className="flex items-center gap-3 cursor-pointer">
-            <RadioGroupItem value="club" className="text-[#B90003]" />
+          <label className="flex items-center justify-between cursor-pointer">
             <span>{t("reservation.clubCard")}</span>
+            <Switch
+              checked={wizardData.clubCard}
+              onCheckedChange={(checked) =>
+                setWizardData((d: WizardData) => ({
+                  ...d,
+                  clubCard: checked,
+                  goldCard: checked ? false : d.goldCard, // Отключаем другую карту при включении этой
+                }))
+              }
+            />
           </label>
-        </RadioGroup>
+        </div>
       </div>
 
       {/* Стоимость */}
