@@ -6,3 +6,4 @@ export * from "./slider";
 export * from "./switch";
 export * from "./time-picker";
 export * from "./time-picker-wheel";
+export * from "./file-input";

@@ -12,3 +12,10 @@ export const CallContactsModal = lazy(() =>
     default: module.CallContactsModal,
   }))
 );
+
+// Экспорт новых компонентов
+export { ReservationStep1 } from "./ReservationStep1";
+export { ReservationStep2 } from "./ReservationStep2";
+export { ReservationStep3 } from "./ReservationStep3";
+export { SuccessModal } from "./SuccessModal";
+export { CarouselWithCenter } from "./CarouselWithCenter";

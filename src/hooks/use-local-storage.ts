@@ -92,6 +92,27 @@ export function useReservationForm() {
     false
   );
 
+  const [wizardData, setWizardData] = useLocalStorage("wizard-data", {
+    pickupDate: "",
+    returnDate: "",
+    pickupTime: "10:00",
+    pickupType: "office",
+    pickupAddress: "",
+    unlimitedMileage: false,
+    goldCard: false,
+    clubCard: false,
+  });
+
+  const [selectedCountryCode, setSelectedCountryCode] = useLocalStorage(
+    "selected-country-code",
+    "+373"
+  );
+
+  const [activeImageIndex, setActiveImageIndex] = useLocalStorage(
+    "active-image-index",
+    0
+  );
+
   // Очистка кэша при успешной отправке
   const clearCache = () => {
     localStorage.removeItem("reservation-form");
@@ -99,6 +120,9 @@ export function useReservationForm() {
     localStorage.removeItem("reservation-step");
     localStorage.removeItem("uploaded-photos");
     localStorage.removeItem("privacy-accepted");
+    localStorage.removeItem("wizard-data");
+    localStorage.removeItem("selected-country-code");
+    localStorage.removeItem("active-image-index");
   };
 
   return {
@@ -112,6 +136,12 @@ export function useReservationForm() {
     setUploadedPhotos,
     privacyAccepted,
     setPrivacyAccepted,
+    wizardData,
+    setWizardData,
+    selectedCountryCode,
+    setSelectedCountryCode,
+    activeImageIndex,
+    setActiveImageIndex,
     clearCache,
   };
 }
