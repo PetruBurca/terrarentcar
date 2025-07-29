@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/overlays/dialog";
 import { useTranslation } from "react-i18next";
 import { createOrder } from "@/lib/airtable";
-import { useMediaQuery, useReservationForm } from "@/hooks";
+import { useMediaQuery } from "@/hooks";
+import { useCarReservation } from "@/hooks/use-car-reservation";
 import { useQuery } from "@tanstack/react-query";
 import { fetchOrders } from "@/lib/airtable";
 import { toast } from "@/components/ui/utils/use-toast";
@@ -43,7 +44,7 @@ const CarReservationModal = ({
   const { t, i18n } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 767px)");
 
-  // Используем кэшированное состояние
+  // Используем кэшированное состояние с изоляцией по машинам
   const {
     formData,
     setFormData,
@@ -59,8 +60,9 @@ const CarReservationModal = ({
     setSelectedCountryCode,
     activeImageIndex,
     setActiveImageIndex,
-    clearCache,
-  } = useReservationForm();
+    clearCarCache,
+    clearAllCarCaches,
+  } = useCarReservation(car.id);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -411,8 +413,8 @@ const CarReservationModal = ({
   // Функция для закрытия модального окна успеха
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
-    // Очищаем кэш после успешной отправки
-    clearCache();
+    // Очищаем кэш для конкретной машины после успешной отправки
+    clearCarCache();
     onClose();
   };
 

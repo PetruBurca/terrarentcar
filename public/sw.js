@@ -1,4 +1,4 @@
-const CACHE_NAME = "terra-rent-car-v1";
+const CACHE_NAME = "terra-rent-car-v2";
 const urlsToCache = [
   "/",
   "/index.html",
@@ -7,11 +7,33 @@ const urlsToCache = [
   "/src/index.css",
 ];
 
+// Время жизни кэша (5 минут)
+const CACHE_LIFETIME = 5 * 60 * 1000;
+
 // Install event
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache);
+      return cache.addAll(urlsToCache).then(() => {
+        // Добавляем метку времени к кэшированным ресурсам
+        return Promise.all(
+          urlsToCache.map((url) =>
+            cache.match(url).then((response) => {
+              if (response) {
+                const newResponse = new Response(response.body, {
+                  status: response.status,
+                  statusText: response.statusText,
+                  headers: {
+                    ...Object.fromEntries(response.headers.entries()),
+                    "sw-cache-time": Date.now().toString(),
+                  },
+                });
+                return cache.put(url, newResponse);
+              }
+            })
+          )
+        );
+      });
     })
   );
 });
@@ -20,8 +42,20 @@ self.addEventListener("install", (event) => {
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      // Return cached version or fetch from network
-      return response || fetch(event.request);
+      if (response) {
+        // Проверяем возраст кэша
+        const cacheTime = response.headers.get("sw-cache-time");
+        if (cacheTime) {
+          const age = Date.now() - parseInt(cacheTime);
+          if (age > CACHE_LIFETIME) {
+            // Кэш устарел, удаляем его и запрашиваем свежие данные
+            caches.delete(event.request);
+            return fetch(event.request);
+          }
+        }
+        return response;
+      }
+      return fetch(event.request);
     })
   );
 });

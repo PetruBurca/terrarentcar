@@ -8,12 +8,13 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import CacheManager from "./components/CacheManager";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
+      staleTime: 1000 * 60 * 3, // 3 minutes - уменьшено для более частого обновления
+      gcTime: 1000 * 60 * 5, // 5 minutes - уменьшено для более быстрой очистки
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors
         if (error instanceof Error && error.message.includes("4")) {
@@ -118,6 +119,11 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <CacheManager 
+          autoClearTime={5 * 60 * 1000} // 5 минут
+          enableDoubleRefresh={true}
+          showDebugInfo={process.env.NODE_ENV === 'development'}
+        />
         <Toaster />
         <Sonner />
         <BrowserRouter

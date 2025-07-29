@@ -227,6 +227,7 @@
     "search": "Поиск",
     "returnTime": "Время возврата",
     "selectDates": "Выберите даты аренды",
+    "selectDatesDescription": "Выберите даты начала и окончания аренды автомобиля",
     "message": "Комментарий",
     "description": "Описание",
     "email": "Электронная почта",
@@ -284,8 +285,8 @@
     "addressDetails": "Chișinău MD, Bulevardul Mircea cel Bătrîn 4",
     "addressDesc": "Наш офис",
     "hoursTitle": "Режим работы",
-    "hoursDetails1": "Пн-Пт: 08:00 - 20:00",
-    "hoursDetails2": "Сб-Вс: 09:00 - 18:00",
+    "hoursDetails1": "Пн-Вс: 24/7",
+    "hoursDetails2": "",
     "hoursDesc": "Поддержка 24/7",
     "socialTitle": "Социальные сети",
     "locationTitle": "Наше расположение",
@@ -302,6 +303,7 @@
     "messageSentDesc": "Мы получили ваше сообщение и свяжемся с вами в ближайшее время.",
     "sendAnotherMessage": "Отправить еще одно сообщение",
     "sending": "Отправляем...",
-    "errorTitle": "Ошибка отправки"
+    "errorTitle": "Ошибка отправки",
+    "modalDescription": "Выберите номер телефона для связи с нами"
   }
 }

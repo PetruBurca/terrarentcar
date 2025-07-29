@@ -117,18 +117,18 @@ const Contact = () => {
         {
           label: t("contact.administrator"),
           phone: "+37379013014",
-          isPhone: true
+          isPhone: true,
         },
         {
           label: t("contact.technicalAssistant"),
           phone: "+37361131131 / +37362131370",
-          isPhone: true
+          isPhone: true,
         },
         {
           label: t("contact.managerConsultant"),
           phone: "+37360777137 / +37360496669",
-          isPhone: true
-        }
+          isPhone: true,
+        },
       ],
       description: t("contact.phoneDesc"),
     },
@@ -173,60 +173,126 @@ const Contact = () => {
                 {t("contact.howToContact")}
               </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {contactInfo.map((item, index) => (
-                  <Card
-                    key={index}
-                    className="group hover:glow-effect transition-all duration-500 bg-card/50 backdrop-blur border-border/50"
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex items-start space-x-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+                {/* Phone - занимает всю высоту слева */}
+                <div className="lg:row-span-3">
+                  <Card className="group hover:glow-effect transition-all duration-500 bg-card/50 backdrop-blur border-border/50 h-full">
+                    <CardContent className="p-6 h-full flex flex-col">
+                      <div className="flex items-start space-x-4 mb-4">
                         <div className="bg-primary/10 p-3 rounded-full group-hover:bg-primary/20 transition-colors">
-                          <item.icon className="h-5 w-5 text-primary" />
+                          <Phone className="h-5 w-5 text-primary" />
                         </div>
                         <div className="flex-1">
                           <h4 className="font-semibold text-foreground mb-1">
-                            {item.title}
+                            {contactInfo[0].title}
                           </h4>
-                          {item.details.map((detail, idx) => (
-                            <div key={idx} className="mb-1">
-                              {typeof detail === 'string' ? (
-                                <p className="text-sm text-muted-foreground">
-                                  {detail}
+                        </div>
+                      </div>
+                      <div className="flex-1 space-y-4">
+                        {contactInfo[0].details.map((detail, idx) => (
+                          <div key={idx} className="mb-1">
+                            {typeof detail === "string" ? (
+                              <p className="text-sm text-muted-foreground">
+                                {detail}
+                              </p>
+                            ) : detail.isPhone ? (
+                              <div>
+                                <p className="text-sm font-medium text-foreground">
+                                  {detail.label}
                                 </p>
-                              ) : detail.isPhone ? (
-                                <div>
-                                  <p className="text-sm font-medium text-foreground">
-                                    {detail.label}
-                                  </p>
-                                  <div className="flex flex-wrap gap-2 mt-1">
-                                    {detail.phone.split(' / ').map((phone, phoneIdx) => (
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                  {detail.phone
+                                    .split(" / ")
+                                    .map((phone, phoneIdx) => (
                                       <a
                                         key={phoneIdx}
-                                        href={`tel:${phone.replace(/\s/g, '')}`}
+                                        href={`tel:${phone.replace(
+                                          /\s/g,
+                                          ""
+                                        )}`}
                                         className="text-sm text-primary hover:text-primary/80 transition-colors cursor-pointer"
                                       >
                                         {phone}
                                       </a>
                                     ))}
-                                  </div>
                                 </div>
-                              ) : (
-                                <p className="text-sm text-muted-foreground">
-                                  {detail}
-                                </p>
-                              )}
-                            </div>
-                          ))}
-                          <p className="text-xs text-muted-foreground mt-2 italic">
-                            {item.description}
-                          </p>
-                        </div>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground">
+                                {detail}
+                              </p>
+                            )}
+                          </div>
+                        ))}
                       </div>
+                      <p className="text-xs text-muted-foreground mt-4 italic">
+                        {contactInfo[0].description}
+                      </p>
                     </CardContent>
                   </Card>
-                ))}
+                </div>
+
+                {/* Email, Hours, Address - справа в колонке */}
+                <div className="space-y-6">
+                  {contactInfo.slice(1).map((item, index) => (
+                    <Card
+                      key={index + 1}
+                      className="group hover:glow-effect transition-all duration-500 bg-card/50 backdrop-blur border-border/50"
+                      style={{ animationDelay: `${(index + 1) * 0.1}s` }}
+                    >
+                      <CardContent className="p-6">
+                        <div className="flex items-start space-x-4">
+                          <div className="bg-primary/10 p-3 rounded-full group-hover:bg-primary/20 transition-colors">
+                            <item.icon className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-foreground mb-1">
+                              {item.title}
+                            </h4>
+                            {item.details.map((detail, idx) => (
+                              <div key={idx} className="mb-1">
+                                {typeof detail === "string" ? (
+                                  <p className="text-sm text-muted-foreground">
+                                    {detail}
+                                  </p>
+                                ) : detail.isPhone ? (
+                                  <div>
+                                    <p className="text-sm font-medium text-foreground">
+                                      {detail.label}
+                                    </p>
+                                    <div className="flex flex-wrap gap-2 mt-1">
+                                      {detail.phone
+                                        .split(" / ")
+                                        .map((phone, phoneIdx) => (
+                                          <a
+                                            key={phoneIdx}
+                                            href={`tel:${phone.replace(
+                                              /\s/g,
+                                              ""
+                                            )}`}
+                                            className="text-sm text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                                          >
+                                            {phone}
+                                          </a>
+                                        ))}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-muted-foreground">
+                                    {detail}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                            <p className="text-xs text-muted-foreground mt-2 italic">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
 
               <Card className="mt-8 bg-card/30 backdrop-blur border-border/50">

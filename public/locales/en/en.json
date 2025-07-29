@@ -146,8 +146,8 @@
     "addressDetails": "Chișinău MD, Bulevardul Mircea cel Bătrîn 4",
     "addressDesc": "Our office",
     "hoursTitle": "Working hours",
-    "hoursDetails1": "Mon-Fri: 08:00 - 20:00",
-    "hoursDetails2": "Sat-Sun: 09:00 - 18:00",
+    "hoursDetails1": "Mon-Sun: 24/7",
+    "hoursDetails2": "",
     "hoursDesc": "24/7 support",
     "socialTitle": "Social networks",
     "locationTitle": "Our location",
@@ -164,7 +164,8 @@
     "messageSentDesc": "We have received your message and will contact you soon.",
     "sendAnotherMessage": "Send another message",
     "sending": "Sending...",
-    "errorTitle": "Error sending"
+    "errorTitle": "Error sending",
+    "modalDescription": "Choose a phone number to contact us"
   },
   "reservation": {
     "title": "Car reservation",
@@ -263,6 +264,7 @@
     "search": "Search",
     "returnTime": "Return time",
     "selectDates": "Select rental dates",
+    "selectDatesDescription": "Select start and end dates for car rental",
     "message": "Comment",
     "description": "Description",
     "email": "Email",

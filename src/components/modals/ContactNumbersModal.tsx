@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/overlays/dialog";
 import { useTranslation } from "react-i18next";
 
@@ -38,6 +39,9 @@ const ContactNumbersModal = ({ isOpen, onClose }: ContactNumbersModalProps) => {
           <DialogTitle className="text-2xl font-bold text-center">
             {t("contact.title")} {t("contact.titleAccent")}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {t("contact.modalDescription", "Выберите номер телефона для связи с нами")}
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           {contactNumbers.map((contact, index) => (

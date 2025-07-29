@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/overlays/dialog";
 import { format, isToday } from "date-fns";
 import { ru, ro, enUS } from "date-fns/locale";
@@ -186,6 +187,9 @@ export const RentSearchCalendar = ({ onSearch }) => {
           <DialogTitle className="sr-only">
             {t("reservation.selectDates")}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {t("reservation.selectDatesDescription", "Выберите даты начала и окончания аренды автомобиля")}
+          </DialogDescription>
           {/* Header + поля */}
           <div>
             <div
