@@ -1,11 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Special+Gothic+Expanded+One&display=swap');
-
 /* Изолированные стили для логотипа TERRA RENTCAR */
+@font-face {
+  font-family: "Special Gothic Expanded One";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("https://fonts.gstatic.com/s/specialgothic/v1/8vIU7w3pImQnjuI7z_GDd_RZMF9F8.woff2")
+    format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
 .terra-rentcar-logo {
   /* Основной контейнер логотипа */
-  font-family: "Special Gothic Expanded One", sans-serif;
+  font-family: "Special Gothic Expanded One", "Arial Black", "Helvetica Bold",
+    "Impact", sans-serif;
   font-weight: 400;
-  font-style: normal; 
+  font-style: normal;
   line-height: 1.1;
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -29,7 +40,7 @@
   font-style: normal;
   padding-left: 5%;
 
-  font-size: 0.40em;
+  font-size: 0.4em;
   display: block;
   margin-top: -0.35em; /* Подтягиваем ближе к TERRA */
 }
@@ -43,6 +54,17 @@
   .terra-rentcar-logo .rentcar {
     font-size: 0.48em;
   }
+}
+
+/* Состояния загрузки шрифта */
+.terra-rentcar-logo.font-loading {
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.terra-rentcar-logo.font-loaded {
+  opacity: 1;
+  transition: opacity 0.3s ease;
 }
 
 /* Эффекты при наведении (опционально) */
