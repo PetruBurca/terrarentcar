@@ -54,11 +54,16 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
 
     const handleLoad = () => {
       const timeSinceLastRefresh = Date.now() - lastRefreshTime;
-      
+
       // Проверяем двойное обновление или жесткую перезагрузку
-      if (refreshCount.current >= 2 || 
-          (refreshCount.current >= 1 && timeSinceLastRefresh < DOUBLE_REFRESH_THRESHOLD)) {
-        console.log('🔄 Двойное обновление или жесткая перезагрузка обнаружена');
+      if (
+        refreshCount.current >= 2 ||
+        (refreshCount.current >= 1 &&
+          timeSinceLastRefresh < DOUBLE_REFRESH_THRESHOLD)
+      ) {
+        console.log(
+          "🔄 Двойное обновление или жесткая перезагрузка обнаружена"
+        );
         clearAllCache();
         refreshCount.current = 0;
       }
@@ -67,8 +72,8 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
     // Дополнительная проверка для жесткой перезагрузки
     const handleKeyDown = (e: KeyboardEvent) => {
       // Cmd+Shift+R (Mac) или Ctrl+Shift+R (Windows/Linux)
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'R') {
-        console.log('🔄 Жесткая перезагрузка обнаружена');
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "R") {
+        console.log("🔄 Жесткая перезагрузка обнаружена");
         clearAllCache();
       }
     };
@@ -105,6 +110,7 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
       "selected-country-code",
       "active-image-index",
       "selected-car-id",
+      "cookieAccepted", // Добавляем ключ куки
     ];
 
     oldKeysToRemove.forEach((key) => {
@@ -127,6 +133,9 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
     carKeys.forEach((key) => {
       localStorage.removeItem(key);
     });
+    
+    // Также очищаем ключ куки при очистке кэша
+    localStorage.removeItem("cookieAccepted");
 
     // Очищаем Service Worker кэш
     if ("serviceWorker" in navigator && "caches" in window) {
@@ -162,6 +171,7 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
       "selected-country-code",
       "active-image-index",
       "selected-car-id",
+      "cookieAccepted", // Добавляем ключ куки
     ];
 
     oldKeysToRemove.forEach((key) => {
@@ -184,6 +194,9 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
     carKeys.forEach((key) => {
       localStorage.removeItem(key);
     });
+    
+    // Также очищаем ключ куки при очистке localStorage
+    localStorage.removeItem("cookieAccepted");
 
     console.log("✅ LocalStorage очищен (включая кэши машин)");
   };

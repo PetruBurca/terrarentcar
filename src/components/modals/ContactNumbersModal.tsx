@@ -40,7 +40,10 @@ const ContactNumbersModal = ({ isOpen, onClose }: ContactNumbersModalProps) => {
             {t("contact.title")} {t("contact.titleAccent")}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            {t("contact.modalDescription", "Выберите номер телефона для связи с нами")}
+            {t(
+              "contact.modalDescription",
+              "Выберите номер телефона для связи с нами"
+            )}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">

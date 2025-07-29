@@ -54,27 +54,30 @@ const CacheManager = ({
         lastVisitTime,
         // Дополнительные функции для отладки
         forceClear: () => {
-          console.log('🧹 Принудительная очистка кэша');
+          console.log("🧹 Принудительная очистка кэша");
           clearAllCache();
         },
         checkCache: () => {
           const keys = Object.keys(localStorage);
-          const cacheKeys = keys.filter(key => 
-            key.includes('reservation') || 
-            key.includes('search') || 
-            key.includes('uploaded') || 
-            key.includes('privacy') || 
-            key.includes('wizard') || 
-            key.includes('country') || 
-            key.includes('image')
+          const cacheKeys = keys.filter(
+            (key) =>
+              key.includes("reservation") ||
+              key.includes("search") ||
+              key.includes("uploaded") ||
+              key.includes("privacy") ||
+              key.includes("wizard") ||
+              key.includes("country") ||
+              key.includes("image")
           );
-          console.log('📊 Найденные ключи кэша:', cacheKeys);
+          console.log("📊 Найденные ключи кэша:", cacheKeys);
           return cacheKeys;
-        }
+        },
       };
 
       console.log("🔧 CacheManager доступен в window.cacheManager для отладки");
-      console.log('💡 Используйте window.cacheManager.forceClear() для принудительной очистки');
+      console.log(
+        "💡 Используйте window.cacheManager.forceClear() для принудительной очистки"
+      );
     }
   }, [
     clearAllCache,

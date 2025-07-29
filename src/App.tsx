@@ -78,9 +78,21 @@ function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // Проверяем при загрузке
     if (!localStorage.getItem("cookieAccepted")) {
       setVisible(true);
     }
+
+    // Слушаем изменения в localStorage
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "cookieAccepted" && e.newValue === null) {
+        // Если ключ куки был удален, показываем баннер
+        setVisible(true);
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   const acceptCookies = () => {
