@@ -21,7 +21,7 @@ const TerraRentcarLogo: React.FC<TerraRentcarLogoProps> = ({
       className={`font-bold mb-1 leading-tight terra-rentcar-logo ${sizeClasses[size]} ${className}`}
     >
       <span className="terra">TERRA</span>
-      <span className="rentcar">RENTCAR</span>
+      <span className="rentcar">Rent Car</span>
     </h1>
   );
 };

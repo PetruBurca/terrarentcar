@@ -47,10 +47,10 @@ const RentSearch = ({ onSearch }) => {
           {/* Текстовый блок */}
           <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left max-w-xl mx-auto md:mx-0 mt-24">
             <TerraRentcarLogo size="large" />
-            <p className="text-xl md:text-2xl text-[#B90003] mb-4 md:mb-1 font-semibold">
+            <p className="text-xl md:text-2xl text-[#B90003] mb-4 md:mb-1 font-semibold ml-[2%] ">
               {t("hero.slogan")}
             </p>
-            <p className="text-lg text-white mb-6 max-w-2xl hidden md:block">
+            <p className="text-lg text-white mb-6 max-w-2xl hidden md:block ml-[2%]">
               {t("hero.desc1")}
               <br />
               {t("hero.desc2")}
