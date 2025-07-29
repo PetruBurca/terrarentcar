@@ -570,6 +570,14 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
           </a>
           .
         </label>
+        {!privacyAccepted && (
+          <div className="text-red-400 text-xs mt-1">
+            {t(
+              "reservation.privacyRequired",
+              "Необходимо согласие для отправки заявки"
+            )}
+          </div>
+        )}
       </div>
 
       {/* Индикатор шага перед кнопкой */}
