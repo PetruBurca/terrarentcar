@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { FormData, WizardData, UploadedPhotos } from "@/types/reservation";
 
 export function useLocalStorage<T>(
   key: string,
@@ -52,25 +53,28 @@ export function useLocalStorage<T>(
 
 // Хук для кэширования формы бронирования
 export function useReservationForm() {
-  const [formData, setFormData] = useLocalStorage("reservation-form", {
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    pickupDate: "",
-    returnDate: "",
-    pickupTime: "10:00",
-    returnTime: "",
-    message: "",
-    pickupType: "office",
-    idnp: "",
-    pickupAddress: "",
-    unlimitedMileage: false,
-    goldCard: false,
-    clubCard: false,
-    paymentMethod: "cash",
-    paymentOther: "",
-  });
+  const [formData, setFormData] = useLocalStorage<FormData>(
+    "reservation-form",
+    {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      pickupDate: "",
+      returnDate: "",
+      pickupTime: "10:00",
+      returnTime: "",
+      message: "",
+      pickupType: "office" as "office" | "airport" | "address",
+      idnp: "",
+      pickupAddress: "",
+      unlimitedMileage: false,
+      goldCard: false,
+      clubCard: false,
+      paymentMethod: "cash" as "cash" | "card" | "other",
+      paymentOther: "",
+    }
+  );
 
   const [searchDates, setSearchDates] = useLocalStorage("search-dates", {
     from: null,
@@ -79,7 +83,7 @@ export function useReservationForm() {
 
   const [currentStep, setCurrentStep] = useLocalStorage("reservation-step", 0);
 
-  const [uploadedPhotos, setUploadedPhotos] = useLocalStorage(
+  const [uploadedPhotos, setUploadedPhotos] = useLocalStorage<UploadedPhotos>(
     "uploaded-photos",
     {
       front: false,
@@ -92,16 +96,19 @@ export function useReservationForm() {
     false
   );
 
-  const [wizardData, setWizardData] = useLocalStorage("wizard-data", {
-    pickupDate: "",
-    returnDate: "",
-    pickupTime: "10:00",
-    pickupType: "office",
-    pickupAddress: "",
-    unlimitedMileage: false,
-    goldCard: false,
-    clubCard: false,
-  });
+  const [wizardData, setWizardData] = useLocalStorage<WizardData>(
+    "wizard-data",
+    {
+      pickupDate: "",
+      returnDate: "",
+      pickupTime: "10:00",
+      pickupType: "office" as "office" | "airport" | "address",
+      pickupAddress: "",
+      unlimitedMileage: false,
+      goldCard: false,
+      clubCard: false,
+    }
+  );
 
   const [selectedCountryCode, setSelectedCountryCode] = useLocalStorage(
     "selected-country-code",

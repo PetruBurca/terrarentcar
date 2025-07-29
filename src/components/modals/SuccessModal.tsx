@@ -7,28 +7,7 @@ import {
   DialogDescription,
 } from "@/components/ui/overlays/dialog";
 import { useTranslation } from "react-i18next";
-
-interface Car {
-  id: string;
-  name: string;
-  images: string[];
-  price: number;
-  rating: number;
-  passengers: number;
-  transmission: string;
-  year: string;
-  engine: string;
-  drive: string;
-  fuel: string;
-  description_ru?: string;
-  description_ro?: string;
-  description_en?: string;
-  pricePerDay: number;
-  price2to10: number;
-  price11to20: number;
-  price21to29: number;
-  price30plus: number;
-}
+import { Car } from "@/types/reservation";
 
 interface SuccessModalProps {
   isOpen: boolean;

@@ -10,42 +10,25 @@ import { translateCarSpec } from "@/lib/carTranslations";
 import { formatDateRange } from "@/lib/dateHelpers";
 import logo from "@/assets/logo.webp";
 import TimePicker from "@/components/ui/inputs/time-picker-wheel";
-import { CarouselWithCenter } from "./CarouselWithCenter";
-
-interface Car {
-  id: string;
-  name: string;
-  images: string[];
-  price: number;
-  rating: number;
-  passengers: number;
-  transmission: string;
-  year: string;
-  engine: string;
-  drive: string;
-  fuel: string;
-  description_ru?: string;
-  description_ro?: string;
-  description_en?: string;
-  pricePerDay: number;
-  price2to10: number;
-  price11to20: number;
-  price21to29: number;
-  price30plus: number;
-}
+import { CarouselWithCenter } from "@/components/modals/CarouselWithCenter";
+import { Car, FormData, WizardData } from "@/types/reservation";
 
 interface ReservationStep1Props {
   car: Car;
-  formData: any;
-  setFormData: (data: any) => void;
-  wizardData: any;
-  setWizardData: (data: any) => void;
+  formData: FormData;
+  setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
+  wizardData: WizardData;
+  setWizardData: (
+    data: WizardData | ((prev: WizardData) => WizardData)
+  ) => void;
   currentStep: number;
   stepIndicator: string;
   disabledDays: Date[];
   goNext: () => void;
   goBack: () => void;
-  i18n: any;
+  i18n: {
+    language: string;
+  };
 }
 
 export const ReservationStep1: React.FC<ReservationStep1Props> = ({
@@ -273,12 +256,12 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
                   ),
                   variant: "destructive",
                 });
-                setFormData((prev: any) => ({
+                setFormData((prev: FormData) => ({
                   ...prev,
                   pickupDate: "",
                   returnDate: "",
                 }));
-                setWizardData((prev: any) => ({
+                setWizardData((prev: WizardData) => ({
                   ...prev,
                   pickupDate: "",
                   returnDate: "",
@@ -289,12 +272,12 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
               // Если диапазон выбран и пользователь кликает на дату раньше from — сброс и новая дата выдачи
               if (range?.from && range?.to && range.to < range.from) {
                 const pickupDate = toLocalDateString(range.to);
-                setFormData((prev: any) => ({
+                setFormData((prev: FormData) => ({
                   ...prev,
                   pickupDate,
                   returnDate: "",
                 }));
-                setWizardData((prev: any) => ({
+                setWizardData((prev: WizardData) => ({
                   ...prev,
                   pickupDate,
                   returnDate: "",
@@ -305,12 +288,12 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
               // Если только from выбран — это дата выдачи
               if (range?.from && !range?.to) {
                 const pickupDate = toLocalDateString(range.from);
-                setFormData((prev: any) => ({
+                setFormData((prev: FormData) => ({
                   ...prev,
                   pickupDate,
                   returnDate: "",
                 }));
-                setWizardData((prev: any) => ({
+                setWizardData((prev: WizardData) => ({
                   ...prev,
                   pickupDate,
                   returnDate: "",
@@ -322,12 +305,12 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
               if (range?.from && range?.to) {
                 const pickupDate = toLocalDateString(range.from);
                 const returnDate = toLocalDateString(range.to);
-                setFormData((prev: any) => ({
+                setFormData((prev: FormData) => ({
                   ...prev,
                   pickupDate,
                   returnDate,
                 }));
-                setWizardData((prev: any) => ({
+                setWizardData((prev: WizardData) => ({
                   ...prev,
                   pickupDate,
                   returnDate,
@@ -336,12 +319,12 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
               }
 
               // Если ничего не выбрано — сброс
-              setFormData((prev: any) => ({
+              setFormData((prev: FormData) => ({
                 ...prev,
                 pickupDate: "",
                 returnDate: "",
               }));
-              setWizardData((prev: any) => ({
+              setWizardData((prev: WizardData) => ({
                 ...prev,
                 pickupDate: "",
                 returnDate: "",
@@ -369,11 +352,11 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
             <TimePicker
               value={formData.pickupTime}
               onChange={(val) => {
-                setFormData((prev: any) => {
+                setFormData((prev: FormData) => {
                   const newData = { ...prev, pickupTime: val };
                   return newData;
                 });
-                setWizardData((prev: any) => ({
+                setWizardData((prev: WizardData) => ({
                   ...prev,
                   pickupTime: val,
                 }));
@@ -394,7 +377,7 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
           <Switch
             checked={!!wizardData.unlimitedMileage}
             onCheckedChange={(checked) =>
-              setWizardData((d: any) => ({
+              setWizardData((d: WizardData) => ({
                 ...d,
                 unlimitedMileage: !!checked,
               }))
@@ -419,7 +402,7 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
         <RadioGroup
           value={wizardData.pickupType || "office"}
           onValueChange={(val) =>
-            setWizardData((d: any) => ({
+            setWizardData((d: WizardData) => ({
               ...d,
               pickupType: val as "office" | "airport" | "address",
             }))
@@ -431,7 +414,7 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
             <Switch
               checked={wizardData.pickupType === "office"}
               onCheckedChange={(checked) =>
-                setWizardData((d: any) => ({
+                setWizardData((d: WizardData) => ({
                   ...d,
                   pickupType: checked ? "office" : "airport",
                 }))
@@ -443,7 +426,7 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
             <Switch
               checked={wizardData.pickupType === "airport"}
               onCheckedChange={(checked) =>
-                setWizardData((d: any) => ({
+                setWizardData((d: WizardData) => ({
                   ...d,
                   pickupType: checked ? "airport" : "office",
                 }))
@@ -465,13 +448,13 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
                   : ""
               }
               onFocus={() =>
-                setWizardData((d: any) => ({
+                setWizardData((d: WizardData) => ({
                   ...d,
                   pickupType: "address",
                 }))
               }
               onChange={(e) =>
-                setWizardData((d: any) => ({
+                setWizardData((d: WizardData) => ({
                   ...d,
                   pickupType: "address" as const,
                   pickupAddress: e.target.value,

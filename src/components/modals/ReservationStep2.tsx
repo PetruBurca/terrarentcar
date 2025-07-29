@@ -10,34 +10,15 @@ import FuelIcon from "@/assets/logorule/fuel-counter-svgrepo-com.svg";
 import NoDepositIcon from "@/assets/logorule/no-money-poverty-budget-poor-cash-svgrepo-com.svg";
 import SpeedIcon from "@/assets/logorule/website-performance-internet-svgrepo-com.svg";
 import AggressiveIcon from "@/assets/logorule/fast-acceleration-svgrepo-com.svg";
-
-interface Car {
-  id: string;
-  name: string;
-  images: string[];
-  price: number;
-  rating: number;
-  passengers: number;
-  transmission: string;
-  year: string;
-  engine: string;
-  drive: string;
-  fuel: string;
-  description_ru?: string;
-  description_ro?: string;
-  description_en?: string;
-  pricePerDay: number;
-  price2to10: number;
-  price11to20: number;
-  price21to29: number;
-  price30plus: number;
-}
+import { Car, FormData, WizardData } from "@/types/reservation";
 
 interface ReservationStep2Props {
   car: Car;
-  formData: any;
-  wizardData: any;
-  setWizardData: (data: any) => void;
+  formData: FormData;
+  wizardData: WizardData;
+  setWizardData: (
+    data: WizardData | ((prev: WizardData) => WizardData)
+  ) => void;
   currentStep: number;
   stepIndicator: string;
   calculateDays: () => number;
@@ -46,7 +27,9 @@ interface ReservationStep2Props {
   finalRentalCost: number;
   goNext: () => void;
   goBack: () => void;
-  i18n: any;
+  i18n: {
+    language: string;
+  };
 }
 
 export const ReservationStep2: React.FC<ReservationStep2Props> = ({
@@ -168,7 +151,7 @@ export const ReservationStep2: React.FC<ReservationStep2Props> = ({
             wizardData.goldCard ? "gold" : wizardData.clubCard ? "club" : "none"
           }
           onValueChange={(value) =>
-            setWizardData((d: any) => ({
+            setWizardData((d: WizardData) => ({
               ...d,
               goldCard: value === "gold",
               clubCard: value === "club",

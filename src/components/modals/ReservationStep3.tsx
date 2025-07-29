@@ -16,35 +16,16 @@ import { useTranslation } from "react-i18next";
 // Примеры фото паспорта
 import PasportFront from "@/assets/pasport/front.png";
 import PasportBack from "@/assets/pasport/back.png";
-
-interface Car {
-  id: string;
-  name: string;
-  images: string[];
-  price: number;
-  rating: number;
-  passengers: number;
-  transmission: string;
-  year: string;
-  engine: string;
-  drive: string;
-  fuel: string;
-  description_ru?: string;
-  description_ro?: string;
-  description_en?: string;
-  pricePerDay: number;
-  price2to10: number;
-  price11to20: number;
-  price21to29: number;
-  price30plus: number;
-}
+import { Car, FormData, UploadedPhotos } from "@/types/reservation";
 
 interface ReservationStep3Props {
   car: Car;
-  formData: any;
-  setFormData: (data: any) => void;
-  uploadedPhotos: any;
-  setUploadedPhotos: (data: any) => void;
+  formData: FormData;
+  setFormData: (data: FormData | ((prev: FormData) => FormData)) => void;
+  uploadedPhotos: UploadedPhotos;
+  setUploadedPhotos: (
+    data: UploadedPhotos | ((prev: UploadedPhotos) => UploadedPhotos)
+  ) => void;
   privacyAccepted: boolean;
   setPrivacyAccepted: (accepted: boolean) => void;
   selectedCountryCode: string;
@@ -100,10 +81,10 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setFormData({
-      ...formData,
+    setFormData((prev: FormData) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
   // Список стран с кодами
@@ -169,7 +150,7 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
         <RadioGroup
           value={formData.paymentMethod || "cash"}
           onValueChange={(val) =>
-            setFormData((d: any) => ({
+            setFormData((d: FormData) => ({
               ...d,
               paymentMethod: val as "cash" | "card" | "other",
             }))
@@ -181,7 +162,7 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
             <Switch
               checked={formData.paymentMethod === "cash"}
               onCheckedChange={(checked) =>
-                setFormData((d: any) => ({
+                setFormData((d: FormData) => ({
                   ...d,
                   paymentMethod: checked ? "cash" : "card",
                 }))
@@ -193,7 +174,7 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
             <Switch
               checked={formData.paymentMethod === "card"}
               onCheckedChange={(checked) =>
-                setFormData((d: any) => ({
+                setFormData((d: FormData) => ({
                   ...d,
                   paymentMethod: checked ? "card" : "cash",
                 }))
@@ -213,13 +194,13 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
                   : ""
               }
               onFocus={() =>
-                setFormData((d: any) => ({
+                setFormData((d: FormData) => ({
                   ...d,
                   paymentMethod: "other",
                 }))
               }
               onChange={(e) =>
-                setFormData((d: any) => ({
+                setFormData((d: FormData) => ({
                   ...d,
                   paymentMethod: "other" as const,
                   paymentOther: e.target.value,
@@ -293,10 +274,10 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
           onChange={(e) => {
             // Разрешаем только цифры и максимум 13 символов
             const value = e.target.value.replace(/\D/g, "").slice(0, 13);
-            setFormData({
-              ...formData,
+            setFormData((prev: FormData) => ({
+              ...prev,
               idnp: value,
-            });
+            }));
           }}
           maxLength={13}
           pattern="[0-9]{13}"
@@ -318,7 +299,7 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
               required
               onChange={(e) => {
                 if (e.target.files && e.target.files[0]) {
-                  setUploadedPhotos((prev: any) => ({
+                  setUploadedPhotos((prev: UploadedPhotos) => ({
                     ...prev,
                     front: true,
                   }));
@@ -392,7 +373,7 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
               required
               onChange={(e) => {
                 if (e.target.files && e.target.files[0]) {
-                  setUploadedPhotos((prev: any) => ({
+                  setUploadedPhotos((prev: UploadedPhotos) => ({
                     ...prev,
                     back: true,
                   }));
@@ -526,10 +507,10 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
               // Ограничиваем до 9 цифр (0 + код оператора + номер)
               const limitedDigits = digitsOnly.slice(0, 9);
 
-              setFormData({
-                ...formData,
+              setFormData((prev: FormData) => ({
+                ...prev,
                 phone: selectedCountryCode + limitedDigits,
-              });
+              }));
             }}
             maxLength={13}
             required

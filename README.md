@@ -44,10 +44,23 @@ npm run dev
 
 - **Airtable:**  
   Создайте базу с таблицами “Автомобили (Cars)” и “Заявки на аренду”.  
-  Пропишите свой токен и ID базы в `src/lib/airtable.ts`.
+  Получите токен API в настройках Airtable.
 
-- **.env:**  
-  Для продакшена используйте переменные окружения для токена Airtable!
+- **Firebase:**  
+  Создайте проект Firebase и настройте Storage для загрузки файлов.
+
+- **Переменные окружения:**
+
+  ```bash
+  # Скопируйте .env.example в .env
+  cp .env.example .env
+
+  # Заполните реальными значениями
+  VITE_AIRTABLE_BASE_ID=your_base_id
+  VITE_AIRTABLE_TOKEN=your_token
+  VITE_FIREBASE_API_KEY=your_firebase_key
+  # ... остальные переменные
+  ```
 
 ---
 

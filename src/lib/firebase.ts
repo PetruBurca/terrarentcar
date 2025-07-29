@@ -3,12 +3,21 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // Конфигурация Firebase для проекта terrarentcar-f1fda
 const firebaseConfig = {
-  apiKey: "AIzaSyCnH5K4RB7i5RNgDthSK0wPAiM0wTkYnAE",
-  authDomain: "terrarentcar-f1fda.firebaseapp.com",
-  projectId: "terrarentcar-f1fda",
-  storageBucket: "terrarentcar-f1fda.firebasestorage.app",
-  messagingSenderId: "114261195759",
-  appId: "1:114261195759:web:33356a53fcd35612d2541a"
+  apiKey:
+    import.meta.env.VITE_FIREBASE_API_KEY ||
+    "AIzaSyCnH5K4RB7i5RNgDthSK0wPAiM0wTkYnAE",
+  authDomain:
+    import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ||
+    "terrarentcar-f1fda.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "terrarentcar-f1fda",
+  storageBucket:
+    import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ||
+    "terrarentcar-f1fda.firebasestorage.app",
+  messagingSenderId:
+    import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "114261195759",
+  appId:
+    import.meta.env.VITE_FIREBASE_APP_ID ||
+    "1:114261195759:web:33356a53fcd35612d2541a",
 };
 
 // Инициализация Firebase
@@ -51,4 +60,3 @@ export async function getFileURL(filePath: string): Promise<string> {
     throw error;
   }
 }
- 

@@ -20,28 +20,11 @@ import { ReservationStep1 } from "./ReservationStep1";
 import { ReservationStep2 } from "./ReservationStep2";
 import { ReservationStep3 } from "./ReservationStep3";
 import { SuccessModal } from "./SuccessModal";
-
-interface Car {
-  id: string;
-  name: string;
-  images: string[];
-  price: number;
-  rating: number;
-  passengers: number;
-  transmission: string;
-  year: string;
-  engine: string;
-  drive: string;
-  fuel: string;
-  description_ru?: string;
-  description_ro?: string;
-  description_en?: string;
-  pricePerDay: number;
-  price2to10: number;
-  price11to20: number;
-  price21to29: number;
-  price30plus: number;
-}
+import {
+  Car,
+  FormData as ReservationFormData,
+  WizardData,
+} from "@/types/reservation";
 
 interface CarReservationModalProps {
   isOpen: boolean;
@@ -51,20 +34,6 @@ interface CarReservationModalProps {
 
 // Wizard steps
 const STEPS = ["main", "summary", "personal"];
-
-type WizardData = {
-  // Все поля для бронирования, по мере добавления шагов
-  pickupDate?: string;
-  returnDate?: string;
-  pickupTime?: string;
-  returnTime?: string;
-  unlimitedMileage?: boolean;
-  pickupType?: "office" | "airport" | "address";
-  pickupAddress?: string;
-  goldCard?: boolean;
-  clubCard?: boolean;
-  // ... и т.д.
-};
 
 const CarReservationModal = ({
   isOpen,
@@ -107,7 +76,7 @@ const CarReservationModal = ({
 
     setIsSubmitting(true);
     const form = e.target as HTMLFormElement;
-    const formDataObj = new FormData(form);
+    const formDataObj = new globalThis.FormData(form);
 
     try {
       await createOrder({
