@@ -159,7 +159,7 @@ const About = () => {
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             {t("about.title")}{" "}
-            <span className="gradient-text">Terra Rent Car</span>
+            <span className="gradient-text">TerraRentCar</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             {t("about.slogan")}
@@ -185,7 +185,7 @@ const About = () => {
 
                 {/* Floating icon with enhanced animation */}
                 <div className="relative bg-primary/10 p-4 rounded-full w-fit mx-auto mb-4 group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 feature-icon">
-                  <feature.icon className="h-8 w-8 text-primary group-hover:text-primary/80 transition-colors duration-300" />
+                  <feature.icon className="h-8 w-8 text-white group-hover:text-white/80 transition-colors duration-300" />
                   {/* Enhanced pulse ring effect */}
                   <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-ping opacity-0 group-hover:opacity-100" />
                   <div className="absolute inset-0 rounded-full border border-primary/20 animate-pulse opacity-0 group-hover:opacity-100" />
@@ -273,7 +273,7 @@ const About = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <div className="text-2xl font-bold text-foreground">
-                        500+
+                        15000+
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {t("about.clients")}
@@ -281,7 +281,7 @@ const About = () => {
                     </div>
                     <div>
                       <div className="text-2xl font-bold text-foreground">
-                        50+
+                        70+
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {t("about.cars")}

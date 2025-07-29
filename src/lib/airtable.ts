@@ -159,6 +159,8 @@ export async function createOrder(order: {
   unlimitedMileage?: boolean;
   goldCard?: boolean;
   clubCard?: boolean;
+  paymentMethod?: string;
+  paymentOther?: string;
   idPhotoFront?: File;
   idPhotoBack?: File;
   totalCost?: number;
@@ -255,6 +257,20 @@ export async function createOrder(order: {
   // Club карта - Флажок (чекбокс)
   if (order.clubCard === true) {
     fields["Club карта"] = true;
+  }
+
+  // Способ оплаты
+  if (order.paymentMethod) {
+    if (order.paymentMethod === "cash") {
+      fields["Способ оплаты"] = "Наличные";
+    } else if (order.paymentMethod === "card") {
+      fields["Способ оплаты"] = "Карта";
+    } else if (order.paymentMethod === "other") {
+      fields["Способ оплаты"] = "Другое";
+      if (order.paymentOther) {
+        fields["Детали оплаты"] = order.paymentOther;
+      }
+    }
   }
 
   if (order.totalCost !== undefined) {

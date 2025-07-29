@@ -13,9 +13,11 @@ function TimePicker({ value, onChange, onClose }) {
 
   const hourRef = useRef(null);
   const minuteRef = useRef(null);
-  const [buffer, setBuffer] = useState(40 * 2); // default 80px
+  const [buffer, setBuffer] = useState(40 * 3); // Увеличиваем буфер для бесконечности
   const didInitScrollHour = useRef(false);
   const didInitScrollMinute = useRef(false);
+  const [hourScrollTop, setHourScrollTop] = useState(0);
+  const [minuteScrollTop, setMinuteScrollTop] = useState(0);
 
   useEffect(() => {
     // Вычисляем buffer динамически
@@ -29,14 +31,52 @@ function TimePicker({ value, onChange, onClose }) {
   // Скроллим к выбранному значению только при открытии
   useEffect(() => {
     if (!didInitScrollHour.current && hourRef.current) {
-      scrollToIndex(hourRef, hour);
+      const initialScroll = hour * 40;
+      hourRef.current.scrollTop = initialScroll;
+      setHourScrollTop(initialScroll);
       didInitScrollHour.current = true;
     }
     if (!didInitScrollMinute.current && minuteRef.current) {
-      scrollToIndex(minuteRef, minute);
+      const initialScroll = minute * 40;
+      minuteRef.current.scrollTop = initialScroll;
+      setMinuteScrollTop(initialScroll);
       didInitScrollMinute.current = true;
     }
   }, []);
+
+  const handleHourScroll = () => {
+    if (hourRef.current) {
+      const scrollTop = hourRef.current.scrollTop;
+      setHourScrollTop(scrollTop);
+
+      // Вычисляем текущий час на основе позиции скролла
+      const currentHour = Math.round(scrollTop / 40) % 24;
+      if (currentHour !== hour) {
+        setHour(currentHour);
+        const newTime = `${currentHour.toString().padStart(2, "0")}:${minute
+          .toString()
+          .padStart(2, "0")}`;
+        onChange(newTime);
+      }
+    }
+  };
+
+  const handleMinuteScroll = () => {
+    if (minuteRef.current) {
+      const scrollTop = minuteRef.current.scrollTop;
+      setMinuteScrollTop(scrollTop);
+
+      // Вычисляем текущую минуту на основе позиции скролла
+      const currentMinute = Math.round(scrollTop / 40) % 60;
+      if (currentMinute !== minute) {
+        setMinute(currentMinute);
+        const newTime = `${hour.toString().padStart(2, "0")}:${currentMinute
+          .toString()
+          .padStart(2, "0")}`;
+        onChange(newTime);
+      }
+    }
+  };
 
   const scrollToIndex = (ref, idx) => {
     if (ref.current) {
@@ -51,21 +91,11 @@ function TimePicker({ value, onChange, onClose }) {
   const handleHourClick = (h, idx) => {
     setHour(h);
     scrollToIndex(hourRef, idx);
-    // Вызываем onChange сразу при изменении часа
-    const newTime = `${h.toString().padStart(2, "0")}:${minute
-      .toString()
-      .padStart(2, "0")}`;
-    onChange(newTime);
   };
 
   const handleMinuteClick = (m, idx) => {
     setMinute(m);
     scrollToIndex(minuteRef, idx);
-    // Вызываем onChange сразу при изменении минут
-    const newTime = `${hour.toString().padStart(2, "0")}:${m
-      .toString()
-      .padStart(2, "0")}`;
-    onChange(newTime);
   };
 
   const handleOk = () => {
@@ -77,73 +107,140 @@ function TimePicker({ value, onChange, onClose }) {
     onClose();
   };
 
+  // Функция для создания бесконечного массива чисел
+  const createInfiniteArray = (array) => {
+    return [...array, ...array, ...array]; // Три копии для бесконечности
+  };
+
+  const infiniteHours = createInfiniteArray(hours);
+  const infiniteMinutes = createInfiniteArray(minutes);
+
+  // Функция для получения стиля элемента на основе расстояния от центра
+  const getItemStyle = (scrollTop, index) => {
+    const centerIndex = Math.round(scrollTop / 40);
+    const distance = Math.abs(index - centerIndex);
+
+    if (distance === 0) {
+      return {
+        color: "#ffffff",
+        fontWeight: 600,
+        fontSize: "1.1em",
+        transform: "scale(1.05)",
+        opacity: 1,
+      };
+    } else if (distance === 1) {
+      return {
+        color: "#d1d5db",
+        fontWeight: 500,
+        fontSize: "1em",
+        transform: "scale(1)",
+        opacity: 0.8,
+      };
+    } else if (distance === 2) {
+      return {
+        color: "#9ca3af",
+        fontWeight: 400,
+        fontSize: "0.95em",
+        transform: "scale(0.95)",
+        opacity: 0.4,
+      };
+    } else {
+      return {
+        color: "#6b7280",
+        fontWeight: 300,
+        fontSize: "0.9em",
+        transform: "scale(0.9)",
+        opacity: 0.2,
+      };
+    }
+  };
+
   return (
     <>
       <style>{`
-        .custom-scrollbar {
-          scrollbar-width: thin;
-          scrollbar-color: #facc15 #232325;
+        .time-picker-scrollbar {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
         }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-          background: #232325;
+        .time-picker-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .time-picker-item {
+          transition: all 0.3s ease-out;
+          position: relative;
+          cursor: pointer;
+        }
+        .time-picker-item:hover {
+          color: #ffffff !important;
+          opacity: 1 !important;
+        }
+        .center-line {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          height: 40px;
+          background: rgba(185, 0, 3, 0.15);
+          border: 1px solid rgba(185, 0, 3, 0.3);
           border-radius: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #facc15;
-          border-radius: 8px;
-          border: 2px solid #232325;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #ffe066;
+          pointer-events: none;
+          z-index: 5;
         }
       `}</style>
       <div className="relative w-full max-w-xs mx-auto flex flex-col items-center bg-[#232325] rounded-2xl p-4 shadow-xl z-10">
-        {/* Заголовок убран, теперь он должен быть снаружи компонента */}
         <div className="flex gap-4 relative h-48 w-full justify-center">
-          {/* Акцентная область */}
-          <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-10 bg-gray-500/40 rounded-lg pointer-events-none z-10" />
+          {/* Центральная линия выделения */}
+          <div className="center-line" />
+
           {/* Часы */}
           <div
             ref={hourRef}
-            className="flex-1 h-full overflow-y-auto snap-y snap-mandatory custom-scrollbar"
+            className="flex-1 h-full overflow-y-auto snap-y snap-mandatory time-picker-scrollbar relative"
             style={{ minWidth: 60 }}
+            onScroll={handleHourScroll}
           >
             <div style={{ height: buffer }} />
-            {hours.map((h, idx) => (
-              <div
-                key={h}
-                className={`h-10 flex items-center justify-center text-lg snap-center cursor-pointer transition-all duration-300 text-white ${
-                  hour === h ? "font-bold  rounded" : ""
-                }`}
-                onClick={() => handleHourClick(h, idx)}
-              >
-                {h.toString().padStart(2, "0")}
-              </div>
-            ))}
+            {infiniteHours.map((h, idx) => {
+              const style = getItemStyle(hourScrollTop, idx);
+
+              return (
+                <div
+                  key={`hour-${idx}`}
+                  className="h-10 flex items-center justify-center text-lg snap-center time-picker-item"
+                  style={style}
+                  onClick={() => handleHourClick(h, idx)}
+                >
+                  {h.toString().padStart(2, "0")}
+                </div>
+              );
+            })}
             <div style={{ height: buffer }} />
-            {/* Удаляю подпись 'часы' */}
           </div>
+
           {/* Минуты */}
           <div
             ref={minuteRef}
-            className="flex-1 h-full overflow-y-auto snap-y snap-mandatory custom-scrollbar"
+            className="flex-1 h-full overflow-y-auto snap-y snap-mandatory time-picker-scrollbar relative"
             style={{ minWidth: 60 }}
+            onScroll={handleMinuteScroll}
           >
             <div style={{ height: buffer }} />
-            {minutes.map((m, idx) => (
-              <div
-                key={m}
-                className={`h-10 flex items-center justify-center text-lg snap-center cursor-pointer transition-all duration-300 text-white ${
-                  minute === m ? "font-bold  rounded" : ""
-                }`}
-                onClick={() => handleMinuteClick(m, idx)}
-              >
-                {m.toString().padStart(2, "0")}
-              </div>
-            ))}
+            {infiniteMinutes.map((m, idx) => {
+              const style = getItemStyle(minuteScrollTop, idx);
+
+              return (
+                <div
+                  key={`minute-${idx}`}
+                  className="h-10 flex items-center justify-center text-lg snap-center time-picker-item"
+                  style={style}
+                  onClick={() => handleMinuteClick(m, idx)}
+                >
+                  {m.toString().padStart(2, "0")}
+                </div>
+              );
+            })}
             <div style={{ height: buffer }} />
-            {/* Удаляю подпись 'минуты' */}
           </div>
         </div>
       </div>

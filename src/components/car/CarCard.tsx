@@ -125,7 +125,7 @@ const CarCard = memo(
               </Badge>
             </div>
             <div className="absolute top-4 right-4 flex items-center space-x-1 bg-background/80 backdrop-blur px-2 py-1 rounded-full">
-              <Star className="h-3 w-3 fill-primary text-primary" />
+              <Star className="h-3 w-3 fill-[#B90003] text-[#B90003]" />
               <span className="text-xs font-medium">{rating}</span>
             </div>
           </div>
@@ -193,8 +193,9 @@ const CarCard = memo(
 
             <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-2xl font-bold text-primary">
-                  ${price}
+                <span className="text-2xl font-bold">
+                  <span className="text-white">€</span>
+                  <span className="text-white">{price}</span>
                 </span>
                 <span className="text-muted-foreground">
                   {t("cars.perDay")}

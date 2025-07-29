@@ -32,6 +32,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchOrders } from "@/lib/airtable";
 import TimePicker from "@/components/ui/inputs/time-picker-wheel";
 import { Checkbox } from "@/components/ui/forms/checkbox";
+import { Switch } from "@/components/ui/forms/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/forms/radio-group";
 import {
   Select,
@@ -213,9 +214,11 @@ const CarReservationModal = ({
         unlimitedMileage: formData.unlimitedMileage,
         goldCard: formData.goldCard,
         clubCard: formData.clubCard,
+        paymentMethod: formData.paymentMethod,
+        paymentOther: formData.paymentOther,
         idPhotoFront: formDataObj.get("idPhotoFront") as File,
         idPhotoBack: formDataObj.get("idPhotoBack") as File,
-        totalCost: totalPrice + 20,
+        totalCost: finalRentalCost + 20,
       });
       // Показываем модальное окно успеха
       setShowSuccessModal(true);
@@ -253,6 +256,22 @@ const CarReservationModal = ({
   };
   const pricePerDay = getPricePerDay(days);
   const totalPrice = pricePerDay * days;
+
+  // Функция для расчета скидки по карте
+  const calculateDiscount = (basePrice: number) => {
+    if (wizardData.goldCard) {
+      return basePrice * 0.25; // 25% скидка для Gold карты
+    } else if (wizardData.clubCard) {
+      return basePrice * 0.1; // 10% скидка для Club карты
+    }
+    return 0; // Нет скидки
+  };
+
+  // Расчет стоимости с учетом скидки
+  const baseRentalCost =
+    totalPrice + (wizardData.unlimitedMileage ? calculateDays() * 20 : 0);
+  const discount = calculateDiscount(baseRentalCost);
+  const finalRentalCost = baseRentalCost - discount;
 
   // Валидация для каждого шага
   const validateStep = (stepIndex: number): boolean => {
@@ -400,14 +419,14 @@ const CarReservationModal = ({
           });
           return false;
         }
-        // Проверка IDNP (должен содержать минимум 10 цифр)
+        // Проверка IDNP (должен содержать ровно 13 цифр)
         const idnpDigits = formData.idnp.replace(/\D/g, "");
-        if (idnpDigits.length < 10) {
+        if (idnpDigits.length !== 13) {
           toast({
             title: t("validation.error", "Ошибка валидации"),
             description: t(
               "validation.idnpInvalid",
-              "IDNP должен содержать минимум 10 цифр"
+              "IDNP должен содержать ровно 13 цифр"
             ),
             variant: "destructive",
           });
@@ -644,7 +663,7 @@ const CarReservationModal = ({
           {/* Крестик всегда сверху справа */}
           <button
             onClick={isSubmitting ? undefined : onClose}
-            className={`absolute top-3 right-3 z-20 text-3xl text-yellow-400 hover:text-yellow-200 transition md:top-4 md:right-4 ${
+            className={`absolute top-3 right-3 z-20 text-3xl text-[#ffffff] hover:text-[#686868] transition md:top-4 md:right-4 ${
               isSubmitting ? "opacity-50 cursor-not-allowed" : ""
             }`}
             aria-label={t("reservation.cancel")}
@@ -685,7 +704,7 @@ const CarReservationModal = ({
                         <button
                           type="button"
                           onClick={handlePrev}
-                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-yellow-400 rounded-full p-1 hover:bg-yellow-500 transition"
+                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-[#B90003] rounded-full p-1 hover:bg-[#A00002] transition"
                           aria-label="Prev"
                         >
                           &#8592;
@@ -693,7 +712,7 @@ const CarReservationModal = ({
                         <button
                           type="button"
                           onClick={handleNext}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-yellow-400 rounded-full p-1 hover:bg-yellow-500 transition"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-[#B90003] rounded-full p-1 hover:bg-[#A00002] transition"
                           aria-label="Next"
                         >
                           &#8594;
@@ -711,7 +730,7 @@ const CarReservationModal = ({
                           alt={`thumb-${idx}`}
                           className={`w-14 h-14 object-cover rounded cursor-pointer border-2 ${
                             activeIndex === idx
-                              ? "border-yellow-400"
+                              ? "border-[#B90003]"
                               : "border-gray-700"
                           }`}
                           onClick={() => setActiveIndex(idx)}
@@ -746,7 +765,7 @@ const CarReservationModal = ({
                     },
                   ]}
                   title={t("reservation.priceTitle")}
-                  colorCenter="bg-yellow-400 text-black"
+                  colorCenter="bg-[#B90003] text-white"
                   colorSide="bg-gray-800 text-white opacity-60"
                   valueSuffix="€"
                 />
@@ -788,7 +807,7 @@ const CarReservationModal = ({
                     },
                   ]}
                   title={t("reservation.featuresTitle")}
-                  colorCenter="bg-yellow-400 text-black"
+                  colorCenter="bg-[#B90003] text-white"
                   colorSide="bg-gray-800 text-white opacity-60"
                 />
 
@@ -875,10 +894,11 @@ const CarReservationModal = ({
                       className="rounded-xl bg-zinc-900/80 border border-zinc-700 shadow-lg p-2 text-white"
                       classNames={{
                         day_selected:
-                          "bg-yellow-400 text-black hover:bg-yellow-500",
-                        day_range_end: "bg-yellow-500 text-black",
-                        day_today: "border-yellow-400 border-2",
-                        nav_button: "hover:bg-yellow-400/20",
+                          "bg-[#B90003] text-white hover:bg-[#A00002]",
+                        day_range_middle: "bg-[#B90003]/30 text-white",
+                        day_range_end: "bg-[#A00002] text-white",
+                        day_today: "border-[#B90003] border-2",
+                        nav_button: "hover:bg-[#B90003]/20",
                       }}
                       modifiersClassNames={{
                         disabled: "calendar-day-disabled-strike",
@@ -910,7 +930,7 @@ const CarReservationModal = ({
                   </h3>
                   <div className="flex items-center justify-between bg-gray-700 rounded-lg px-4 py-3 mb-2">
                     <span>{t("reservation.unlimitedMileage")}</span>
-                    <Checkbox
+                    <Switch
                       checked={!!wizardData.unlimitedMileage}
                       onCheckedChange={(checked) =>
                         setWizardData((d) => ({
@@ -918,9 +938,16 @@ const CarReservationModal = ({
                           unlimitedMileage: !!checked,
                         }))
                       }
-                      className="data-[state=checked]:bg-yellow-400 border-yellow-400"
                     />
                   </div>
+                  {/* Сообщение о стоимости двойного километража */}
+                  {wizardData.unlimitedMileage && (
+                    <div className="bg-[#B90003]/10 border border-[#B90003]/20 rounded-lg px-4 py-2 mb-2">
+                      <p className="text-[#B90003] text-sm text-center">
+                        {t("reservation.unlimitedMileageDesc")}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Как забрать машину */}
@@ -940,19 +967,29 @@ const CarReservationModal = ({
                   >
                     <label className="flex items-center justify-between cursor-pointer">
                       <span>{t("reservation.pickupOffice")}</span>
-                      <RadioGroupItem
-                        value="office"
-                        className="data-[state=checked]:bg-yellow-400 border-yellow-400"
+                      <Switch
+                        checked={wizardData.pickupType === "office"}
+                        onCheckedChange={(checked) =>
+                          setWizardData((d) => ({
+                            ...d,
+                            pickupType: checked ? "office" : "airport",
+                          }))
+                        }
                       />
                     </label>
                     <label className="flex items-center justify-between cursor-pointer">
                       <span>{t("reservation.pickupAirport")}</span>
-                      <RadioGroupItem
-                        value="airport"
-                        className="data-[state=checked]:bg-yellow-400 border-yellow-400"
+                      <Switch
+                        checked={wizardData.pickupType === "airport"}
+                        onCheckedChange={(checked) =>
+                          setWizardData((d) => ({
+                            ...d,
+                            pickupType: checked ? "airport" : "office",
+                          }))
+                        }
                       />
                     </label>
-                    <div className="border-t border-yellow-500 my-2"></div>
+                    <div className="border-t border-[#B90003] my-2"></div>
                     <label className="flex flex-col gap-1 cursor-pointer">
                       <span className="text-center">
                         {t("reservation.pickupAddress")}
@@ -986,20 +1023,20 @@ const CarReservationModal = ({
 
                 {/* Индикатор шага перед кнопкой */}
                 <div className="w-full flex justify-center mb-1">
-                  <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
+                  <span className="text-sm font-semibold text-[#B90003] bg-black/30 rounded px-3 py-1">
                     {t("reservation.step")} {stepIndicator}
                   </span>
                 </div>
                 {/* Шаг 1: компактные отступы */}
                 <Button
-                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-black text-lg font-bold py-3 rounded-xl"
+                  className="w-full bg-[#B90003] hover:bg-[#A00002] text-white text-lg font-bold py-3 rounded-xl"
                   onClick={goNext}
                   disabled={!formData.pickupDate || !formData.returnDate}
                 >
                   {t("reservation.next")}
                 </Button>
                 <Button
-                  className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl"
+                  className="w-full mt-2 bg-black text-[#B90003] border-[#B90003] border-2 text-lg font-bold py-3 rounded-xl"
                   variant="outline"
                   onClick={goBack}
                 >
@@ -1016,10 +1053,10 @@ const CarReservationModal = ({
 
                 {/* Период аренды */}
                 <div className="mb-3">
-                  <div className="text-lg font-bold text-yellow-400 mb-1">
+                  <div className="text-lg font-bold text-[#B90003] mb-1">
                     {t("reservation.periodTitle")}
                   </div>
-                  <div className="bg-zinc-900 rounded-xl px-4 py-3 flex flex-col gap-1 border border-yellow-400">
+                  <div className="bg-zinc-900 rounded-xl px-4 py-3 flex flex-col gap-1 border border-[#B90003]">
                     {formData.pickupDate && formData.returnDate ? (
                       <div className="text-white text-base font-semibold text-center">
                         {(() => {
@@ -1031,11 +1068,11 @@ const CarReservationModal = ({
                           return (
                             <>
                               {dates.start}
-                              <span className="mx-2 text-yellow-400 font-bold">
+                              <span className="mx-2 text-[#B90003] font-bold">
                                 —
                               </span>
                               {dates.end}
-                              <span className="ml-2 text-yellow-400 font-bold">
+                              <span className="ml-2 text-[#fffffff2] font-bold">
                                 {formData.pickupTime}
                               </span>
                             </>
@@ -1052,10 +1089,10 @@ const CarReservationModal = ({
 
                 {/* Геолокация */}
                 <div className="mb-3">
-                  <div className="text-lg font-bold text-yellow-400 mb-1">
+                  <div className="text-lg font-bold text-[#B90003] mb-1">
                     {t("reservation.geoTitle")}
                   </div>
-                  <div className="bg-zinc-900 rounded-xl px-4 py-3 text-base text-white border border-yellow-400">
+                  <div className="bg-zinc-900 rounded-xl px-4 py-3 text-base text-white border border-[#B90003]">
                     {wizardData.pickupType === "office" ||
                     !wizardData.pickupType
                       ? t("reservation.officeAddress")
@@ -1068,10 +1105,10 @@ const CarReservationModal = ({
 
                 {/* Правила пользования автомобилем */}
                 <div className="mb-3">
-                  <div className="text-lg font-bold mb-2 text-yellow-400">
+                  <div className="text-lg font-bold mb-2 text-[#B90003]">
                     {t("reservation.rulesTitle")}
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-zinc-900 rounded-xl p-4 border border-yellow-400">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-zinc-900 rounded-xl p-4 border border-[#B90003]">
                     <div className="flex items-center gap-3 text-white">
                       <img
                         src={NoSmokeIcon}
@@ -1121,39 +1158,43 @@ const CarReservationModal = ({
 
                 {/* Карта постоянного клиента */}
                 <div className="mb-3">
-                  <div className="text-xl font-bold text-center mb-2 text-yellow-400">
+                  <div className="text-xl font-bold text-center mb-2 text-[#B90003]">
                     {t("reservation.clientCardTitle")}
                   </div>
-                  <div className="flex flex-col gap-2 bg-zinc-900 rounded-xl p-4 border border-yellow-400">
+                  <RadioGroup
+                    value={
+                      wizardData.goldCard
+                        ? "gold"
+                        : wizardData.clubCard
+                        ? "club"
+                        : "none"
+                    }
+                    onValueChange={(value) =>
+                      setWizardData((d) => ({
+                        ...d,
+                        goldCard: value === "gold",
+                        clubCard: value === "club",
+                      }))
+                    }
+                    className="flex flex-col gap-2 bg-zinc-900 rounded-xl p-4 border border-[#B90003]"
+                  >
                     <label className="flex items-center gap-3 cursor-pointer">
+                      <RadioGroupItem value="gold" className="text-[#B90003]" />
                       <span>{t("reservation.goldCard")}</span>
-                      <Checkbox
-                        checked={!!wizardData.goldCard}
-                        onCheckedChange={(checked) =>
-                          setWizardData((d) => ({ ...d, goldCard: !!checked }))
-                        }
-                        className="data-[state=checked]:bg-yellow-400 border-yellow-400"
-                      />
                     </label>
                     <label className="flex items-center gap-3 cursor-pointer">
+                      <RadioGroupItem value="club" className="text-[#B90003]" />
                       <span>{t("reservation.clubCard")}</span>
-                      <Checkbox
-                        checked={!!wizardData.clubCard}
-                        onCheckedChange={(checked) =>
-                          setWizardData((d) => ({ ...d, clubCard: !!checked }))
-                        }
-                        className="data-[state=checked]:bg-yellow-400 border-yellow-400"
-                      />
                     </label>
-                  </div>
+                  </RadioGroup>
                 </div>
 
                 {/* Стоимость */}
                 <div className="mb-0">
-                  <div className="text-lg font-bold text-yellow-400 mb-2">
+                  <div className="text-lg font-bold text-[#B90003] mb-2">
                     {t("reservation.costTitle")}
                   </div>
-                  <div className="bg-zinc-900 rounded-xl p-4 flex flex-col gap-2 text-white border border-yellow-400">
+                  <div className="bg-zinc-900 rounded-xl p-4 flex flex-col gap-2 text-white border border-[#B90003]">
                     <div className="flex justify-between">
                       <span>{t("reservation.duration")}</span>{" "}
                       <span>
@@ -1163,27 +1204,49 @@ const CarReservationModal = ({
                     <div className="flex justify-between">
                       <span>{t("reservation.wash")}</span> <span>20 €</span>
                     </div>
+                    {wizardData.unlimitedMileage && (
+                      <div className="flex justify-between">
+                        <span>{t("reservation.unlimitedMileageCost")}</span>{" "}
+                        <span>{calculateDays() * 20} €</span>
+                      </div>
+                    )}
                     <div className="flex justify-between font-bold text-lg">
                       <span>{t("reservation.rentCost")}</span>{" "}
                       <span>{totalPrice} €</span>
+                    </div>
+                    {discount > 0 && (
+                      <div className="flex justify-between text-green-400">
+                        <span>
+                          {wizardData.goldCard
+                            ? t("reservation.goldCard")
+                            : t("reservation.clubCard")}{" "}
+                          {t("reservation.discount")}
+                        </span>{" "}
+                        <span>-{discount.toFixed(0)} €</span>
+                      </div>
+                    )}
+                    <div className="border-t border-[#B90003]/30 my-2"></div>
+                    <div className="flex justify-between font-bold text-xl text-[#B90003]">
+                      <span>{t("reservation.totalAmount")}</span>{" "}
+                      <span>{finalRentalCost + 20} €</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Индикатор шага перед кнопкой */}
                 <div className="w-full flex justify-center mb-2 mt-2">
-                  <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
+                  <span className="text-sm font-semibold text-[#B90003] bg-black/30 rounded px-3 py-1">
                     {t("reservation.step")} {stepIndicator}
                   </span>
                 </div>
                 <Button
-                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-black text-lg font-bold py-3 rounded-xl"
+                  className="w-full bg-[#B90003] hover:bg-[#A00002] text-white text-lg font-bold py-3 rounded-xl"
                   onClick={goNext}
                 >
                   {t("reservation.next")}
                 </Button>
                 <Button
-                  className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl"
+                  className="w-full mt-2 bg-black text-[#B90003] border-[#B90003] border-2 text-lg font-bold py-3 rounded-xl"
                   variant="outline"
                   onClick={goBack}
                 >
@@ -1203,9 +1266,9 @@ const CarReservationModal = ({
                 </div>
 
                 {/* Всего и стоимость */}
-                <div className="flex justify-between items-center border-b border-yellow-400 pb-2 mb-2">
+                <div className="flex justify-between items-center border-b border-[#B90003] pb-2 mb-2">
                   <div>
-                    <div className="text-lg font-bold text-yellow-400">
+                    <div className="text-lg font-bold text-[#B90003]">
                       {t("reservation.total")}
                     </div>
                     <div className="text-sm text-gray-300">
@@ -1213,15 +1276,86 @@ const CarReservationModal = ({
                     </div>
                   </div>
                   <div className="text-2xl font-bold text-white">
-                    {totalPrice + 20} €
+                    {finalRentalCost + 20} €
                   </div>
+                </div>
+
+                {/* Способ оплаты */}
+                <div className="w-full max-w-md sm:max-w-full mx-auto mb-2">
+                  <h3 className="text-xl font-bold text-center mb-2">
+                    {t("reservation.paymentMethod")}
+                  </h3>
+                  <RadioGroup
+                    value={formData.paymentMethod || "cash"}
+                    onValueChange={(val) =>
+                      setFormData((d) => ({
+                        ...d,
+                        paymentMethod: val as "cash" | "card" | "other",
+                      }))
+                    }
+                    className="flex flex-col gap-2 bg-gray-700 rounded-lg px-4 py-3 mb-2"
+                  >
+                    <label className="flex items-center justify-between cursor-pointer">
+                      <span>{t("reservation.cash")}</span>
+                      <Switch
+                        checked={formData.paymentMethod === "cash"}
+                        onCheckedChange={(checked) =>
+                          setFormData((d) => ({
+                            ...d,
+                            paymentMethod: checked ? "cash" : "card",
+                          }))
+                        }
+                      />
+                    </label>
+                    <label className="flex items-center justify-between cursor-pointer">
+                      <span>{t("reservation.card")}</span>
+                      <Switch
+                        checked={formData.paymentMethod === "card"}
+                        onCheckedChange={(checked) =>
+                          setFormData((d) => ({
+                            ...d,
+                            paymentMethod: checked ? "card" : "cash",
+                          }))
+                        }
+                      />
+                    </label>
+                    <div className="border-t border-[#B90003] my-2"></div>
+                    <label className="flex flex-col gap-1 cursor-pointer">
+                      <span className="text-center">
+                        {t("reservation.other")}
+                      </span>
+                      <Input
+                        type="text"
+                        className="bg-gray-800 rounded px-2 py-1 text-white"
+                        placeholder={t("reservation.other")}
+                        value={
+                          formData.paymentMethod === "other"
+                            ? formData.paymentOther || ""
+                            : ""
+                        }
+                        onFocus={() =>
+                          setFormData((d) => ({
+                            ...d,
+                            paymentMethod: "other",
+                          }))
+                        }
+                        onChange={(e) =>
+                          setFormData((d) => ({
+                            ...d,
+                            paymentMethod: "other" as const,
+                            paymentOther: e.target.value,
+                          }))
+                        }
+                      />
+                    </label>
+                  </RadioGroup>
                 </div>
 
                 {/* Имя */}
                 <div>
                   <Label
                     htmlFor="firstName"
-                    className="text-yellow-400 font-bold"
+                    className="text-[#B90003] font-bold"
                   >
                     {t("reservation.firstName")}
                   </Label>
@@ -1239,7 +1373,7 @@ const CarReservationModal = ({
                 <div>
                   <Label
                     htmlFor="lastName"
-                    className="text-yellow-400 font-bold"
+                    className="text-[#B90003] font-bold"
                   >
                     {t("reservation.lastName")}
                   </Label>
@@ -1255,7 +1389,7 @@ const CarReservationModal = ({
                 </div>
                 {/* Email */}
                 <div>
-                  <Label htmlFor="email" className="text-yellow-400 font-bold">
+                  <Label htmlFor="email" className="text-[#B90003] font-bold">
                     {t("reservation.email")}
                   </Label>
                   <Input
@@ -1271,22 +1405,33 @@ const CarReservationModal = ({
                 </div>
                 {/* IDNP */}
                 <div>
-                  <Label htmlFor="idnp" className="text-yellow-400 font-bold">
+                  <Label htmlFor="idnp" className="text-[#B90003] font-bold">
                     {t("reservation.idnp")}
                   </Label>
                   <Input
                     id="idnp"
                     name="idnp"
-                    placeholder={t("reservation.idnp")}
+                    placeholder="1234567890123"
                     className="bg-zinc-800 text-white border-none mt-1"
                     value={formData.idnp || ""}
-                    onChange={handleInputChange}
+                    onChange={(e) => {
+                      // Разрешаем только цифры и максимум 13 символов
+                      const value = e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 13);
+                      setFormData({
+                        ...formData,
+                        idnp: value,
+                      });
+                    }}
+                    maxLength={13}
+                    pattern="[0-9]{13}"
                     required
                   />
                 </div>
                 {/* Фото удостоверения */}
                 <div>
-                  <Label className="text-yellow-400 font-bold">
+                  <Label className="text-[#B90003] font-bold">
                     {t("reservation.idPhotos")}
                   </Label>
                   <div className="flex gap-4 mt-2">
@@ -1296,7 +1441,7 @@ const CarReservationModal = ({
                         className={`relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed rounded-lg cursor-pointer hover:bg-zinc-800 transition group ${
                           uploadedPhotos.front
                             ? "border-green-400"
-                            : "border-yellow-400"
+                            : "border-[#ffffff]"
                         }`}
                       >
                         <input
@@ -1344,7 +1489,7 @@ const CarReservationModal = ({
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
-                              className="text-yellow-400 mb-1"
+                              className="text-gray-400 mb-1"
                             >
                               <path
                                 strokeLinecap="round"
@@ -1375,7 +1520,7 @@ const CarReservationModal = ({
                         className={`relative flex flex-col items-center justify-center w-28 h-28 bg-zinc-900 border-2 border-dashed rounded-lg cursor-pointer hover:bg-zinc-800 transition group ${
                           uploadedPhotos.back
                             ? "border-green-400"
-                            : "border-yellow-400"
+                            : "border-[#ffffff]"
                         }`}
                       >
                         <input
@@ -1423,7 +1568,7 @@ const CarReservationModal = ({
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
-                              className="text-yellow-400 mb-1"
+                              className="text-gray-400 mb-1"
                             >
                               <path
                                 strokeLinecap="round"
@@ -1452,7 +1597,7 @@ const CarReservationModal = ({
                 </div>
                 {/* Телефон с регионом */}
                 <div>
-                  <Label htmlFor="phone" className="text-yellow-400 font-bold">
+                  <Label htmlFor="phone" className="text-[#B90003] font-bold">
                     {t("reservation.phone")}
                   </Label>
                   <div className="flex items-center gap-2 mt-1">
@@ -1517,12 +1662,12 @@ const CarReservationModal = ({
                 </div>
                 {/* Чекбокс согласия */}
                 <div className="flex items-start gap-2 mt-2">
-                  <Checkbox
+                  <Switch
                     id="privacy"
                     checked={privacyAccepted}
                     onCheckedChange={(checked) => setPrivacyAccepted(!!checked)}
                     required
-                    className="mt-1 border-yellow-400 data-[state=checked]:bg-yellow-400 data-[state=checked]:border-yellow-400"
+                    className="mt-1"
                   />
                   <label
                     htmlFor="privacy"
@@ -1533,7 +1678,7 @@ const CarReservationModal = ({
                       href="/privacy-policy.pdf"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-yellow-400 underline ml-1"
+                      className="text-[#B90003] underline ml-1"
                     >
                       {t("reservation.privacyPolicyLink")}
                     </a>
@@ -1543,14 +1688,14 @@ const CarReservationModal = ({
 
                 {/* Индикатор шага перед кнопкой */}
                 <div className="w-full flex justify-center mb-2 mt-2">
-                  <span className="text-sm font-semibold text-yellow-400 bg-black/30 rounded px-3 py-1">
+                  <span className="text-sm font-semibold text-[#B90003] bg-black/30 rounded px-3 py-1">
                     {t("reservation.step")} {stepIndicator}
                   </span>
                 </div>
 
                 {/* Кнопка */}
                 <Button
-                  className="w-full bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-black text-lg font-bold py-3 rounded-xl"
+                  className="w-full bg-[#B90003] hover:bg-[#A00002] disabled:bg-gray-400 disabled:cursor-not-allowed text-white text-lg font-bold py-3 rounded-xl"
                   type="submit"
                   disabled={isSubmitting}
                 >
@@ -1564,7 +1709,7 @@ const CarReservationModal = ({
                   )}
                 </Button>
                 <Button
-                  className="w-full mt-2 bg-black text-yellow-400 border-yellow-400 border-2 text-lg font-bold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full mt-2 bg-black text-[#B90003] border-[#B90003] border-2 text-lg font-bold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                   variant="outline"
                   onClick={goBack}
                   disabled={isSubmitting}
@@ -1580,7 +1725,7 @@ const CarReservationModal = ({
       {/* Модальное окно успешного оформления заявки */}
       <Dialog open={showSuccessModal} onOpenChange={() => {}}>
         <DialogContent
-          className="max-w-md mx-auto bg-gradient-to-br from-zinc-900 to-black border-2 border-yellow-400 shadow-2xl shadow-yellow-400/20"
+          className="max-w-md mx-auto bg-gradient-to-br from-zinc-900 to-black border-2 border-[#B90003] shadow-2xl shadow-[#B90003]/20"
           style={{ zIndex: 4000 }}
         >
           <DialogTitle className="sr-only">
@@ -1594,7 +1739,7 @@ const CarReservationModal = ({
           </DialogDescription>
           <div className="text-center p-6">
             {/* Иконка успеха */}
-            <div className="mx-auto mb-6 w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center shadow-lg shadow-yellow-400/30 animate-pulse">
+            <div className="mx-auto mb-6 w-20 h-20 bg-gradient-to-br from-[#B90003] to-[#A00002] rounded-full flex items-center justify-center shadow-lg shadow-[#B90003]/30 animate-pulse">
               <svg
                 className="w-10 h-10 text-black"
                 fill="none"
@@ -1616,11 +1761,11 @@ const CarReservationModal = ({
             </h2>
 
             {/* Описание */}
-            <div className="bg-zinc-800/50 rounded-xl p-4 mb-4 border border-yellow-400/30">
+            <div className="bg-zinc-800/50 rounded-xl p-4 mb-4 border border-[#B90003]/30">
               <p className="text-white mb-2 text-base leading-relaxed">
                 {t("reservation.successMessage", "Ваша заявка на аренду")}
               </p>
-              <div className="text-2xl font-bold text-yellow-400 mb-2">
+              <div className="text-2xl font-bold text-[#B90003] mb-2">
                 {car.name}
               </div>
               <p className="text-white text-base">
@@ -1628,8 +1773,8 @@ const CarReservationModal = ({
               </p>
             </div>
 
-            <div className="bg-yellow-400/10 rounded-lg p-3 mb-6 border border-yellow-400/20">
-              <p className="text-yellow-200 text-sm leading-relaxed">
+            <div className="bg-[#B90003]/10 rounded-lg p-3 mb-6 border border-[#B90003]/20">
+              <p className="text-[#B90003] text-sm leading-relaxed">
                 📞{" "}
                 {t(
                   "reservation.contactSoon",
@@ -1641,15 +1786,15 @@ const CarReservationModal = ({
             {/* Кнопка ОК */}
             <Button
               onClick={handleSuccessModalClose}
-              className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-lg py-4 rounded-xl shadow-lg shadow-yellow-400/30 transform transition hover:scale-105 glow-effect"
+              className="w-full bg-[#B90003] hover:bg-[#A00002] text-white font-bold text-lg py-4 rounded-xl shadow-lg shadow-[#B90003]/30 transform transition hover:scale-105 glow-effect"
             >
               ✓ {t("reservation.okButton", "Понятно, спасибо!")}
             </Button>
 
             {/* Декоративные элементы */}
-            <div className="absolute top-4 left-4 w-3 h-3 bg-yellow-400/30 rounded-full animate-ping"></div>
-            <div className="absolute top-6 right-6 w-2 h-2 bg-yellow-400/50 rounded-full animate-pulse"></div>
-            <div className="absolute bottom-8 left-6 w-2 h-2 bg-yellow-400/40 rounded-full animate-bounce"></div>
+            <div className="absolute top-4 left-4 w-3 h-3 bg-[#B90003]/30 rounded-full animate-ping"></div>
+            <div className="absolute top-6 right-6 w-2 h-2 bg-[#B90003]/50 rounded-full animate-pulse"></div>
+            <div className="absolute bottom-8 left-6 w-2 h-2 bg-[#B90003]/40 rounded-full animate-bounce"></div>
           </div>
         </DialogContent>
       </Dialog>
@@ -1965,12 +2110,10 @@ function CarouselWithCenter({
 
       const bgOpacity = isCenter ? proximity * 0.9 : isAdjacent ? 0.8 : 0.7;
       const bgColor = isCenter
-        ? `rgba(250, 204, 21, ${bgOpacity})`
-        : isAdjacent
-        ? `rgba(250, 204, 21, 0.3)` // Слегка подсвечиваем соседние
+        ? `rgba(185, 0, 3, ${bgOpacity})`
         : `rgba(63, 63, 70, ${bgOpacity})`;
 
-      const textColor = isCenter ? "#000" : isAdjacent ? "#facc15" : "#fff";
+      const textColor = isCenter ? "#fff" : isAdjacent ? "#838383" : "#fff";
 
       elements.push(
         <div
@@ -1979,7 +2122,7 @@ function CarouselWithCenter({
             isCenter
               ? "hover:scale-105 active:scale-95"
               : isAdjacent
-              ? "hover:scale-110 active:scale-100 hover:shadow-yellow-400/30 hover:ring-1 hover:ring-yellow-400/50"
+              ? "hover:scale-110 active:scale-100 hover:shadow-[#B90003]/30 hover:ring-1 hover:ring-[#B90003]/50"
               : "hover:scale-105 active:scale-95"
           } ${
             isDragging
@@ -2003,12 +2146,8 @@ function CarouselWithCenter({
             width: `${itemWidth - 10}px`,
             height: "80px",
             zIndex: Math.round(proximity * 10) + 10,
-            boxShadow: isCenter
-              ? "0 4px 12px rgba(250, 204, 21, 0.25)"
-              : isAdjacent
-              ? "0 2px 8px rgba(250, 204, 21, 0.15)"
-              : "none",
-            border: isAdjacent ? "1px solid rgba(250, 204, 21, 0.3)" : "none",
+            boxShadow: isCenter ? "0 4px 12px rgba(185, 0, 3, 0.25)" : "none",
+            border: "none",
             position: "absolute",
             top: "50%",
             marginTop: "-40px", // Половина высоты элемента для центрирования
@@ -2072,7 +2211,7 @@ function CarouselWithCenter({
       <button
         onClick={prev}
         disabled={isAnimating}
-        className="absolute left-0 z-20 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 hover:scale-110 active:scale-95 transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-yellow-400/30"
+        className="absolute left-0 z-20 p-2 bg-black/40 rounded-full text-[#B90003] hover:bg-[#A00002] hover:scale-110 active:scale-95 transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-[#B90003]/30"
         style={{
           top: "50%",
           transform: "translateY(-50%)",
@@ -2084,7 +2223,7 @@ function CarouselWithCenter({
       <button
         onClick={next}
         disabled={isAnimating}
-        className="absolute right-0 z-20 p-2 bg-black/40 rounded-full text-yellow-400 hover:bg-yellow-500 hover:scale-110 active:scale-95 transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-yellow-400/30"
+        className="absolute right-0 z-20 p-2 bg-black/40 rounded-full text-[#B90003] hover:bg-[#A00002] hover:scale-110 active:scale-95 transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-[#B90003]/30"
         style={{
           top: "50%",
           transform: "translateY(-50%)",
@@ -2166,7 +2305,7 @@ function CarouselWithCenter({
             disabled={isAnimating}
             className={`h-2 w-2 rounded-full transition-all duration-300 cursor-pointer hover:scale-125 active:scale-110 disabled:cursor-default ${
               getActiveIndex() === idx
-                ? "bg-yellow-400 scale-125 shadow-md shadow-yellow-400/50 ring-2 ring-yellow-400/30"
+                ? "bg-[#B90003] scale-125 shadow-md shadow-[#B90003]/50 ring-2 ring-[#B90003]/30"
                 : "bg-gray-600 scale-100 opacity-70 hover:opacity-100 hover:bg-gray-500"
             }`}
           />

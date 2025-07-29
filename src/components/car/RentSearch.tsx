@@ -5,6 +5,7 @@ import heroPoster from "@/assets/hero-road.webp";
 import { useTranslation } from "react-i18next";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { RentSearchCalendar } from "./RentSearchCalendar";
+import TerraRentcarLogo from "./TerraRentcarLogo";
 
 const RentSearch = ({ onSearch }) => {
   const { t } = useTranslation();
@@ -45,12 +46,8 @@ const RentSearch = ({ onSearch }) => {
         <div className="relative z-10 w-full flex flex-col md:flex-row items-start justify-center px-4 md:px-12 py-1 gap-8 md:gap-8">
           {/* Текстовый блок */}
           <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left max-w-xl mx-auto md:mx-0 mt-24">
-            <h1 className="text-5xl md:text-7xl font-bold mb-1 leading-tight text-yellow-400">
-              TERRA
-              <br />
-              <span className="text-white">RENT CAR</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-yellow-400 mb-4 md:mb-1 font-semibold">
+            <TerraRentcarLogo size="large" />
+            <p className="text-xl md:text-2xl text-[#B90003] mb-4 md:mb-1 font-semibold">
               {t("hero.slogan")}
             </p>
             <p className="text-lg text-white mb-6 max-w-2xl hidden md:block">
@@ -69,7 +66,7 @@ const RentSearch = ({ onSearch }) => {
             <div className="flex flex-col sm:flex-row gap-4 mb-4 w-full md:w-auto justify-center md:justify-start">
               <Button
                 size="lg"
-                className="glow-effect bg-yellow-400 text-black font-bold text-lg px-8 py-4 shadow-lg hover:bg-yellow-300 transition"
+                className="glow-effect bg-[#B90003] text-white font-bold text-lg px-8 py-4 shadow-lg hover:bg-[#A00002] transition"
                 asChild
               >
                 <a href="#cars">{t("hero.chooseCar")}</a>
@@ -77,19 +74,19 @@ const RentSearch = ({ onSearch }) => {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-yellow-400 text-yellow-400 font-bold text-lg px-8 py-4 hover:bg-yellow-400 hover:text-black transition"
+                className="border-[#B90003] text-[#B90003] font-bold text-lg px-8 py-4 hover:bg-[#B90003] hover:text-white transition"
                 asChild
               >
                 <a href="#contact">{t("hero.learnMore")}</a>
               </Button>
             </div>
-            <div className="flex items-center space-x-6 text-sm text-yellow-300 font-semibold mb-2">
+            <div className="flex items-center space-x-6 text-sm text-[#ff1616] font-semibold mb-2">
               <div className="flex items-center space-x-1">
                 <div className="flex">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className="h-4 w-4 fill-yellow-400 text-yellow-400"
+                      className="h-4 w-4 fill-yellow-300 text-yellow-400"
                     />
                   ))}
                 </div>

@@ -18,8 +18,8 @@ All colors MUST be HSL.
     --popover: 0 0% 6%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 45 100% 51%;
-    --primary-foreground: 0 0% 3%;
+    --primary: 0 100% 36%;
+    --primary-foreground: 0 0% 98%;
 
     --secondary: 0 0% 12%;
     --secondary-foreground: 0 0% 98%;
@@ -35,7 +35,7 @@ All colors MUST be HSL.
 
     --border: 0 0% 15%;
     --input: 0 0% 15%;
-    --ring: 45 100% 51%;
+    --ring: 0 100% 36%;
 
     --radius: 0.5rem;
 
@@ -66,8 +66,8 @@ All colors MUST be HSL.
     --popover: 0 0% 6%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 45 100% 51%;
-    --primary-foreground: 0 0% 3%;
+    --primary: 0 100% 36%;
+    --primary-foreground: 0 0% 98%;
 
     --secondary: 0 0% 12%;
     --secondary-foreground: 0 0% 98%;
@@ -83,7 +83,7 @@ All colors MUST be HSL.
 
     --border: 0 0% 15%;
     --input: 0 0% 15%;
-    --ring: 45 100% 51%;
+    --ring: 0 100% 36%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -175,20 +175,18 @@ All colors MUST be HSL.
 
   .car-hover:hover {
     animation: car-hover 0.6s ease-in-out;
-    box-shadow: 0 10px 30px hsl(var(--primary) / 0.3);
+    box-shadow: 0 10px 30px #b90003 / 0.3;
   }
 
   /* Gradient text */
   .gradient-text {
-    background: linear-gradient(
-      135deg,
-      hsl(var(--primary)),
-      hsl(var(--foreground))
-    );
+    background: linear-gradient(135deg, #b90003, hsl(var(--foreground)));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+
 }
 
 html {

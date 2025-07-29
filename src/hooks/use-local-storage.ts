@@ -68,6 +68,8 @@ export function useReservationForm() {
     unlimitedMileage: false,
     goldCard: false,
     clubCard: false,
+    paymentMethod: "cash",
+    paymentOther: "",
   });
 
   const [searchDates, setSearchDates] = useLocalStorage("search-dates", {
@@ -131,4 +133,3 @@ export function useSelectedCar() {
     clearSelectedCar,
   };
 }
- 

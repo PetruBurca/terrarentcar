@@ -1,4 +1,4 @@
-/*    /index.html   200
+/*    /index.html   200 
 
 # Cache busting для статических ресурсов
 /assets/*  /assets/:splat  200

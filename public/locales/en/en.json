@@ -13,7 +13,7 @@
     "chooseCar": "Choose a car",
     "learnMore": "Learn more",
     "rating": "5.0 rating",
-    "clients": "500+ happy clients",
+    "clients": "15000+ happy clients",
     "support": "24/7 support"
   },
   "about": {
@@ -34,7 +34,7 @@
     "pricesDesc": "No hidden fees or extra charges",
     "fastTitle": "Fast processing",
     "fastDesc": "Minimum paperwork, maximum speed",
-    "years": "years on the market",
+    "years": "of reliable service",
     "yearsCount": "{{count}} years",
     "clients": "clients",
     "cars": "cars",
@@ -199,7 +199,8 @@
     "disabledRangeDesc": "This date is taken.",
 
     "extraServices": "Additional services",
-    "unlimitedMileage": "Unlimited mileage",
+    "unlimitedMileage": "Double mileage",
+    "unlimitedMileageDesc": "The cost of double mileage within the country is 20€ per day.",
 
     "pickupType": "How to pick up the car",
     "pickupOffice": "Pick up from office",
@@ -230,7 +231,14 @@
     "duration": "Rental duration",
     "days": "day(s)",
     "wash": "Car wash",
+    "unlimitedMileageCost": "Double mileage",
     "rentCost": "Car rental cost",
+    "totalAmount": "Total",
+    "discount": "discount",
+    "paymentMethod": "Payment method:",
+    "cash": "Cash",
+    "card": "Card",
+    "other": "Other",
 
     "firstName": "First name",
     "lastName": "Last name",
@@ -282,7 +290,7 @@
     "phoneRequired": "Enter phone number",
     "phoneInvalid": "Enter valid phone number",
     "idnpRequired": "Enter IDNP",
-    "idnpInvalid": "IDNP must contain at least 10 digits",
+    "idnpInvalid": "IDNP must contain exactly 13 digits",
     "frontPhotoRequired": "Upload front side photo",
     "backPhotoRequired": "Upload back side photo",
     "privacyRequired": "Privacy policy consent required"

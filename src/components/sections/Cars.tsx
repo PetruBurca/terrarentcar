@@ -460,7 +460,7 @@ const Cars = ({ searchDates }) => {
               {/* Scroll hint for mobile */}
               {isMobile && showScrollHint && (
                 <div className="absolute -bottom-4 right-2">
-                  <div className="w-8 h-8 bg-yellow-400/80 backdrop-blur border border-yellow-300/50 rounded-full flex items-center justify-center animate-pulse shadow-lg">
+                  <div className="w-8 h-8 bg-gray-400/80 backdrop-blur border border-gray-300/50 rounded-full flex items-center justify-center animate-pulse shadow-lg">
                     <svg
                       viewBox="0 0 24 24"
                       fill="none"
@@ -498,7 +498,7 @@ const Cars = ({ searchDates }) => {
               <span
                 className={`transition-transform ${
                   sortBy === "price" && sortDir === "desc" ? "rotate-180" : ""
-                } text-yellow-400`}
+                } text-gray-400`}
               >
                 ▼
               </span>
@@ -522,7 +522,7 @@ const Cars = ({ searchDates }) => {
               <span
                 className={`transition-transform ${
                   sortBy === "name" && sortDir === "desc" ? "rotate-180" : ""
-                } text-yellow-400`}
+                } text-gray-400`}
               >
                 ▼
               </span>

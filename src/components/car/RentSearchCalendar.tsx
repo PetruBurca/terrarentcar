@@ -126,36 +126,36 @@ export const RentSearchCalendar = ({ onSearch }) => {
     typeof window !== "undefined" ? window.innerWidth <= 767 : true;
 
   return (
-    <div className="w-full md:max-w-md md:mx-auto bg-[#232325] rounded-2xl shadow-2xl p-3 flex flex-col gap-4 border border-yellow-400 mt-13 mb-11 sm:mt-0 transition hover:shadow-yellow-400/30 hover:scale-[1.01] duration-200">
-      <div className="text-xl md:text-2xl font-bold text-yellow-400 mb-3 text-center">
+    <div className="w-full md:max-w-md md:mx-auto bg-[#232325] rounded-2xl shadow-2xl p-3 flex flex-col gap-4 border border-[#B90003] mt-13 mb-11 sm:mt-0 transition hover:shadow-[#B90003]/30 hover:scale-[1.01] duration-200">
+      <div className="text-xl md:text-2xl font-bold text-[#fdfdfd] mb-3 text-center">
         {t("reservation.selectDates")}
       </div>
       <div className="flex gap-2">
         <button
-          className="flex-1 border border-yellow-400 rounded-lg px-4 py-3 text-left font-semibold text-yellow-400 bg-[#18181b] hover:bg-yellow-900/20 transition text-lg"
+          className="flex-1 border border-[#B90003] rounded-lg px-4 py-3 text-left font-semibold text-[#B90003] bg-[#18181b] hover:bg-[#B90003]/20 transition text-lg"
           onClick={() => handleFieldClick("from")}
         >
-          <span className="block text-xs text-gray-500 mb-1">
+          <span className="block text-xs text-gray-400/70 mb-1">
             {t("reservation.pickupDate")}
           </span>
-          <span className="block text-base">
+          <span className="block text-base text-white">
             {range.from ? format(range.from, "dd.MM.yyyy") : "--.--.----"}
           </span>
         </button>
         <button
-          className="flex-1 border border-yellow-400 rounded-lg px-4 py-3 text-left font-semibold text-yellow-400 bg-[#18181b] hover:bg-yellow-900/20 transition text-lg"
+          className="flex-1 border border-[#B90003] rounded-lg px-4 py-3 text-left font-semibold text-[#B90003] bg-[#18181b] hover:bg-[#B90003]/20 transition text-lg"
           onClick={() => handleFieldClick("to")}
         >
-          <span className="block text-xs text-gray-500 mb-1">
+          <span className="block text-xs text-gray-400/70 mb-1">
             {t("reservation.returnDate")}
           </span>
-          <span className="block text-base">
+          <span className="block text-base text-white">
             {range.to ? format(range.to, "dd.MM.yyyy") : "--.--.----"}
           </span>
         </button>
       </div>
       <Button
-        className="w-full bg-yellow-400 text-black border-2 border-yellow-400 font-bold text-lg py-4 rounded-xl flex items-center justify-center gap-2 shadow-md hover:bg-yellow-500 hover:scale-105 active:bg-yellow-600 transition"
+        className="w-full bg-[#B90003] text-white border-2 border-[#B90003] font-bold text-lg py-4 rounded-xl flex items-center justify-center gap-2 shadow-md hover:bg-[#A00002] hover:scale-105 active:bg-[#8B0002] transition"
         onClick={handleSearch}
         disabled={!range.from || !range.to}
       >
@@ -168,7 +168,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
           className={
             isMobile
               ? "w-full min-h-[100dvh] max-w-full rounded-none top-0 left-0 z-[1001] bg-[#232325] flex flex-col h-full p-0"
-              : "fixed right-0 top-0 h-full w-[420px] max-w-full rounded-l-2xl z-[1001] border-l-4 border-yellow-400 shadow-2xl bg-[#232325] flex flex-col h-full p-0 transform-none"
+              : "fixed right-0 top-0 h-full w-[420px] max-w-full rounded-l-2xl z-[1001] border-l-4 border-[#B90003] shadow-2xl bg-[#232325] flex flex-col h-full p-0 transform-none"
           }
           style={
             isMobile
@@ -195,7 +195,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
               <div />
               <button
                 onClick={() => setModalOpen(false)}
-                className="text-white hover:text-yellow-400 text-2xl"
+                className="text-white hover:text-[#B90003] text-2xl"
               >
                 <X />
               </button>
@@ -203,35 +203,39 @@ export const RentSearchCalendar = ({ onSearch }) => {
             <div className="flex flex-col gap-2 w-full px-4 pt-2 pb-2">
               <div className="flex gap-2">
                 <div className="flex flex-col items-center flex-1">
-                  <span className="text-xs text-white/70 mb-1">
+                  <span className="text-xs text-gray-400/70 mb-1">
                     {t("reservation.pickupDate")}
                   </span>
                   <button
                     className={`w-full py-2 rounded-lg border ${
                       activeField === "from"
-                        ? "border-yellow-400 bg-yellow-400 text-black"
-                        : "border-yellow-400 bg-black text-yellow-400"
-                    } font-bold text-base shadow-none hover:bg-yellow-400 hover:text-black transition text-center`}
+                        ? "border-[#B90003] bg-[#B90003] text-white"
+                        : "border-[#B90003] bg-black text-[#B90003]"
+                    } font-bold text-base shadow-none hover:bg-[#B90003] hover:text-white transition text-center`}
                     onClick={() => setActiveField("from")}
                   >
-                    {range.from
-                      ? format(range.from, "dd.MM.yyyy")
-                      : "--.--.----"}
+                    <span className="text-white">
+                      {range.from
+                        ? format(range.from, "dd.MM.yyyy")
+                        : "--.--.----"}
+                    </span>
                   </button>
                 </div>
                 <div className="flex flex-col items-center flex-1">
-                  <span className="text-xs text-white/70 mb-1">
+                  <span className="text-xs text-gray-400/70 mb-1">
                     {t("reservation.returnDate")}
                   </span>
                   <button
                     className={`w-full py-2 rounded-lg border ${
                       activeField === "to"
-                        ? "border-yellow-400 bg-yellow-400 text-black"
-                        : "border-yellow-400 bg-black text-yellow-400"
-                    } font-bold text-base shadow-none hover:bg-yellow-400 hover:text-black transition text-center`}
+                        ? "border-[#B90003] bg-[#B90003] text-white"
+                        : "border-[#B90003] bg-black text-[#B90003]"
+                    } font-bold text-base shadow-none hover:bg-[#B90003] hover:text-white transition text-center`}
                     onClick={() => setActiveField("to")}
                   >
-                    {range.to ? format(range.to, "dd.MM.yyyy") : "--.--.----"}
+                    <span className="text-white">
+                      {range.to ? format(range.to, "dd.MM.yyyy") : "--.--.----"}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -265,7 +269,7 @@ export const RentSearchCalendar = ({ onSearch }) => {
             }}
           >
             <Button
-              className="w-full py-3 rounded-xl bg-black text-yellow-400 border-2 border-yellow-400 font-bold text-lg flex justify-center items-center gap-1 shadow-md hover:bg-yellow-900 active:bg-yellow-700 transition"
+              className="w-full py-3 rounded-xl bg-black text-[#B90003] border-2 border-[#B90003] font-bold text-lg flex justify-center items-center gap-1 shadow-md hover:bg-[#B90003]/20 active:bg-[#B90003]/30 transition"
               onClick={handleSearch}
               disabled={!range.from || !range.to}
               style={{ minHeight: 56 }}
@@ -323,10 +327,10 @@ function MonthCalendar({ month, range, onSelect, onDoubleClick, locale }) {
   };
   return (
     <div className="mb-2">
-      <div className="text-lg font-bold text-yellow-400 mb-1 text-center">
+      <div className="text-lg font-bold text-[#B90003] mb-1 text-center">
         {format(month, "LLLL yyyy", { locale })}
       </div>
-      <div className="grid grid-cols-7 gap-5 mb-1 text-yellow-400 text-center text-sm">
+      <div className="grid grid-cols-7 gap-5 mb-1 text-[#B90003] text-center text-sm">
         {[...Array(7)].map((_, i) => (
           <span key={i}>
             {format(new Date(2023, 0, i + 2), "EE", { locale }).slice(0, 2)}
@@ -358,10 +362,10 @@ function MonthCalendar({ month, range, onSelect, onDoubleClick, locale }) {
                     gridColumnEnd: endIdx + 2,
                     top: "10%",
                     bottom: "10%",
-                    borderTop: "2px solid #facc15", // жёлтый
-                    borderBottom: "2px solid #facc15",
+                    borderTop: "2px solid #B90003", // красный
+                    borderBottom: "2px solid #B90003",
                     borderRadius: "8px",
-                    backgroundColor: "#facc15c4",
+                    backgroundColor: "#B90003c4",
                     zIndex: 1,
                     pointerEvents: "none",
                   }}
@@ -382,12 +386,12 @@ function MonthCalendar({ month, range, onSelect, onDoubleClick, locale }) {
                       pastDate
                         ? "text-gray-500 line-through cursor-not-allowed opacity-50"
                         : start || end
-                        ? "bg-yellow-400 text-black z-10 rounded-xl border-2 border-yellow-400"
+                        ? "bg-[#B90003] text-white z-10 rounded-xl border-2 border-[#B90003]"
                         : inRange
-                        ? "text-black z-10"
+                        ? "text-white z-10"
                         : today
                         ? "border-2 border-white text-white bg-transparent z-10 rounded-full"
-                        : "text-white hover:bg-yellow-400 hover:text-black z-10 rounded-full",
+                        : "text-white hover:bg-[#B90003] hover:text-white z-10 rounded-full",
                     ].join(" ")}
                     style={{ gridColumn: i + 1 }}
                     onClick={() => !pastDate && onSelect(date)}

@@ -13,7 +13,7 @@
     "chooseCar": "Alege o mașină",
     "learnMore": "Află mai mult",
     "rating": "5.0 rating",
-    "clients": "500+ clienți mulțumiți",
+    "clients": "15000+ clienți mulțumiți",
     "support": "Suport 24/7"
   },
   "about": {
@@ -34,7 +34,7 @@
     "pricesDesc": "Fără taxe ascunse sau comisioane suplimentare",
     "fastTitle": "Procesare rapidă",
     "fastDesc": "Documente minime, viteză maximă",
-    "years": "ani pe piață",
+    "years": "servicii de încredere",
     "yearsCount": "{{count}} ani",
     "daysCount": "{{count}} zile",
     "clients": "clienți",
@@ -51,7 +51,7 @@
     "accept": "OK"
   },
   "cars": {
-    "title": "Parcul nostru",
+    "title": "Parcul",
     "titleAccent": "auto",
     "subtitle": "Alegeți mașina perfectă pentru nevoile dvs. din colecția noastră de automobile premium",
     "all": "Toate",
@@ -129,7 +129,7 @@
   },
   "contact": {
     "title": "Contactați",
-    "titleAccent": "ne",
+    "titleAccent": "- ne",
     "subtitle": "Suntem gata să vă ajutăm cu închirierea unei mașini. Contactați-ne în orice mod convenabil",
     "howToContact": "Cum să ne contactați",
     "phoneTitle": "Telefon",
@@ -199,7 +199,8 @@
     "disabledRangeDesc": "Această dată este ocupată.",
 
     "extraServices": "Servicii suplimentare",
-    "unlimitedMileage": "Kilometraj nelimitat",
+    "unlimitedMileage": "Kilometraj dublu",
+    "unlimitedMileageDesc": "Costul kilometrajului dublu în țară este de 20€ pe zi.",
 
     "pickupType": "Cum să ridici mașina",
     "pickupOffice": "Ridic de la birou",
@@ -230,7 +231,14 @@
     "duration": "Durata închirierii",
     "days": "zi(le)",
     "wash": "Spălare",
+    "unlimitedMileageCost": "Kilometraj dublu",
     "rentCost": "Costul închirierii auto",
+    "totalAmount": "Total",
+    "discount": "reducere",
+    "paymentMethod": "Metoda de plată:",
+    "cash": "Numerar",
+    "card": "Card",
+    "other": "Altul",
 
     "firstName": "Prenume",
     "lastName": "Nume",
@@ -282,7 +290,7 @@
     "phoneRequired": "Introduceți numărul de telefon",
     "phoneInvalid": "Introduceți un număr de telefon valid",
     "idnpRequired": "Introduceți IDNP",
-    "idnpInvalid": "IDNP trebuie să conțină cel puțin 10 cifre",
+    "idnpInvalid": "IDNP trebuie să conțină exact 13 cifre",
     "frontPhotoRequired": "Încărcați fotografia din față a documentului",
     "backPhotoRequired": "Încărcați fotografia din spate a documentului",
     "privacyRequired": "Este necesară consimțământul pentru prelucrarea datelor personale"

@@ -13,7 +13,7 @@
     "chooseCar": "Выбрать автомобиль",
     "learnMore": "Узнать больше",
     "rating": "5.0 рейтинг",
-    "clients": "500+ довольных клиентов",
+    "clients": "15000+ довольных клиентов",
     "support": "24/7 поддержка"
   },
   "about": {
@@ -34,7 +34,7 @@
     "pricesDesc": "Никаких скрытых платежей и дополнительных комиссий",
     "fastTitle": "Быстрое оформление",
     "fastDesc": "Минимум документов, максимум скорости",
-    "years": "лет на рынке",
+    "years": "надёжного сервиса",
     "yearsCount": "{{count}} {{yearsWord}}",
     "daysCount": "{{count}} {{daysWord}}",
     "clients": "клиентов",
@@ -166,7 +166,8 @@
     "disabledRangeDesc": "Эта дата занята.",
 
     "extraServices": "Дополнительные услуги",
-    "unlimitedMileage": "Безлимитный километраж",
+    "unlimitedMileage": "Двойной километраж",
+    "unlimitedMileageDesc": "Стоимость двойного км по стране составляет 20€ в день.",
 
     "pickupType": "Как забрать машину",
     "pickupOffice": "Заберу из офиса",
@@ -197,7 +198,14 @@
     "duration": "Продолжительность аренды",
     "days": "дн(я/ей)",
     "wash": "Мойка",
+    "unlimitedMileageCost": "Двойной километраж",
     "rentCost": "Стоимость за аренду авто",
+    "totalAmount": "Итого",
+    "discount": "скидка",
+    "paymentMethod": "Способ оплаты:",
+    "cash": "Наличные",
+    "card": "Карта",
+    "other": "Другое",
 
     "firstName": "Имя",
     "lastName": "Фамилия",
@@ -249,7 +257,7 @@
     "phoneRequired": "Введите номер телефона",
     "phoneInvalid": "Введите корректный номер телефона",
     "idnpRequired": "Введите IDNP",
-    "idnpInvalid": "IDNP должен содержать минимум 10 цифр",
+    "idnpInvalid": "IDNP должен содержать ровно 13 цифр",
     "frontPhotoRequired": "Загрузите фото лицевой стороны документа",
     "backPhotoRequired": "Загрузите фото обратной стороны документа",
     "privacyRequired": "Необходимо согласие на обработку персональных данных"
