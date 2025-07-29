@@ -45,6 +45,9 @@
   "footer": {
     "copyright": "© 2024 Все права защищены"
   },
+  "common": {
+    "close": "Закрыть"
+  },
   "cookie": {
     "title": "Файлы cookie",
     "message": "Мы используем файлы cookie для улучшения вашего опыта на сайте и анализа трафика.",
@@ -272,6 +275,9 @@
     "howToContact": "Как с нами связаться",
     "phoneTitle": "Телефон",
     "phoneDesc": "Звоните в любое время",
+    "administrator": "Администратор",
+    "technicalAssistant": "Технический ассистент",
+    "managerConsultant": "Менеджер-консультант",
     "emailTitle": "Email",
     "emailDesc": "Отвечаем в течение часа",
     "addressTitle": "Адрес",

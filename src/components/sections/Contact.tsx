@@ -113,7 +113,23 @@ const Contact = () => {
     {
       icon: Phone,
       title: t("contact.phoneTitle"),
-      details: ["+37379013014"],
+      details: [
+        {
+          label: t("contact.administrator"),
+          phone: "+37379013014",
+          isPhone: true
+        },
+        {
+          label: t("contact.technicalAssistant"),
+          phone: "+37361131131 / +37362131370",
+          isPhone: true
+        },
+        {
+          label: t("contact.managerConsultant"),
+          phone: "+37360777137 / +37360496669",
+          isPhone: true
+        }
+      ],
       description: t("contact.phoneDesc"),
     },
     {
@@ -174,12 +190,34 @@ const Contact = () => {
                             {item.title}
                           </h4>
                           {item.details.map((detail, idx) => (
-                            <p
-                              key={idx}
-                              className="text-sm text-muted-foreground"
-                            >
-                              {detail}
-                            </p>
+                            <div key={idx} className="mb-1">
+                              {typeof detail === 'string' ? (
+                                <p className="text-sm text-muted-foreground">
+                                  {detail}
+                                </p>
+                              ) : detail.isPhone ? (
+                                <div>
+                                  <p className="text-sm font-medium text-foreground">
+                                    {detail.label}
+                                  </p>
+                                  <div className="flex flex-wrap gap-2 mt-1">
+                                    {detail.phone.split(' / ').map((phone, phoneIdx) => (
+                                      <a
+                                        key={phoneIdx}
+                                        href={`tel:${phone.replace(/\s/g, '')}`}
+                                        className="text-sm text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                                      >
+                                        {phone}
+                                      </a>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-muted-foreground">
+                                  {detail}
+                                </p>
+                              )}
+                            </div>
                           ))}
                           <p className="text-xs text-muted-foreground mt-2 italic">
                             {item.description}

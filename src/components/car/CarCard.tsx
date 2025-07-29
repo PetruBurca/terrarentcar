@@ -206,7 +206,7 @@ const CarCard = memo(
 
           <CardFooter className="p-6 pt-0">
             <Button
-              className="w-full glow-effect"
+              className="w-full glow-effect bg-[#a00003d2] hover:bg-[#8b00008e]"
               onClick={(e) => {
                 e.stopPropagation();
                 setIsModalOpen(true);

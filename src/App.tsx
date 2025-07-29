@@ -91,9 +91,9 @@ function CookieBanner() {
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[3000] flex items-center justify-center p-4">
-      <div className="bg-black/95 border border-yellow-400 rounded-2xl p-6 max-w-md w-full shadow-2xl shadow-yellow-400/20 transform transition-all duration-300 scale-100">
+      <div className="bg-black/95 border border-[#B90003] rounded-2xl p-6 max-w-md w-full shadow-2xl shadow-[#B90003]/20 transform transition-all duration-300 scale-100">
         <div className="text-center">
-          <h3 className="text-xl font-bold text-yellow-400 mb-3">
+          <h3 className="text-xl font-bold text-[#B90003] mb-3">
             🍪 {t("cookie.title", "Файлы cookie")}
           </h3>
           <p className="text-white mb-6 leading-relaxed">
@@ -104,7 +104,7 @@ function CookieBanner() {
           </p>
           <button
             onClick={acceptCookies}
-            className="w-full px-6 py-3 bg-yellow-400 text-black font-bold text-lg rounded-xl hover:bg-yellow-500 hover:scale-105 shadow-lg transition-all duration-300"
+            className="w-full px-6 py-3 bg-[#B90003] text-white font-bold text-lg rounded-xl hover:bg-[#A00002] hover:scale-105 shadow-lg transition-all duration-300"
           >
             {t("cookie.accept", "OK")}
           </button>

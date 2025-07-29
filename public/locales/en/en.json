@@ -45,6 +45,9 @@
   "footer": {
     "copyright": "© 2024 All rights reserved"
   },
+  "common": {
+    "close": "Close"
+  },
   "cookie": {
     "title": "Cookies",
     "message": "We use cookies to improve your experience on our site and analyze traffic.",
@@ -134,6 +137,9 @@
     "howToContact": "How to contact us",
     "phoneTitle": "Phone",
     "phoneDesc": "Call us anytime",
+    "administrator": "Administrator",
+    "technicalAssistant": "Technical Assistant",
+    "managerConsultant": "Manager Consultant",
     "emailTitle": "Email",
     "emailDesc": "We reply within an hour",
     "addressTitle": "Address",

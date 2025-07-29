@@ -45,6 +45,9 @@
   "footer": {
     "copyright": "© 2024 Toate drepturile rezervate"
   },
+  "common": {
+    "close": "Închide"
+  },
   "cookie": {
     "title": "Cookie-uri",
     "message": "Folosim cookie-uri pentru a îmbunătăți experiența dvs. pe site și pentru a analiza traficul.",
@@ -134,6 +137,9 @@
     "howToContact": "Cum să ne contactați",
     "phoneTitle": "Telefon",
     "phoneDesc": "Sunați-ne oricând",
+    "administrator": "Administrator",
+    "technicalAssistant": "Asistentă tehnică",
+    "managerConsultant": "Manager consultant",
     "emailTitle": "Email",
     "emailDesc": "Răspundem în decurs de o oră",
     "addressTitle": "Adresă",
