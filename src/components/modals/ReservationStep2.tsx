@@ -198,9 +198,9 @@ export const ReservationStep2: React.FC<ReservationStep2Props> = ({
               <span>{calculateDays() * 20} €</span>
             </div>
           )}
-          {wizardData.pickupType === "address" && (
+          {(wizardData.pickupType === "address" || wizardData.pickupType === "airport") && (
             <div className="flex justify-between">
-              <span>Доставка</span> <span>20 €</span>
+              <span>{t("reservation.delivery")}</span> <span>20 €</span>
             </div>
           )}
           <div className="flex justify-between font-bold text-lg">

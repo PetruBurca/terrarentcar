@@ -105,7 +105,7 @@ const CarReservationModal = ({
         unlimitedMileageCost: wizardData.unlimitedMileage
           ? calculateDays() * 20
           : 0, // Стоимость двойного км
-        deliveryCost: wizardData.pickupType === "address" ? 20 : 0, // Стоимость доставки
+        deliveryCost: wizardData.pickupType === "address" || wizardData.pickupType === "airport" ? 20 : 0, // Стоимость доставки
         // washingCost: 20, // Стоимость мойки - убрали пока не создадите поле в Airtable
       });
       // Показываем модальное окно успеха
@@ -162,7 +162,7 @@ const CarReservationModal = ({
   const unlimitedMileageCost = wizardData.unlimitedMileage
     ? calculateDays() * 20
     : 0; // Стоимость безлимитного километража
-  const deliveryCost = wizardData.pickupType === "address" ? 20 : 0; // Стоимость доставки
+  const deliveryCost = wizardData.pickupType === "address" || wizardData.pickupType === "airport" ? 20 : 0; // Стоимость доставки
   const additionalServices = unlimitedMileageCost + deliveryCost; // Все дополнительные услуги
   const washingCost = 20; // Стоимость мойки (фиксированная)
   const finalRentalCost =
