@@ -137,9 +137,7 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
             {t("reservation.totalCost")}
           </div>
         </div>
-        <div className="text-2xl font-bold text-white">
-          {finalRentalCost + 20} €
-        </div>
+        <div className="text-2xl font-bold text-white">{finalRentalCost} €</div>
       </div>
 
       {/* Способ оплаты */}

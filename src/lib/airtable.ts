@@ -168,6 +168,8 @@ export async function createOrder(order: {
   totalCost?: number;
   discountAmount?: number; // Сумма скидки
   unlimitedMileageCost?: number; // Стоимость двойного км
+  deliveryCost?: number; // Стоимость доставки
+  washingCost?: number; // Стоимость мойки
 }) {
   const AIRTABLE_ORDERS_TABLE = "Заявки на аренду";
 
@@ -281,7 +283,7 @@ export async function createOrder(order: {
     fields["Общая стоимость"] = order.totalCost;
   }
 
-  // Добавляем поля для скидки и двойного километража
+  // Добавляем новые поля с суммами
   if (order.discountAmount !== undefined) {
     fields["Сумма скидки"] = order.discountAmount.toString(); // Преобразуем в строку для текстового поля
   }
@@ -289,6 +291,15 @@ export async function createOrder(order: {
   if (order.unlimitedMileageCost !== undefined) {
     fields["Двойной км сумма"] = order.unlimitedMileageCost.toString(); // Преобразуем в строку для текстового поля
   }
+
+  if (order.deliveryCost !== undefined) {
+    fields["Доставка сумма"] = order.deliveryCost.toString(); // Преобразуем в строку для текстового поля
+  }
+
+  // Убираем поле "Мойка сумма" пока не создадите его в Airtable
+  // if (order.washingCost !== undefined) {
+  //   fields["Мойка сумма"] = order.washingCost.toString();
+  // }
 
   const res = await fetch(
     `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_ORDERS_TABLE}`,
@@ -307,10 +318,6 @@ export async function createOrder(order: {
       .json()
       .catch(() => ({ error: "Unknown error" }));
     console.error("Airtable API Error:", errorData);
-    console.error("Request URL:", `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_ORDERS_TABLE}`);
-    console.error("Request fields:", fields);
-    console.error("Response status:", res.status);
-    console.error("Response statusText:", res.statusText);
     throw new Error(
       `Ошибка отправки заявки: ${res.status} - ${
         errorData.error?.message || errorData.error || "Неизвестная ошибка"

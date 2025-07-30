@@ -198,24 +198,18 @@ export const ReservationStep2: React.FC<ReservationStep2Props> = ({
               <span>{calculateDays() * 20} €</span>
             </div>
           )}
-          <div className="flex justify-between font-bold text-lg">
-            <span>{t("reservation.rentCost")}</span> <span>{totalPrice} €</span>
-          </div>
-          {discount > 0 && (
-            <div className="flex justify-between text-green-400">
-              <span>
-                {wizardData.goldCard
-                  ? t("reservation.goldCard")
-                  : t("reservation.clubCard")}{" "}
-                {t("reservation.discount")}
-              </span>{" "}
-              <span>-{discount.toFixed(0)} €</span>
+          {wizardData.pickupType === "address" && (
+            <div className="flex justify-between">
+              <span>Доставка</span> <span>20 €</span>
             </div>
           )}
+          <div className="flex justify-between font-bold text-lg">
+            <span>{t("reservation.rentCost")}</span> <span>{totalPrice - discount} €</span>
+          </div>
           <div className="border-t border-[#B90003]/30 my-2"></div>
           <div className="flex justify-between font-bold text-xl text-[#B90003]">
             <span>{t("reservation.totalAmount")}</span>{" "}
-            <span>{finalRentalCost + 20} €</span>
+            <span>{finalRentalCost} €</span>
           </div>
         </div>
       </div>

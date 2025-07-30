@@ -100,11 +100,13 @@ const CarReservationModal = ({
         paymentOther: formData.paymentOther,
         idPhotoFront: formDataObj.get("idPhotoFront") as File,
         idPhotoBack: formDataObj.get("idPhotoBack") as File,
-        totalCost: finalRentalCost + 20,
+        totalCost: finalRentalCost, // Итоговая стоимость уже включает все услуги
         discountAmount: discount, // Сумма скидки
         unlimitedMileageCost: wizardData.unlimitedMileage
           ? calculateDays() * 20
           : 0, // Стоимость двойного км
+        deliveryCost: wizardData.pickupType === "address" ? 20 : 0, // Стоимость доставки
+        // washingCost: 20, // Стоимость мойки - убрали пока не создадите поле в Airtable
       });
       // Показываем модальное окно успеха
       setShowSuccessModal(true);
@@ -154,10 +156,17 @@ const CarReservationModal = ({
   };
 
   // Расчет стоимости с учетом скидки
-  const baseRentalCost =
-    totalPrice + (wizardData.unlimitedMileage ? calculateDays() * 20 : 0);
-  const discount = calculateDiscount(baseRentalCost);
-  const finalRentalCost = baseRentalCost - discount;
+  // Скидка применяется только к базовой стоимости аренды, не к дополнительным услугам
+  const discount = calculateDiscount(totalPrice); // Скидка только к стоимости аренды
+  const rentalCostWithDiscount = totalPrice - discount; // Стоимость аренды со скидкой
+  const unlimitedMileageCost = wizardData.unlimitedMileage
+    ? calculateDays() * 20
+    : 0; // Стоимость безлимитного километража
+  const deliveryCost = wizardData.pickupType === "address" ? 20 : 0; // Стоимость доставки
+  const additionalServices = unlimitedMileageCost + deliveryCost; // Все дополнительные услуги
+  const washingCost = 20; // Стоимость мойки (фиксированная)
+  const finalRentalCost =
+    rentalCostWithDiscount + additionalServices + washingCost; // Итоговая стоимость
 
   // Валидация для каждого шага
   const validateStep = (stepIndex: number): boolean => {
