@@ -13,8 +13,8 @@ import CacheManager from "./components/CacheManager";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 3, // 3 minutes - уменьшено для более частого обновления
-      gcTime: 1000 * 60 * 5, // 5 minutes - уменьшено для более быстрой очистки
+      staleTime: 1000 * 60 * 10, // 10 minutes - увеличили для лучшего кеширования
+      gcTime: 1000 * 60 * 10, // 10 minutes - увеличили для лучшего кеширования
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors
         if (error instanceof Error && error.message.includes("4")) {

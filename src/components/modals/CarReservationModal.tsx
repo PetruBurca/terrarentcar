@@ -445,7 +445,7 @@ const CarReservationModal = ({
   const { data: orders = [] } = useQuery({
     queryKey: ["orders"],
     queryFn: fetchOrders,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10, // Увеличили до 10 минут
   });
   // Получаем только заявки по этой машине и только подтверждённые
   const carOrders = orders.filter((order) => {

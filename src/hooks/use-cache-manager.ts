@@ -8,7 +8,7 @@ interface CacheManagerOptions {
 
 export const useCacheManager = (options: CacheManagerOptions = {}) => {
   const {
-    autoClearTime = 5 * 60 * 1000, // 5 минут по умолчанию
+    autoClearTime = 10 * 60 * 1000, // 10 минут по умолчанию
     enableDoubleRefresh = true,
   } = options;
 
@@ -76,7 +76,7 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
         console.log("🔄 Жесткая перезагрузка обнаружена");
         clearAllCache();
       }
-      
+
       // Дополнительная проверка для продакшена
       if ((e.metaKey || e.ctrlKey) && e.key === "F5") {
         console.log("🔄 Альтернативная жесткая перезагрузка обнаружена");
@@ -139,7 +139,7 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
     carKeys.forEach((key) => {
       localStorage.removeItem(key);
     });
-    
+
     // Также очищаем ключ куки при очистке кэша
     localStorage.removeItem("cookieAccepted");
 
@@ -200,7 +200,7 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
     carKeys.forEach((key) => {
       localStorage.removeItem(key);
     });
-    
+
     // Также очищаем ключ куки при очистке localStorage
     localStorage.removeItem("cookieAccepted");
 

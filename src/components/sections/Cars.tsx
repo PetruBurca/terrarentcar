@@ -182,7 +182,7 @@ const Cars = ({ searchDates }) => {
   } = useQuery({
     queryKey: ["cars", i18n.language],
     queryFn: fetchCars,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10, // Увеличили до 10 минут
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
@@ -191,7 +191,7 @@ const Cars = ({ searchDates }) => {
   const { data: orders = [], isLoading: isLoadingOrders } = useQuery({
     queryKey: ["orders", i18n.language],
     queryFn: fetchOrders,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10, // Увеличили до 10 минут
   });
 
   // Принудительное обновление при смене языка
