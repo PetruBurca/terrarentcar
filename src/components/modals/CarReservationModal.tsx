@@ -101,6 +101,10 @@ const CarReservationModal = ({
         idPhotoFront: formDataObj.get("idPhotoFront") as File,
         idPhotoBack: formDataObj.get("idPhotoBack") as File,
         totalCost: finalRentalCost + 20,
+        discountAmount: discount, // Сумма скидки
+        unlimitedMileageCost: wizardData.unlimitedMileage
+          ? calculateDays() * 20
+          : 0, // Стоимость двойного км
       });
       // Показываем модальное окно успеха
       setShowSuccessModal(true);
