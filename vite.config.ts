@@ -18,6 +18,8 @@ export default defineConfig(({ mode }) => ({
         copy("_redirects", "dist/_redirects");
         copy("404.html", "dist/404.html");
         copy(".nojekyll", "dist/.nojekyll");
+        // Копируем redirect.html в корень dist
+        copy("redirect.html", "dist/redirect.html");
       },
     },
   ],
