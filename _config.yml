@@ -32,9 +32,9 @@ exclude:
 include:
   - dist
 
-# Set the source directory to dist
-source: dist
-destination: dist
+# Set the source directory to root
+source: .
+destination: .
 
 # Plugins
 plugins:
