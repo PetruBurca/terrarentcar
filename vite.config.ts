@@ -17,6 +17,7 @@ export default defineConfig(({ mode }) => ({
         copy("CNAME", "dist/CNAME");
         copy("_redirects", "dist/_redirects");
         copy("404.html", "dist/404.html");
+        copy(".nojekyll", "dist/.nojekyll");
       },
     },
   ],
