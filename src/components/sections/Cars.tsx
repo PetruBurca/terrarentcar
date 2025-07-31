@@ -16,6 +16,7 @@ import i18n from "i18next";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCars, fetchOrders } from "@/lib/airtable";
+import ContactNumbersModal from "../modals/ContactNumbersModal";
 
 const categoryMap = {
   sedan: "Седан",
@@ -140,6 +141,7 @@ const Cars = ({ searchDates }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showScrollHint, setShowScrollHint] = useState(true);
   const [isAtEnd, setIsAtEnd] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const carsPerPage = 9;
   const mobileCarsPerPage = 8; // 8 карточек для мобильных
   const isMobile = useMediaQuery("(max-width: 767px)");
@@ -594,14 +596,22 @@ const Cars = ({ searchDates }) => {
           <div className="bg-card/30 backdrop-blur border border-border/50 rounded-2xl p-8 max-w-2xl mx-auto">
             <h3 className="text-2xl font-bold mb-4">{t("cars.ctaTitle")}</h3>
             <p className="text-muted-foreground mb-6">{t("cars.ctaDesc")}</p>
-            <a href="tel:+37379013014">
-              <Button size="lg" className="glow-effect">
-                {t("cars.ctaButton")}
-              </Button>
-            </a>
+            <Button
+              size="lg"
+              className="glow-effect"
+              onClick={() => setIsContactModalOpen(true)}
+            >
+              {t("cars.ctaButton")}
+            </Button>
           </div>
         </div>
       </div>
+
+      {/* Contact Modal */}
+      <ContactNumbersModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+      />
     </section>
   );
 };
