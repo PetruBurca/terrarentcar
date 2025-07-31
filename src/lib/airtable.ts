@@ -38,49 +38,119 @@ interface AirtableRecord {
 }
 
 export async function fetchCars() {
-  const res = await fetch(
-    `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}?sort[0][field]=Название/модель&sort[0][direction]=asc`,
-    {
-      headers: {
-        Authorization: `Bearer ${AIRTABLE_TOKEN}`,
-        "Content-Type": "application/json",
-      },
+  try {
+    const res = await fetch(
+      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}?sort[0][field]=Название/модель&sort[0][direction]=asc`,
+      {
+        headers: {
+          Authorization: `Bearer ${AIRTABLE_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!res.ok) {
+      console.error(`Airtable API error: ${res.status} ${res.statusText}`);
+      throw new Error(`Ошибка загрузки данных из Airtable: ${res.status}`);
     }
-  );
-  if (!res.ok) throw new Error("Ошибка загрузки данных из Airtable");
-  const data = await res.json();
-  return data.records.map((rec: AirtableRecord) => {
-    const fields = rec.fields;
-    return {
-      id: rec.id,
-      name: fields["Название/модель"] || "",
-      category: fields["Категория"] || "",
-      rating: fields["Рейтинг"] || 0,
-      passengers: fields["Количество мест"] || 0,
-      transmission: fields["Тип коробки передач"] || "",
-      fuel: fields["Тип топлива"] || "",
-      features: Array.isArray(fields["Список опций"])
-        ? fields["Список опций"]
-        : [],
-      price: fields["Цена за день"] || 0,
-      description: fields["Описание"] || "",
-      description_ru: fields["Описание рус"] || "",
-      description_ro: fields["Описание рум"] || "",
-      description_en: fields["Описание англ"] || "",
-      year: fields["Год выпуска"] || "",
-      engine: fields["Двигатель"] || "",
-      drive: fields["Привод"] || "",
-      status: fields["Статус"] || "",
-      images: Array.isArray(fields["Фото"])
-        ? fields["Фото"].map((img) => img.url)
-        : [],
-      pricePerDay: fields["Цена за день"] || 0,
-      price2to10: fields["Цена за 2-10 дней"] ?? fields["Цена за день"] ?? 0,
-      price11to20: fields["Цена за 11-20 дней"] ?? fields["Цена за день"] ?? 0,
-      price21to29: fields["Цена за 21-29 дней"] ?? fields["Цена за день"] ?? 0,
-      price30plus: fields["Цена от 30 дней"] ?? fields["Цена за день"] ?? 0,
-    };
-  });
+
+    const data = await res.json();
+    return data.records.map((rec: AirtableRecord) => {
+      const fields = rec.fields;
+      return {
+        id: rec.id,
+        name: fields["Название/модель"] || "",
+        category: fields["Категория"] || "",
+        rating: fields["Рейтинг"] || 0,
+        passengers: fields["Количество мест"] || 0,
+        transmission: fields["Тип коробки передач"] || "",
+        fuel: fields["Тип топлива"] || "",
+        features: Array.isArray(fields["Список опций"])
+          ? fields["Список опций"]
+          : [],
+        price: fields["Цена за день"] || 0,
+        description: fields["Описание"] || "",
+        description_ru: fields["Описание рус"] || "",
+        description_ro: fields["Описание рум"] || "",
+        description_en: fields["Описание англ"] || "",
+        year: fields["Год выпуска"] || "",
+        engine: fields["Двигатель"] || "",
+        drive: fields["Привод"] || "",
+        status: fields["Статус"] || "",
+        images: Array.isArray(fields["Фото"])
+          ? fields["Фото"].map((img) => img.url)
+          : [],
+        pricePerDay: fields["Цена за день"] || 0,
+        price2to10: fields["Цена за 2-10 дней"] ?? fields["Цена за день"] ?? 0,
+        price11to20:
+          fields["Цена за 11-20 дней"] ?? fields["Цена за день"] ?? 0,
+        price21to29:
+          fields["Цена за 21-29 дней"] ?? fields["Цена за день"] ?? 0,
+        price30plus: fields["Цена от 30 дней"] ?? fields["Цена за день"] ?? 0,
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching cars:", error);
+
+    // Fallback данные для демонстрации
+    if (process.env.NODE_ENV === "development" || import.meta.env.DEV) {
+      console.warn("Using fallback data for cars");
+      return [
+        {
+          id: "fallback-1",
+          name: "BMW X5",
+          category: "suv",
+          rating: 4.8,
+          passengers: 5,
+          transmission: "Автомат",
+          fuel: "Бензин",
+          features: ["Кондиционер", "Навигация", "Кожаный салон"],
+          price: 150,
+          description: "Премиальный внедорожник BMW X5",
+          description_ru: "Премиальный внедорожник BMW X5",
+          description_ro: "SUV premium BMW X5",
+          description_en: "Premium BMW X5 SUV",
+          year: "2022",
+          engine: "3.0L",
+          drive: "Полный",
+          status: "Доступен",
+          images: ["/src/assets/logos/bmw.svg"],
+          pricePerDay: 150,
+          price2to10: 140,
+          price11to20: 130,
+          price21to29: 120,
+          price30plus: 110,
+        },
+        {
+          id: "fallback-2",
+          name: "Mercedes C-Class",
+          category: "sedan",
+          rating: 4.9,
+          passengers: 5,
+          transmission: "Автомат",
+          fuel: "Бензин",
+          features: ["Кондиционер", "Навигация", "Кожаный салон"],
+          price: 120,
+          description: "Элегантный седан Mercedes C-Class",
+          description_ru: "Элегантный седан Mercedes C-Class",
+          description_ro: "Sedan elegant Mercedes C-Class",
+          description_en: "Elegant Mercedes C-Class sedan",
+          year: "2023",
+          engine: "2.0L",
+          drive: "Задний",
+          status: "Доступен",
+          images: ["/src/assets/logos/mercedes.svg"],
+          pricePerDay: 120,
+          price2to10: 110,
+          price11to20: 100,
+          price21to29: 90,
+          price30plus: 80,
+        },
+      ];
+    }
+
+    throw new Error("Ошибка загрузки данных из Airtable");
+  }
 }
 
 // Функция для загрузки файла в Airtable
