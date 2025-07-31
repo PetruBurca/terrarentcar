@@ -13,7 +13,6 @@ import {
 import { toast } from "@/components/ui/utils/use-toast";
 import { useTranslation } from "react-i18next";
 import { createContactRequest } from "@/lib/airtable";
-import GoogleMapJS from "../GoogleMapJS";
 
 const Contact = () => {
   const { t } = useTranslation();
@@ -484,7 +483,7 @@ const Contact = () => {
           </div>
         </div>
 
-        {/* Map section */}
+        {/* Map placeholder */}
         <div className="mt-16 text-center animate-fade-in">
           <h3 className="text-2xl font-bold mb-2 flex items-center justify-center gap-2">
             <MapPin className="inline-block mr-2" />
@@ -493,7 +492,16 @@ const Contact = () => {
           <p className="text-muted-foreground mb-4">
             {t("contact.locationDesc")}
           </p>
-          <GoogleMapJS height="300px" />
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d840.515912373403!2d28.891003583096374!3d47.03942002676709!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40c97d1dbb350b0b%3A0xd4b3f55f787edf09!2zVGVycmFSZW50Q2FyIC0g0JDQstGC0L4g0J_RgNC-0LrQsNGC!5e0!3m2!1sru!2sus!4v1752309334562!5m2!1sru!2sus"
+            width="100%"
+            height="300"
+            style={{ border: 0 }}
+            allowFullScreen={true}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Google Map"
+          ></iframe>
         </div>
       </div>
     </section>
