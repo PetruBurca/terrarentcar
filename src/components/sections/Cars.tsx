@@ -393,7 +393,7 @@ const Cars = ({ searchDates }) => {
     );
   }
 
-  // Обработка ошибки загрузки
+  // Error state
   if (isError) {
     return (
       <section id="cars" className="py-20 relative">
@@ -409,32 +409,14 @@ const Cars = ({ searchDates }) => {
                   ? error.message
                   : t("cars.errorMessage", "Не удалось загрузить автомобили")}
               </p>
-              <div className="text-sm text-muted-foreground max-w-md">
-                <p>Возможные причины:</p>
-                <ul className="list-disc list-inside text-left mt-2">
-                  <li>Проблемы с интернет-соединением</li>
-                  <li>Временная недоступность сервера</li>
-                  <li>Ошибки в настройках API</li>
-                </ul>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => refetch()}
-                  className="mt-4"
-                  variant="outline"
-                >
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  {t("cars.retry", "Попробовать снова")}
-                </Button>
-                <Button
-                  onClick={() => window.location.reload()}
-                  className="mt-4"
-                  variant="outline"
-                >
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Обновить страницу
-                </Button>
-              </div>
+              <Button
+                onClick={() => refetch()}
+                className="mt-4"
+                variant="outline"
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                {t("cars.retry", "Попробовать снова")}
+              </Button>
             </div>
           </div>
         </div>

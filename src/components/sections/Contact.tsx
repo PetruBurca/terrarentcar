@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { MapPin, Phone, Mail, Clock, Send, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
 import { Button } from "@/components/ui/utils/button";
 import { Input } from "@/components/ui/inputs/input";
 import { Label } from "@/components/ui/utils/label";
@@ -13,8 +13,7 @@ import {
 import { toast } from "@/components/ui/utils/use-toast";
 import { useTranslation } from "react-i18next";
 import { createContactRequest } from "@/lib/airtable";
-import { Alert, AlertDescription } from "@/components/ui/feedback/alert";
-import { GoogleMapsComponent } from "@/components/ui/utils/google-maps";
+import GoogleMapJS from "../GoogleMapJS";
 
 const Contact = () => {
   const { t } = useTranslation();
@@ -208,7 +207,10 @@ const Contact = () => {
                                     .map((phone, phoneIdx) => (
                                       <a
                                         key={phoneIdx}
-                                        href={`tel:${phone.replace(/\s/g, "")}`}
+                                        href={`tel:${phone.replace(
+                                          /\s/g,
+                                          ""
+                                        )}`}
                                         className="text-sm text-primary hover:text-primary/80 transition-colors cursor-pointer"
                                       >
                                         {phone}
@@ -482,7 +484,7 @@ const Contact = () => {
           </div>
         </div>
 
-        {/* Map placeholder */}
+        {/* Map section */}
         <div className="mt-16 text-center animate-fade-in">
           <h3 className="text-2xl font-bold mb-2 flex items-center justify-center gap-2">
             <MapPin className="inline-block mr-2" />
@@ -491,174 +493,10 @@ const Contact = () => {
           <p className="text-muted-foreground mb-4">
             {t("contact.locationDesc")}
           </p>
-
-          <GoogleMapFallback />
+          <GoogleMapJS height="300px" />
         </div>
       </div>
     </section>
-  );
-};
-
-// Компонент с fallback для Google Maps
-const GoogleMapFallback = () => {
-  const [mapError, setMapError] = useState(false);
-  const [mapLoaded, setMapLoaded] = useState(false);
-  const [useAlternativeMap, setUseAlternativeMap] = useState(false);
-  const [useGoogleMapsAPI, setUseGoogleMapsAPI] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!mapLoaded) {
-        setMapError(true);
-      }
-    }, 5000); // 5 секунд таймаут
-
-    return () => clearTimeout(timer);
-  }, [mapLoaded]);
-
-  const handleMapLoad = () => {
-    setMapLoaded(true);
-  };
-
-  const handleMapError = () => {
-    setMapError(true);
-  };
-
-  if (mapError && !useAlternativeMap && !useGoogleMapsAPI) {
-    return (
-      <div className="bg-muted rounded-lg p-6 border">
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Карта временно недоступна. Попробуйте альтернативные варианты.
-          </AlertDescription>
-        </Alert>
-        <div className="mt-4 space-y-2">
-          <p className="text-sm text-muted-foreground">
-            <strong>Адрес:</strong> Chișinău, Moldova, Bulevardul Mircea cel
-            Bătrîn 4
-          </p>
-          <div className="flex gap-2 flex-wrap">
-            <Button
-              onClick={() => setUseGoogleMapsAPI(true)}
-              variant="outline"
-              size="sm"
-            >
-              Попробовать Google Maps API
-            </Button>
-            <Button
-              onClick={() => setUseAlternativeMap(true)}
-              variant="outline"
-              size="sm"
-            >
-              Альтернативная карта
-            </Button>
-            <Button
-              onClick={() =>
-                window.open(
-                  "https://maps.google.com/?q=TerraRentCar+Chisinau",
-                  "_blank"
-                )
-              }
-              variant="outline"
-              size="sm"
-            >
-              Открыть в Google Maps
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (useGoogleMapsAPI) {
-    return (
-      <GoogleMapsComponent
-        center={{ lat: 47.03942002676709, lng: 28.891003583096374 }}
-        zoom={16}
-        height="300px"
-      />
-    );
-  }
-
-  if (useAlternativeMap) {
-    return <AlternativeMap />;
-  }
-
-  return (
-    <div className="relative">
-      <iframe
-        src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d840.515912373403!2d28.891003583096374!3d47.03942002676709!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40c97d1dbb350b0b%3A0xd4b3f55f787edf09!2zVGVycmFSZW50Q2FyIC0g0JDQstGC0L4g0J_RgNC-0LrQsNGC!5e0!3m2!1sru!2sus!4v1752309334562!5m2!1sru!2sus"
-        width="100%"
-        height="300"
-        style={{ border: 0 }}
-        allowFullScreen={true}
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-        title="Google Map"
-        onLoad={handleMapLoad}
-        onError={handleMapError}
-      />
-    </div>
-  );
-};
-
-// Альтернативная карта с использованием OpenStreetMap
-const AlternativeMap = () => {
-  return (
-    <div className="bg-muted rounded-lg p-6 border">
-      <div className="text-center mb-4">
-        <h4 className="font-semibold mb-2">Наше местоположение</h4>
-        <p className="text-sm text-muted-foreground mb-4">
-          Chișinău, Moldova, Bulevardul Mircea cel Bătrîn 4
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-primary" />
-            <span className="text-sm">TerraRentCar - Авто Прокат</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Phone className="h-4 w-4 text-primary" />
-            <span className="text-sm">+373 79 013 014</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Mail className="h-4 w-4 text-primary" />
-            <span className="text-sm">terrarentcar@yahoo.com</span>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Button
-            onClick={() =>
-              window.open(
-                "https://maps.google.com/?q=TerraRentCar+Chisinau",
-                "_blank"
-              )
-            }
-            className="w-full"
-            size="sm"
-          >
-            Открыть в Google Maps
-          </Button>
-          <Button
-            onClick={() =>
-              window.open(
-                "https://www.openstreetmap.org/search?query=Chi%C8%99in%C4%83u%2C%20Moldova",
-                "_blank"
-              )
-            }
-            variant="outline"
-            className="w-full"
-            size="sm"
-          >
-            Открыть в OpenStreetMap
-          </Button>
-        </div>
-      </div>
-    </div>
   );
 };
 
