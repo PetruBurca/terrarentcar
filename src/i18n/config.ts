@@ -17,7 +17,7 @@ i18nInstance
       escapeValue: false,
     },
     backend: {
-      loadPath: "/terrarentcar/locales/{{lng}}/{{lng}}.json",
+      loadPath: "/locales/{{lng}}/{{lng}}.json",
     },
     detection: {
       order: ["querystring", "cookie", "localStorage", "navigator"],
