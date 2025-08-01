@@ -139,18 +139,38 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
               <button
                 type="button"
                 onClick={handlePrev}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-[#B90003] rounded-full p-1 hover:bg-[#A00002] transition"
+                className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/80 backdrop-blur-sm text-white rounded-full p-3 hover:bg-[#B90003] hover:text-white transition-all duration-300 hover:scale-110 shadow-lg border border-white/20"
                 aria-label="Prev"
               >
-                &#8592;
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
               </button>
               <button
                 type="button"
                 onClick={handleNext}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-[#B90003] rounded-full p-1 hover:bg-[#A00002] transition"
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/80 backdrop-blur-sm text-white rounded-full p-3 hover:bg-[#B90003] hover:text-white transition-all duration-300 hover:scale-110 shadow-lg border border-white/20"
                 aria-label="Next"
               >
-                &#8594;
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
               </button>
             </>
           )}
