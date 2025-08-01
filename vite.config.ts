@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => ({
         // Копируем файлы из dist в корень для GitHub Pages
         copy("dist/index.html", "index.html");
         copy("dist/assets", "assets");
-        copy("dist/fonts", "fonts");
+        // copy("dist/fonts", "fonts"); // Убираем, так как папки fonts нет
         copy("dist/locales", "locales");
         copy("dist/robots.txt", "robots.txt");
         copy("dist/sw.js", "sw.js");
