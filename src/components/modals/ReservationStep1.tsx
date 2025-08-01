@@ -74,26 +74,43 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
   const pickupDate = wizardData.pickupDate || formData.pickupDate;
   const returnDate = wizardData.returnDate || formData.returnDate;
 
-  const selected =
-    disabledDays.some(
-      (dd) =>
-        dd.getFullYear() ===
-          (pickupDate ? new Date(pickupDate).getFullYear() : 0) &&
-        dd.getMonth() === (pickupDate ? new Date(pickupDate).getMonth() : 0) &&
-        dd.getDate() === (pickupDate ? new Date(pickupDate).getDate() : 0)
-    ) ||
-    disabledDays.some(
-      (dd) =>
-        dd.getFullYear() ===
-          (returnDate ? new Date(returnDate).getFullYear() : 0) &&
-        dd.getMonth() === (returnDate ? new Date(returnDate).getMonth() : 0) &&
-        dd.getDate() === (returnDate ? new Date(returnDate).getDate() : 0)
-    )
-      ? undefined
-      : {
-          from: pickupDate ? new Date(pickupDate) : undefined,
-          to: returnDate ? new Date(returnDate) : undefined,
-        };
+  const selected = (() => {
+    // Проверяем, есть ли выбранные даты
+    const hasPickupDate = pickupDate && pickupDate.trim() !== "";
+    const hasReturnDate = returnDate && returnDate.trim() !== "";
+
+    if (!hasPickupDate && !hasReturnDate) {
+      return undefined;
+    }
+
+    // Проверяем, не являются ли выбранные даты disabled
+    const isPickupDisabled =
+      hasPickupDate &&
+      disabledDays.some(
+        (dd) =>
+          dd.getFullYear() === new Date(pickupDate).getFullYear() &&
+          dd.getMonth() === new Date(pickupDate).getMonth() &&
+          dd.getDate() === new Date(pickupDate).getDate()
+      );
+
+    const isReturnDisabled =
+      hasReturnDate &&
+      disabledDays.some(
+        (dd) =>
+          dd.getFullYear() === new Date(returnDate).getFullYear() &&
+          dd.getMonth() === new Date(returnDate).getMonth() &&
+          dd.getDate() === new Date(returnDate).getDate()
+      );
+
+    if (isPickupDisabled || isReturnDisabled) {
+      return undefined;
+    }
+
+    return {
+      from: hasPickupDate ? new Date(pickupDate) : undefined,
+      to: hasReturnDate ? new Date(returnDate) : undefined,
+    };
+  })();
 
   // Определяем месяц по умолчанию для календаря
   const defaultMonth = pickupDate
@@ -229,6 +246,7 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
         </h3>
         <div className="flex flex-col items-center gap-2">
           <ShadcnCalendar
+            key={`${pickupDate}-${returnDate}`}
             mode="range"
             selected={selected}
             defaultMonth={defaultMonth}
@@ -269,66 +287,63 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
                 return;
               }
 
-              // Если диапазон выбран и пользователь кликает на дату раньше from — сброс и новая дата выдачи
-              if (range?.from && range?.to && range.to < range.from) {
-                const pickupDate = toLocalDateString(range.to);
-                setFormData((prev: FormData) => ({
-                  ...prev,
-                  pickupDate,
-                  returnDate: "",
-                }));
-                setWizardData((prev: WizardData) => ({
-                  ...prev,
-                  pickupDate,
-                  returnDate: "",
-                }));
-                return;
-              }
-
-              // Если только from выбран — это дата выдачи
-              if (range?.from && !range?.to) {
-                const pickupDate = toLocalDateString(range.from);
-                setFormData((prev: FormData) => ({
-                  ...prev,
-                  pickupDate,
-                  returnDate: "",
-                }));
-                setWizardData((prev: WizardData) => ({
-                  ...prev,
-                  pickupDate,
-                  returnDate: "",
-                }));
-                return;
-              }
-
-              // Если выбран валидный диапазон
+              // Обработка выбора дат
               if (range?.from && range?.to) {
+                // Если выбраны обе даты и вторая дата раньше первой
+                if (range.to < range.from) {
+                  const pickupDate = toLocalDateString(range.to);
+                  const returnDate = toLocalDateString(range.from);
+                  setFormData((prev: FormData) => ({
+                    ...prev,
+                    pickupDate,
+                    returnDate,
+                  }));
+                  setWizardData((prev: WizardData) => ({
+                    ...prev,
+                    pickupDate,
+                    returnDate,
+                  }));
+                } else {
+                  // Нормальный диапазон
+                  const pickupDate = toLocalDateString(range.from);
+                  const returnDate = toLocalDateString(range.to);
+                  setFormData((prev: FormData) => ({
+                    ...prev,
+                    pickupDate,
+                    returnDate,
+                  }));
+                  setWizardData((prev: WizardData) => ({
+                    ...prev,
+                    pickupDate,
+                    returnDate,
+                  }));
+                }
+              } else if (range?.from) {
+                // Если выбрана только первая дата
                 const pickupDate = toLocalDateString(range.from);
-                const returnDate = toLocalDateString(range.to);
                 setFormData((prev: FormData) => ({
                   ...prev,
                   pickupDate,
-                  returnDate,
+                  returnDate: "",
                 }));
                 setWizardData((prev: WizardData) => ({
                   ...prev,
                   pickupDate,
-                  returnDate,
+                  returnDate: "",
                 }));
-                return;
+              } else {
+                // Если ничего не выбрано — сброс
+                setFormData((prev: FormData) => ({
+                  ...prev,
+                  pickupDate: "",
+                  returnDate: "",
+                }));
+                setWizardData((prev: WizardData) => ({
+                  ...prev,
+                  pickupDate: "",
+                  returnDate: "",
+                }));
               }
-
-              // Если ничего не выбрано — сброс
-              setFormData((prev: FormData) => ({
-                ...prev,
-                pickupDate: "",
-                returnDate: "",
-              }));
-              setWizardData((prev: WizardData) => ({
-                ...prev,
-                pickupDate: "",
-                returnDate: "",
-              }));
             }}
             disabled={disabledDays}
             fromDate={new Date()}
