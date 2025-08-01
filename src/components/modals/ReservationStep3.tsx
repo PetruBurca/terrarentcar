@@ -81,10 +81,18 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setFormData((prev: FormData) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    try {
+      setFormData((prev: FormData) => ({
+        ...prev,
+        [e.target.name]: e.target.value,
+      }));
+    } catch (error) {
+      console.error("Ошибка при изменении формы:", error);
+      // Очищаем кэш при ошибке состояния
+      if (window.cacheManager) {
+        window.cacheManager.forceClearProduction();
+      }
+    }
   };
 
   // Список стран с кодами
@@ -145,16 +153,24 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
         <h3 className="text-xl font-bold text-center mb-2">
           {t("reservation.paymentMethod")}
         </h3>
-        <RadioGroup
-          value={formData.paymentMethod || "cash"}
-          onValueChange={(val) =>
-            setFormData((d: FormData) => ({
-              ...d,
-              paymentMethod: val as "cash" | "card" | "other",
-            }))
-          }
-          className="flex flex-col gap-2 bg-gray-700 rounded-lg px-4 py-3 mb-2"
-        >
+                  <RadioGroup
+            value={formData.paymentMethod || "cash"}
+            onValueChange={(val) => {
+              try {
+                setFormData((d: FormData) => ({
+                  ...d,
+                  paymentMethod: val as "cash" | "card" | "other",
+                }));
+              } catch (error) {
+                console.error("Ошибка при изменении способа оплаты:", error);
+                // Очищаем кэш при ошибке состояния
+                if (window.cacheManager) {
+                  window.cacheManager.forceClearProduction();
+                }
+              }
+            }}
+            className="flex flex-col gap-2 bg-gray-700 rounded-lg px-4 py-3 mb-2"
+          >
           <label className="flex items-center justify-between cursor-pointer">
             <span>{t("reservation.cash")}</span>
             <Switch

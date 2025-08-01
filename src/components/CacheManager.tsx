@@ -42,9 +42,9 @@ const CacheManager = ({
     }
   }, [autoClearTime, getTimeSinceLastVisit, clearAllCache]);
 
-  // Добавляем глобальные функции для отладки (только в development)
+  // Добавляем глобальные функции для отладки (доступны в production)
   useEffect(() => {
-    if (process.env.NODE_ENV === "development" && showDebugInfo) {
+    if (showDebugInfo) {
       (window as any).cacheManager = {
         clearAll: clearAllCache,
         clearQuery: clearQueryCache,
@@ -79,10 +79,10 @@ const CacheManager = ({
           localStorage.clear();
           sessionStorage.clear();
           clearAllCache();
-          
+
           // Принудительно показываем баннер куки
           localStorage.removeItem("cookieAccepted");
-          
+
           // Перезагружаем страницу
           setTimeout(() => {
             window.location.reload();

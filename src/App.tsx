@@ -42,11 +42,56 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
       console.error("App error:", event.error);
+      
+      // Проверяем, не является ли ошибка связанной с кэшированием
+      if (event.error && event.error.message) {
+        const errorMessage = event.error.message.toLowerCase();
+        if (errorMessage.includes('cache') || errorMessage.includes('storage') || errorMessage.includes('localstorage')) {
+          console.log("🔄 Ошибка связана с кэшированием, очищаем кэш...");
+          // Очищаем кэш при ошибках кэширования
+          if (window.cacheManager) {
+            window.cacheManager.forceClearProduction();
+          } else {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.reload();
+          }
+          return;
+        }
+      }
+      
+      setHasError(true);
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.error("Unhandled promise rejection:", event.reason);
+      
+      // Проверяем ошибки промисов
+      if (event.reason && typeof event.reason === 'string') {
+        const errorMessage = event.reason.toLowerCase();
+        if (errorMessage.includes('cache') || errorMessage.includes('storage')) {
+          console.log("🔄 Ошибка промиса связана с кэшированием, очищаем кэш...");
+          if (window.cacheManager) {
+            window.cacheManager.forceClearProduction();
+          } else {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.reload();
+          }
+          return;
+        }
+      }
+      
       setHasError(true);
     };
 
     window.addEventListener("error", handleError);
-    return () => window.removeEventListener("error", handleError);
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
+    
+    return () => {
+      window.removeEventListener("error", handleError);
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+    };
   }, []);
 
   if (hasError) {
@@ -131,10 +176,10 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <CacheManager 
-          autoClearTime={5 * 60 * 1000} // 5 минут
+        <CacheManager
+          autoClearTime={2 * 60 * 1000} // 2 минуты для более частого обновления
           enableDoubleRefresh={true}
-          showDebugInfo={process.env.NODE_ENV === 'development'}
+          showDebugInfo={true} // Включаем для production
         />
         <Toaster />
         <Sonner />

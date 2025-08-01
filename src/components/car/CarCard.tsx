@@ -91,14 +91,14 @@ const CarCard = memo(
     return (
       <>
         <Card
-          className="group overflow-hidden car-hover bg-card/50 backdrop-blur border-border/50 hover:border-primary/50 transition-all duration-300 h-[480px] min-w-[320px] flex flex-col justify-between cursor-pointer"
+          className="group overflow-hidden car-hover bg-card/50 backdrop-blur border-border/50 hover:border-primary/50 transition-all duration-300 h-[540px] min-w-[320px] flex flex-col justify-between cursor-pointer"
           onClick={(e) => {
             // Не открывать модалку, если клик был по кнопке бронирования
             if ((e.target as HTMLElement).closest("button")) return;
             setIsModalOpen(true);
           }}
         >
-          <div className="relative overflow-hidden h-48 w-full flex items-center justify-center bg-background">
+          <div className="relative overflow-hidden h-80 w-full flex items-center justify-center bg-background">
             {(!imageLoaded || imageError) && (
               <div className="absolute inset-0 flex items-center justify-center bg-muted animate-pulse">
                 <ImageIcon className="h-8 w-8 text-muted-foreground" />
@@ -107,14 +107,15 @@ const CarCard = memo(
             <img
               src={imageError ? PLACEHOLDER_IMG : imageUrl}
               alt={name}
-              className={`w-full h-48 object-cover transition-all duration-500 ${
+              className={`w-full h-80 object-cover transition-all duration-500 ${
                 imageLoaded ? "group-hover:scale-110" : "opacity-0"
               }`}
+              style={{ objectPosition: "center 60%" }}
               loading="lazy"
               onLoad={handleImageLoad}
               onError={handleImageError}
               width={400}
-              height={192}
+              height={320}
             />
             <div className="absolute top-4 left-4">
               <Badge
@@ -130,44 +131,48 @@ const CarCard = memo(
             </div>
           </div>
 
-          <CardContent className="p-6">
-            <h3 className="text-xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors">
+          <CardContent className="p-4">
+            <h3 className="text-lg font-bold mb-2 text-foreground group-hover:text-primary transition-colors">
               {name}
             </h3>
 
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div className="flex items-center space-x-2 text-muted-foreground">
-                <Users className="h-4 w-4" />
-                <span className="text-sm">{passengers}</span>
+            <div className="grid grid-cols-3 gap-3 mb-3">
+              <div className="flex items-center space-x-1 text-muted-foreground">
+                <Users className="h-3 w-3" />
+                <span className="text-xs">{passengers}</span>
               </div>
-              <div className="flex items-center space-x-2 text-muted-foreground">
-                <Settings className="h-4 w-4" />
-                <span className="text-sm">
+              <div className="flex items-center space-x-1 text-muted-foreground">
+                <Settings className="h-3 w-3" />
+                <span className="text-xs">
                   {translateCarSpec("transmission", transmission, t)}
                 </span>
               </div>
-              <div className="flex items-center space-x-2 text-muted-foreground">
-                <Fuel className="h-4 w-4" />
-                <span className="text-sm">
+              <div className="flex items-center space-x-1 text-muted-foreground">
+                <Fuel className="h-3 w-3" />
+                <span className="text-xs">
                   {translateCarSpec("fuel", fuel, t)}
                 </span>
               </div>
             </div>
 
-            <div className="mb-4">
+            <div className="mb-3">
               <div className="flex flex-wrap gap-1">
                 {(showAllFeatures
                   ? safeFeatures
                   : safeFeatures.slice(0, 3)
                 ).map((feature, index) => (
-                  <Badge key={index} variant="outline" className="text-xs">
+                  <Badge
+                    key={index}
+                    variant="outline"
+                    className="text-xs px-1 py-0.5"
+                  >
                     {translateCarSpec("feature", feature, t)}
                   </Badge>
                 ))}
                 {safeFeatures.length > 3 && !showAllFeatures && (
                   <Badge
                     variant="outline"
-                    className="text-xs cursor-pointer hover:bg-primary/10 transition-colors"
+                    className="text-xs px-1 py-0.5 cursor-pointer hover:bg-primary/10 transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
                       setShowAllFeatures(true);
@@ -179,7 +184,7 @@ const CarCard = memo(
                 {showAllFeatures && safeFeatures.length > 3 && (
                   <Badge
                     variant="outline"
-                    className="text-xs cursor-pointer hover:bg-primary/10 transition-colors"
+                    className="text-xs px-1 py-0.5 cursor-pointer hover:bg-primary/10 transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
                       setShowAllFeatures(false);
@@ -191,20 +196,20 @@ const CarCard = memo(
               </div>
             </div>
 
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
               <div>
-                <span className="text-2xl font-bold">
+                <span className="text-xl font-bold">
                   <span className="text-white">€</span>
                   <span className="text-white">{price}</span>
                 </span>
-                <span className="text-muted-foreground">
+                <span className="text-muted-foreground text-sm">
                   {t("cars.perDay")}
                 </span>
               </div>
             </div>
           </CardContent>
 
-          <CardFooter className="p-6 pt-0">
+          <CardFooter className="p-4 pt-0">
             <Button
               className="w-full glow-effect bg-[#a00003d2] hover:bg-[#8b00008e]"
               onClick={(e) => {

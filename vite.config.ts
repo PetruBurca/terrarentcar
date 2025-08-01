@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => ({
         copy(".nojekyll", "dist/.nojekyll");
         // Копируем redirect.html в корень dist
         copy("redirect.html", "dist/redirect.html");
-        
+
         // Копируем файлы из dist в корень для GitHub Pages
         copy("dist/index.html", "index.html");
         copy("dist/assets", "assets");

@@ -105,43 +105,9 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
     // Очищаем React Query кэш
     queryClient.clear();
 
-    // Очищаем старые ключи localStorage
-    const oldKeysToRemove = [
-      "reservation-form",
-      "search-dates",
-      "reservation-step",
-      "uploaded-photos",
-      "privacy-accepted",
-      "wizard-data",
-      "selected-country-code",
-      "active-image-index",
-      "selected-car-id",
-      "cookieAccepted", // Добавляем ключ куки
-    ];
-
-    oldKeysToRemove.forEach((key) => {
-      localStorage.removeItem(key);
-    });
-
-    // Очищаем новые ключи с изоляцией по машинам
-    const keys = Object.keys(localStorage);
-    const carKeys = keys.filter(
-      (key) =>
-        key.includes("reservation-form-") ||
-        key.includes("reservation-step-") ||
-        key.includes("uploaded-photos-") ||
-        key.includes("privacy-accepted-") ||
-        key.includes("wizard-data-") ||
-        key.includes("selected-country-code-") ||
-        key.includes("active-image-index-")
-    );
-
-    carKeys.forEach((key) => {
-      localStorage.removeItem(key);
-    });
-
-    // Также очищаем ключ куки при очистке кэша
-    localStorage.removeItem("cookieAccepted");
+    // Очищаем ВСЕ localStorage (более агрессивная очистка)
+    localStorage.clear();
+    sessionStorage.clear();
 
     // Очищаем Service Worker кэш
     if ("serviceWorker" in navigator && "caches" in window) {
@@ -155,7 +121,7 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
     // Сбрасываем время последнего посещения
     lastVisitTime.current = Date.now();
 
-    console.log("✅ Кэши очищены (включая кэши машин)");
+    console.log("✅ Все кэши очищены (включая localStorage и sessionStorage)");
   };
 
   // Очистка только React Query кэша
