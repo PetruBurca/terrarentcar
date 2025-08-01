@@ -161,6 +161,7 @@ function TimePicker({ value, onChange, onClose }) {
         .time-picker-scrollbar {
           scrollbar-width: none;
           -ms-overflow-style: none;
+          overflow-x: hidden;
         }
         .time-picker-scrollbar::-webkit-scrollbar {
           display: none;
@@ -189,15 +190,15 @@ function TimePicker({ value, onChange, onClose }) {
         }
       `}</style>
       <div className="relative w-full max-w-xs mx-auto flex flex-col items-center bg-[#232325] rounded-2xl p-4 shadow-xl z-10">
-        <div className="flex gap-4 relative h-48 w-full justify-center">
+        <div className="flex gap-4 relative h-48 w-full justify-center overflow-hidden">
           {/* Центральная линия выделения */}
           <div className="center-line" />
 
           {/* Часы */}
           <div
             ref={hourRef}
-            className="flex-1 h-full overflow-y-auto snap-y snap-mandatory time-picker-scrollbar relative"
-            style={{ minWidth: 60 }}
+            className="flex-1 h-full overflow-y-auto overflow-x-hidden snap-y snap-mandatory time-picker-scrollbar relative"
+            style={{ minWidth: 60, maxWidth: 60 }}
             onScroll={handleHourScroll}
           >
             <div style={{ height: buffer }} />
@@ -221,8 +222,8 @@ function TimePicker({ value, onChange, onClose }) {
           {/* Минуты */}
           <div
             ref={minuteRef}
-            className="flex-1 h-full overflow-y-auto snap-y snap-mandatory time-picker-scrollbar relative"
-            style={{ minWidth: 60 }}
+            className="flex-1 h-full overflow-y-auto overflow-x-hidden snap-y snap-mandatory time-picker-scrollbar relative"
+            style={{ minWidth: 60, maxWidth: 60 }}
             onScroll={handleMinuteScroll}
           >
             <div style={{ height: buffer }} />

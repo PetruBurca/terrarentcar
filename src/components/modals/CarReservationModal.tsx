@@ -105,7 +105,11 @@ const CarReservationModal = ({
         unlimitedMileageCost: wizardData.unlimitedMileage
           ? calculateDays() * 20
           : 0, // Стоимость двойного км
-        deliveryCost: wizardData.pickupType === "address" || wizardData.pickupType === "airport" ? 20 : 0, // Стоимость доставки
+        deliveryCost:
+          wizardData.pickupType === "address" ||
+          wizardData.pickupType === "airport"
+            ? 20
+            : 0, // Стоимость доставки
         // washingCost: 20, // Стоимость мойки - убрали пока не создадите поле в Airtable
       });
       // Показываем модальное окно успеха
@@ -162,7 +166,10 @@ const CarReservationModal = ({
   const unlimitedMileageCost = wizardData.unlimitedMileage
     ? calculateDays() * 20
     : 0; // Стоимость безлимитного километража
-  const deliveryCost = wizardData.pickupType === "address" || wizardData.pickupType === "airport" ? 20 : 0; // Стоимость доставки
+  const deliveryCost =
+    wizardData.pickupType === "address" || wizardData.pickupType === "airport"
+      ? 20
+      : 0; // Стоимость доставки
   const additionalServices = unlimitedMileageCost + deliveryCost; // Все дополнительные услуги
   const washingCost = 20; // Стоимость мойки (фиксированная)
   const finalRentalCost =
@@ -504,13 +511,13 @@ const CarReservationModal = ({
           {/* Крестик всегда сверху справа */}
           <button
             onClick={isSubmitting ? undefined : onClose}
-            className={`absolute top-3 right-3 z-20 text-3xl text-[#ffffff] hover:text-[#686868] transition md:top-4 md:right-4 ${
+            className={`absolute top-3 right-3 z-[3001] text-3xl text-[#ffffff] hover:text-[#686868] transition md:top-4 md:right-4 bg-black/20 rounded-full p-1 ${
               isSubmitting ? "opacity-50 cursor-not-allowed" : ""
             }`}
             aria-label={t("reservation.cancel")}
             disabled={isSubmitting}
           >
-            <X />
+            <X size={24} />
           </button>
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">
