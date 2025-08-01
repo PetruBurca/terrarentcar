@@ -10,10 +10,6 @@ npm run dev:clean        # Clean dist and start dev server
 # Build
 npm run build            # Build for production
 npm run build:clean      # Clean dist and build
-
-# Switch between modes
-npm run switch:dev       # Switch to development mode
-npm run switch:prod      # Switch to production mode
 ```
 
 ## 📋 Workflow

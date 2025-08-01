@@ -1,9 +1,11 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import i18n, { loadLocale } from "./lib/i18n";
 
-// Временно убираем i18n для отладки
-createRoot(document.getElementById("root")!).render(<App />);
+loadLocale("ro").then(() => {
+  createRoot(document.getElementById("root")!).render(<App />);
+});
 
 // Register Service Worker
 if ("serviceWorker" in navigator) {
