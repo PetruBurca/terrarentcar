@@ -1,4 +1,4 @@
-const CACHE_NAME = "terra-rent-car-v2";
+const CACHE_NAME = "terra-rent-car-v3";
 const urlsToCache = [
   "/",
   "/index.html",
@@ -7,8 +7,8 @@ const urlsToCache = [
   "/src/index.css",
 ];
 
-// Время жизни кэша (5 минут)
-const CACHE_LIFETIME = 5 * 60 * 1000;
+// Время жизни кэша (2 минуты для более частого обновления)
+const CACHE_LIFETIME = 2 * 60 * 1000;
 
 // Install event
 self.addEventListener("install", (event) => {
