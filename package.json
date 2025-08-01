@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "dev:clean": "rm -rf dist && npm run dev",
-    "build:clean": "rm -rf dist && npm run build"
+    "build:clean": "rm -rf dist && npm run build",
+    "switch:dev": "cp index.html index.current.html && echo 'Development mode active'",
+    "switch:prod": "cp index.production.html index.html && echo 'Production mode active'"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

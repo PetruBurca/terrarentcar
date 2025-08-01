@@ -40,6 +40,9 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     rollupOptions: {
+      input: {
+        main: mode === "production" ? "index.production.html" : "index.html",
+      },
       output: {
         manualChunks: {
           // Разделяем vendor библиотеки
