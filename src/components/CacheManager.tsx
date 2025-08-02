@@ -106,12 +106,12 @@ const CacheManager = ({
       return;
     }
 
-    // Принудительно обновляем Service Worker для всех пользователей
+    // ВРЕМЕННО ОТКЛЮЧЕНО: Принудительно обновляем Service Worker для всех пользователей
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         registrations.forEach((registration) => {
           registration.update();
-          console.log("🔄 Принудительно обновляем Service Worker");
+          console.log("🔄 ВРЕМЕННО: Принудительно обновляем Service Worker");
         });
       });
     }

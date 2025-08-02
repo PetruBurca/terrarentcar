@@ -40,42 +40,11 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Fetch event
+// Fetch event - ВРЕМЕННО ОТКЛЮЧЕНО КЭШИРОВАНИЕ
 self.addEventListener("fetch", (event) => {
-  // Проверяем, является ли устройство мобильным и Chrome
-  const isMobile =
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
-  const isChrome = /Chrome/i.test(navigator.userAgent);
-
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        // Проверяем возраст кэша
-        const cacheTime = response.headers.get("sw-cache-time");
-        if (cacheTime) {
-          const age = Date.now() - parseInt(cacheTime);
-          // На мобильных устройствах используем более короткое время жизни кэша
-          // Для Chrome на мобильных немного короче
-          let lifetime = CACHE_LIFETIME;
-          if (isMobile) {
-            lifetime = CACHE_LIFETIME / 2; // 2.5 минуты для мобильных
-            if (isChrome) {
-              lifetime = CACHE_LIFETIME / 3; // 1.5 минуты для Chrome на мобильных
-            }
-          }
-          if (age > lifetime) {
-            // Кэш устарел, удаляем его и запрашиваем свежие данные
-            caches.delete(event.request);
-            return fetch(event.request);
-          }
-        }
-        return response;
-      }
-      return fetch(event.request);
-    })
-  );
+  // ВРЕМЕННО: Всегда запрашиваем свежие данные, игнорируем кэш
+  console.log("🔄 ВРЕМЕННО: Игнорируем кэш, запрашиваем свежие данные");
+  return fetch(event.request);
 });
 
 // Activate event

@@ -199,6 +199,13 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
       "cookieAccepted", // Добавляем ключ куки
     ];
 
+    // Принудительно очищаем даты поиска при обновлении страницы
+    if (window.performance && window.performance.navigation.type === 1) {
+      // Страница была обновлена (F5 или Cmd+R)
+      localStorage.removeItem("search-dates");
+      console.log("🔄 Страница обновлена, очищаем даты поиска");
+    }
+
     oldKeysToRemove.forEach((key) => {
       localStorage.removeItem(key);
     });
