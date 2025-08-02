@@ -106,6 +106,16 @@ const CacheManager = ({
       return;
     }
 
+    // Принудительно обновляем Service Worker для всех пользователей
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          registration.update();
+          console.log("🔄 Принудительно обновляем Service Worker");
+        });
+      });
+    }
+    
     // Проверяем, есть ли сохраненные данные заявки
     const keys = Object.keys(localStorage);
     const hasReservationData = keys.some(

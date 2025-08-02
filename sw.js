@@ -1,4 +1,4 @@
-const CACHE_NAME = "terra-rent-car-v3";
+const CACHE_NAME = "terra-rent-car-v4";
 const urlsToCache = [
   "/",
   "/index.html",
@@ -7,11 +7,12 @@ const urlsToCache = [
   "/src/index.css",
 ];
 
-// Время жизни кэша (2 минуты для мобильных устройств)
-const CACHE_LIFETIME = 2 * 60 * 1000;
+// Время жизни кэша (30 секунд для принудительного обновления)
+const CACHE_LIFETIME = 30 * 1000;
 
 // Install event
 self.addEventListener("install", (event) => {
+  console.log("🔄 Service Worker: Устанавливаем новую версию кэша v4");
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(urlsToCache).then(() => {
@@ -26,6 +27,7 @@ self.addEventListener("install", (event) => {
                   headers: {
                     ...Object.fromEntries(response.headers.entries()),
                     "sw-cache-time": Date.now().toString(),
+                    "sw-version": "v4",
                   },
                 });
                 return cache.put(url, newResponse);
@@ -41,9 +43,12 @@ self.addEventListener("install", (event) => {
 // Fetch event
 self.addEventListener("fetch", (event) => {
   // Проверяем, является ли устройство мобильным и Chrome
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isMobile =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
   const isChrome = /Chrome/i.test(navigator.userAgent);
-  
+
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {
@@ -75,11 +80,13 @@ self.addEventListener("fetch", (event) => {
 
 // Activate event
 self.addEventListener("activate", (event) => {
+  console.log("🔄 Service Worker: Активируем новую версию, удаляем старые кэши");
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
+            console.log("🗑️ Удаляем старый кэш:", cacheName);
             return caches.delete(cacheName);
           }
         })
