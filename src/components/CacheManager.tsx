@@ -1,6 +1,26 @@
 import { useEffect } from "react";
 import { useCacheManager } from "@/hooks/use-cache-manager";
 
+// Тип для глобального cacheManager
+interface CacheManagerGlobal {
+  clearAll: () => void;
+  clearQuery: () => void;
+  clearStorage: () => void;
+  getTimeSinceLastVisit: () => number;
+  shouldClearCacheByTime: () => boolean;
+  lastVisitTime: number;
+  forceClear: () => void;
+  checkCache: () => string[];
+  forceClearProduction: () => void;
+}
+
+// Расширяем Window интерфейс
+declare global {
+  interface Window {
+    cacheManager?: CacheManagerGlobal;
+  }
+}
+
 interface CacheManagerProps {
   autoClearTime?: number;
   enableDoubleRefresh?: boolean;
@@ -45,7 +65,7 @@ const CacheManager = ({
   // Добавляем глобальные функции для отладки (доступны в production)
   useEffect(() => {
     if (showDebugInfo) {
-      (window as any).cacheManager = {
+      window.cacheManager = {
         clearAll: clearAllCache,
         clearQuery: clearQueryCache,
         clearStorage: clearLocalStorage,
