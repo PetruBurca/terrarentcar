@@ -155,6 +155,65 @@ const About = () => {
   return (
     <section id="about" className="py-20 relative">
       <style dangerouslySetInnerHTML={{ __html: customStyles }} />
+
+      {/* SEO Content Block - Hidden for users, visible for search engines */}
+      <div className="container mx-auto px-4 lg:px-8 mb-16 sr-only">
+        <div className="bg-zinc-800/50 rounded-2xl p-8 border border-[#B90003]/30">
+          <h2 className="text-3xl font-bold text-white mb-6 text-center">
+            Аренда автомобилей в Кишиневе и Молдове
+          </h2>
+          <div className="grid md:grid-cols-2 gap-8 text-gray-300 leading-relaxed">
+            <div>
+              <h3 className="text-xl font-semibold text-[#B90003] mb-4">
+                Прокат автомобилей в Кишиневе
+              </h3>
+              <p className="mb-4">
+                Terra Rent Car предлагает{" "}
+                <strong>аренду авто в Кишиневе</strong> на выгодных условиях. У
+                нас вы найдете широкий выбор автомобилей для{" "}
+                <strong>проката в Молдове</strong> - от экономичных до
+                премиальных моделей. <strong>Аренда машин в Кишиневе</strong>{" "}
+                доступна 24/7 с доставкой в аэропорт и по городу.
+              </p>
+              <p className="mb-4">
+                Наш <strong>автопрокат в Кишиневе</strong> предоставляет
+                качественные автомобили с полным техническим обслуживанием.{" "}
+                <strong>Аренда автомобилей в Молдове</strong>
+                включает страховку и круглосуточную поддержку клиентов.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-[#B90003] mb-4">
+                Услуги аренды авто
+              </h3>
+              <ul className="space-y-2">
+                <li>
+                  • <strong>Аренда авто аэропорт Кишинев</strong> - встречаем в
+                  аэропорту
+                </li>
+                <li>
+                  • <strong>Прокат автомобилей Кишинев</strong> - краткосрочная
+                  и долгосрочная аренда
+                </li>
+                <li>
+                  • <strong>Аренда машин Молдова</strong> - по всей стране
+                </li>
+                <li>
+                  • <strong>Прокат авто без залога</strong> - удобные условия
+                </li>
+                <li>
+                  • <strong>Аренда автомобилей эконом класса</strong> - от
+                  20€/день
+                </li>
+                <li>
+                  • <strong>Премиум аренда авто</strong> - люксовые автомобили
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
