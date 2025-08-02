@@ -1,7 +1,0 @@
-# Redirects for multiple domains
-/ https://terrarentcar.md/:splat 200
-/ https://terrarentcar.com/:splat 200
-
-# Fallback redirects
-terrarentcar.com/* https://terrarentcar.md/:splat 301
-*.terrarentcar.com/* https://terrarentcar.md/:splat 301 

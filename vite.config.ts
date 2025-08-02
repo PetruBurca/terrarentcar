@@ -34,7 +34,6 @@ export default defineConfig(({ mode }) => ({
       name: "copy-cname",
       writeBundle() {
         copy("CNAME", "dist/CNAME");
-        copy("_redirects", "dist/_redirects");
         copy("404.html", "dist/404.html");
         copy(".nojekyll", "dist/.nojekyll");
         // Копируем redirect.html в корень dist
