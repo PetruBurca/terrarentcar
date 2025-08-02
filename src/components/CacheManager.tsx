@@ -120,24 +120,56 @@ const CacheManager = ({
     // Отслеживаем двойное обновление страницы
     const lastRefreshTime = localStorage.getItem("last-refresh-time");
     const currentTime = Date.now();
-    
+
     if (lastRefreshTime) {
       const timeDiff = currentTime - parseInt(lastRefreshTime);
       // Если прошло меньше 3 секунд между обновлениями - это двойное обновление
       if (timeDiff < 3000) {
-        console.log("🔄 Двойное обновление обнаружено! Очищаем localStorage...");
+        console.log(
+          "🔄 Двойное обновление обнаружено! Очищаем localStorage..."
+        );
         localStorage.clear();
         sessionStorage.clear();
         console.log("🗑️ localStorage полностью очищен");
       }
     }
-    
+
     // Сохраняем время текущего обновления
     localStorage.setItem("last-refresh-time", currentTime.toString());
-    
+
     // ВРЕМЕННО: Принудительно очищаем даты поиска для тестирования
     localStorage.removeItem("search-dates");
     console.log("🗑️ ВРЕМЕННО: Очищены даты поиска для тестирования");
+    
+    // Добавляем кнопку очистки для мобильных устройств
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile && !document.getElementById("clear-cache-btn")) {
+      const clearButton = document.createElement("button");
+      clearButton.id = "clear-cache-btn";
+      clearButton.innerHTML = "🧹 Очистить кэш";
+      clearButton.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 9999;
+        background: #B90003;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      `;
+      clearButton.onclick = () => {
+        localStorage.clear();
+        sessionStorage.clear();
+        alert("Кэш очищен! Страница перезагрузится.");
+        window.location.reload();
+      };
+      document.body.appendChild(clearButton);
+      console.log("📱 Добавлена кнопка очистки кэша для мобильных");
+    }
 
     // Проверяем, есть ли сохраненные данные заявки
     const keys = Object.keys(localStorage);
