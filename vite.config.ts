@@ -24,7 +24,15 @@ export default defineConfig(({ mode }) => ({
 
         // Копируем файлы из dist в корень для GitHub Pages (только для production)
         if (mode === "production") {
+          // Не копируем index.html в dev режиме, чтобы не перезаписывать dev версию
           copy("dist/index.html", "index.html");
+          copy("dist/assets", "assets");
+          copy("dist/locales", "locales");
+          copy("dist/robots.txt", "robots.txt");
+          copy("dist/sw.js", "sw.js");
+          copy("dist/privacy-policy.pdf", "privacy-policy.pdf");
+        } else {
+          // В dev режиме копируем только необходимые файлы, но НЕ index.html
           copy("dist/assets", "assets");
           copy("dist/locales", "locales");
           copy("dist/robots.txt", "robots.txt");
