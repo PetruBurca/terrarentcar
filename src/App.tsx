@@ -49,9 +49,11 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
         if (
           errorMessage.includes("cache") ||
           errorMessage.includes("storage") ||
-          errorMessage.includes("localstorage")
+          errorMessage.includes("localstorage") ||
+          errorMessage.includes("quota") ||
+          errorMessage.includes("memory")
         ) {
-          console.log("🔄 Ошибка связана с кэшированием, очищаем кэш...");
+          console.log("🔄 Ошибка связана с кэшированием/памятью, очищаем кэш...");
           // Мягкая очистка только данных заявок
           try {
             const keys = Object.keys(localStorage);
@@ -80,6 +82,21 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
         }
       }
 
+      // На мобильных устройствах не показываем ошибку для незначительных проблем
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile && event.error && event.error.message) {
+        const errorMessage = event.error.message.toLowerCase();
+        if (
+          errorMessage.includes("script") ||
+          errorMessage.includes("module") ||
+          errorMessage.includes("import") ||
+          errorMessage.includes("fetch")
+        ) {
+          console.log("📱 Мобильная ошибка, игнорируем:", errorMessage);
+          return;
+        }
+      }
+
       setHasError(true);
     };
 
@@ -91,10 +108,12 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
         const errorMessage = event.reason.toLowerCase();
         if (
           errorMessage.includes("cache") ||
-          errorMessage.includes("storage")
+          errorMessage.includes("storage") ||
+          errorMessage.includes("quota") ||
+          errorMessage.includes("memory")
         ) {
           console.log(
-            "🔄 Ошибка промиса связана с кэшированием, очищаем кэш..."
+            "🔄 Ошибка промиса связана с кэшированием/памятью, очищаем кэш..."
           );
           // Мягкая очистка только данных заявок
           try {
@@ -120,6 +139,22 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
           } catch (clearError) {
             console.error("Ошибка при очистке данных заявок:", clearError);
           }
+          return;
+        }
+      }
+
+      // На мобильных устройствах не показываем ошибку для незначительных проблем
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile && event.reason && typeof event.reason === "string") {
+        const errorMessage = event.reason.toLowerCase();
+        if (
+          errorMessage.includes("script") ||
+          errorMessage.includes("module") ||
+          errorMessage.includes("import") ||
+          errorMessage.includes("fetch") ||
+          errorMessage.includes("network")
+        ) {
+          console.log("📱 Мобильная ошибка промиса, игнорируем:", errorMessage);
           return;
         }
       }
