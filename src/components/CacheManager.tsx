@@ -107,7 +107,7 @@ const CacheManager = ({
     }
 
     // ВРЕМЕННО ОТКЛЮЧЕНО: Принудительно обновляем Service Worker для всех пользователей
-    if ('serviceWorker' in navigator) {
+    if ("serviceWorker" in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         registrations.forEach((registration) => {
           registration.update();
@@ -116,6 +116,10 @@ const CacheManager = ({
       });
     }
     
+    // ВРЕМЕННО: Принудительно очищаем даты поиска для тестирования
+    localStorage.removeItem("search-dates");
+    console.log("🗑️ ВРЕМЕННО: Очищены даты поиска для тестирования");
+
     // Проверяем, есть ли сохраненные данные заявки
     const keys = Object.keys(localStorage);
     const hasReservationData = keys.some(
@@ -167,6 +171,10 @@ const CacheManager = ({
           clearServiceWorkerCache();
           localStorage.clear();
           sessionStorage.clear();
+          
+          // Принудительно очищаем даты поиска
+          localStorage.removeItem("search-dates");
+          console.log("🗑️ Очищены даты поиска");
         },
         forceClearProduction: () => {
           console.log("🧹 Принудительная очистка для продакшена");
