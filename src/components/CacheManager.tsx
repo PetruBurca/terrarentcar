@@ -13,6 +13,7 @@ interface CacheManagerGlobal {
   checkCache: () => string[];
   forceClearProduction: () => void;
   clearServiceWorker: () => void;
+  clearLocalStorage: () => void;
 }
 
 // Расширяем Window интерфейс
@@ -115,6 +116,24 @@ const CacheManager = ({
         });
       });
     }
+
+    // Отслеживаем двойное обновление страницы
+    const lastRefreshTime = localStorage.getItem("last-refresh-time");
+    const currentTime = Date.now();
+    
+    if (lastRefreshTime) {
+      const timeDiff = currentTime - parseInt(lastRefreshTime);
+      // Если прошло меньше 3 секунд между обновлениями - это двойное обновление
+      if (timeDiff < 3000) {
+        console.log("🔄 Двойное обновление обнаружено! Очищаем localStorage...");
+        localStorage.clear();
+        sessionStorage.clear();
+        console.log("🗑️ localStorage полностью очищен");
+      }
+    }
+    
+    // Сохраняем время текущего обновления
+    localStorage.setItem("last-refresh-time", currentTime.toString());
     
     // ВРЕМЕННО: Принудительно очищаем даты поиска для тестирования
     localStorage.removeItem("search-dates");
@@ -171,7 +190,7 @@ const CacheManager = ({
           clearServiceWorkerCache();
           localStorage.clear();
           sessionStorage.clear();
-          
+
           // Принудительно очищаем даты поиска
           localStorage.removeItem("search-dates");
           console.log("🗑️ Очищены даты поиска");
@@ -181,6 +200,12 @@ const CacheManager = ({
           clearAllCache();
           clearServiceWorkerCache();
           sendMessageToSW("CLEAR_CACHE");
+        },
+        clearLocalStorage: () => {
+          console.log("🧹 Ручная очистка localStorage");
+          localStorage.clear();
+          sessionStorage.clear();
+          console.log("🗑️ localStorage полностью очищен");
         },
         checkCache: () => {
           const keys = Object.keys(localStorage);
