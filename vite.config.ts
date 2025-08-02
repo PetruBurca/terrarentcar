@@ -39,12 +39,8 @@ export default defineConfig(({ mode }) => ({
         // Копируем redirect.html в корень dist
         copy("redirect.html", "dist/redirect.html");
 
-        // Копируем файлы из dist в корень ТОЛЬКО для GitHub Pages деплоя
-        // Это нужно только когда мы деплоим на GitHub Pages
-        if (
-          mode === "production" &&
-          process.env.GITHUB_PAGES_DEPLOY === "true"
-        ) {
+        // Копируем файлы из dist в корень для GitHub Pages
+        if (mode === "production") {
           copy("dist/index.html", "index.html");
           copy("dist/assets", "assets");
           copy("dist/locales", "locales");
