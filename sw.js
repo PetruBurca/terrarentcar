@@ -1,4 +1,4 @@
-const CACHE_NAME = "terra-rent-car-v2";
+const CACHE_NAME = "terra-rent-car-v3";
 const urlsToCache = [
   "/",
   "/index.html",
@@ -7,8 +7,8 @@ const urlsToCache = [
   "/src/index.css",
 ];
 
-// Время жизни кэша (5 минут)
-const CACHE_LIFETIME = 5 * 60 * 1000;
+// Время жизни кэша (2 минуты для мобильных устройств)
+const CACHE_LIFETIME = 2 * 60 * 1000;
 
 // Install event
 self.addEventListener("install", (event) => {
@@ -40,6 +40,9 @@ self.addEventListener("install", (event) => {
 
 // Fetch event
 self.addEventListener("fetch", (event) => {
+  // Проверяем, является ли устройство мобильным
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {
@@ -47,7 +50,9 @@ self.addEventListener("fetch", (event) => {
         const cacheTime = response.headers.get("sw-cache-time");
         if (cacheTime) {
           const age = Date.now() - parseInt(cacheTime);
-          if (age > CACHE_LIFETIME) {
+          // На мобильных устройствах используем более короткое время жизни кэша
+          const lifetime = isMobile ? CACHE_LIFETIME / 2 : CACHE_LIFETIME;
+          if (age > lifetime) {
             // Кэш устарел, удаляем его и запрашиваем свежие данные
             caches.delete(event.request);
             return fetch(event.request);
