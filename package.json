@@ -7,9 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "build:github": "GITHUB_PAGES_DEPLOY=true vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
+    "predeploy": "npm run build:github",
     "deploy": "gh-pages -d dist",
     "homepage": "https://PetruBurca.github.io/terrarentcar"
   },

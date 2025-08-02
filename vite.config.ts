@@ -9,6 +9,24 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    // Отключаем кеширование в dev режиме
+    hmr: {
+      overlay: true,
+    },
+    // Принудительно обновляем файлы
+    watch: {
+      usePolling: true,
+    },
+    // Добавляем заголовки для отключения кеширования
+    headers: {
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      Pragma: "no-cache",
+      Expires: "0",
+    },
+  },
+  // Отключаем кеширование в dev режиме
+  define: {
+    __DEV__: mode === "development",
   },
   plugins: [
     react(),
@@ -22,8 +40,12 @@ export default defineConfig(({ mode }) => ({
         // Копируем redirect.html в корень dist
         copy("redirect.html", "dist/redirect.html");
 
-        // Копируем файлы из dist в корень для GitHub Pages (только для production)
-        if (mode === "production") {
+        // Копируем файлы из dist в корень ТОЛЬКО для GitHub Pages деплоя
+        // Это нужно только когда мы деплоим на GitHub Pages
+        if (
+          mode === "production" &&
+          process.env.GITHUB_PAGES_DEPLOY === "true"
+        ) {
           copy("dist/index.html", "index.html");
           copy("dist/assets", "assets");
           copy("dist/locales", "locales");

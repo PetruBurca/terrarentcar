@@ -8,7 +8,7 @@ interface CacheManagerOptions {
 
 export const useCacheManager = (options: CacheManagerOptions = {}) => {
   const {
-    autoClearTime = 10 * 60 * 1000, // 10 минут по умолчанию
+    autoClearTime = 60 * 60 * 1000, // 1 час по умолчанию (было 30 минут)
     enableDoubleRefresh = true,
   } = options;
 
@@ -17,11 +17,22 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
   const refreshCount = useRef<number>(0);
   const refreshTimeout = useRef<NodeJS.Timeout | null>(null);
 
+  // Определяем режим разработки
+  const isDevelopment = import.meta.env.DEV;
+
   // Отслеживание времени посещения
   useEffect(() => {
     lastVisitTime.current = Date.now();
 
-    // Устанавливаем таймер для автоматической очистки
+    // В режиме разработки не устанавливаем автоматическую очистку
+    if (isDevelopment) {
+      console.log(
+        "🔧 Режим разработки - отключена автоматическая очистка кеша"
+      );
+      return;
+    }
+
+    // Устанавливаем таймер для автоматической очистки только в продакшене
     const clearTimer = setTimeout(() => {
       clearAllCache();
     }, autoClearTime);
@@ -29,7 +40,7 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
     return () => {
       clearTimeout(clearTimer);
     };
-  }, [autoClearTime]);
+  }, [autoClearTime, isDevelopment]);
 
   // Отслеживание двойного обновления
   useEffect(() => {
@@ -105,23 +116,65 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
     // Очищаем React Query кэш
     queryClient.clear();
 
-    // Очищаем ВСЕ localStorage (более агрессивная очистка)
-    localStorage.clear();
-    sessionStorage.clear();
+    // В режиме разработки НЕ очищаем данные, только React Query кэш
+    if (isDevelopment) {
+      console.log("🔧 Режим разработки - оставляем данные заявок");
+      // Очищаем только React Query кэш, не трогаем localStorage
+    } else {
+      // В продакшене используем умную очистку по времени
+      const keys = Object.keys(localStorage);
+      const timeSinceLastVisit = Date.now() - lastVisitTime.current;
 
-    // Очищаем Service Worker кэш
-    if ("serviceWorker" in navigator && "caches" in window) {
-      caches.keys().then((cacheNames) => {
-        cacheNames.forEach((cacheName) => {
-          caches.delete(cacheName);
+      // Данные заявок - очищаем через 1 час (короткое время для UX)
+      const reservationKeys = keys.filter(
+        (key) =>
+          key.includes("reservation-form-") ||
+          key.includes("reservation-step-") ||
+          key.includes("uploaded-photos-") ||
+          key.includes("privacy-accepted-") ||
+          key.includes("wizard-data-")
+      );
+
+      // Пользовательские настройки - очищаем через 2 часа
+      const userSettingsKeys = keys.filter(
+        (key) =>
+          key.includes("selected-country-code-") ||
+          key.includes("active-image-index-") ||
+          key.includes("cookieAccepted")
+      );
+
+      // Очищаем данные заявок через 1 час
+      if (timeSinceLastVisit > 60 * 60 * 1000) {
+        reservationKeys.forEach((key) => {
+          localStorage.removeItem(key);
         });
-      });
+        console.log("🧹 Очищены данные заявок (прошло больше часа)");
+      }
+
+      // Очищаем пользовательские настройки через 2 часа
+      if (timeSinceLastVisit > 2 * 60 * 60 * 1000) {
+        userSettingsKeys.forEach((key) => {
+          localStorage.removeItem(key);
+        });
+        console.log(
+          "🧹 Очищены пользовательские настройки (прошло больше 2 часов)"
+        );
+      }
+
+      // Очищаем Service Worker кэш только при необходимости
+      if ("serviceWorker" in navigator && "caches" in window) {
+        caches.keys().then((cacheNames) => {
+          cacheNames.forEach((cacheName) => {
+            caches.delete(cacheName);
+          });
+        });
+      }
+
+      console.log("✅ Умная очистка кеша завершена (продакшен режим)");
     }
 
     // Сбрасываем время последнего посещения
     lastVisitTime.current = Date.now();
-
-    console.log("✅ Все кэши очищены (включая localStorage и sessionStorage)");
   };
 
   // Очистка только React Query кэша

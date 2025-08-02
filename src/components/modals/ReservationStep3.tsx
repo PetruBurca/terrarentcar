@@ -88,9 +88,14 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
       }));
     } catch (error) {
       console.error("Ошибка при изменении формы:", error);
-      // Очищаем кэш при ошибке состояния
-      if (window.cacheManager) {
-        window.cacheManager.forceClearProduction();
+      // Мягкая очистка только данных формы для конкретной машины
+      try {
+        const carId = car.id;
+        localStorage.removeItem(`reservation-form-${carId}`);
+        localStorage.removeItem(`reservation-step-${carId}`);
+        console.log("🧹 Очищены данные формы для машины:", carId);
+      } catch (clearError) {
+        console.error("Ошибка при очистке данных формы:", clearError);
       }
     }
   };
@@ -153,24 +158,29 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
         <h3 className="text-xl font-bold text-center mb-2">
           {t("reservation.paymentMethod")}
         </h3>
-                  <RadioGroup
-            value={formData.paymentMethod || "cash"}
-            onValueChange={(val) => {
+        <RadioGroup
+          value={formData.paymentMethod || "cash"}
+          onValueChange={(val) => {
+            try {
+              setFormData((d: FormData) => ({
+                ...d,
+                paymentMethod: val as "cash" | "card" | "other",
+              }));
+            } catch (error) {
+              console.error("Ошибка при изменении способа оплаты:", error);
+              // Мягкая очистка только данных формы для конкретной машины
               try {
-                setFormData((d: FormData) => ({
-                  ...d,
-                  paymentMethod: val as "cash" | "card" | "other",
-                }));
-              } catch (error) {
-                console.error("Ошибка при изменении способа оплаты:", error);
-                // Очищаем кэш при ошибке состояния
-                if (window.cacheManager) {
-                  window.cacheManager.forceClearProduction();
-                }
+                const carId = car.id;
+                localStorage.removeItem(`reservation-form-${carId}`);
+                localStorage.removeItem(`reservation-step-${carId}`);
+                console.log("🧹 Очищены данные формы для машины:", carId);
+              } catch (clearError) {
+                console.error("Ошибка при очистке данных формы:", clearError);
               }
-            }}
-            className="flex flex-col gap-2 bg-gray-700 rounded-lg px-4 py-3 mb-2"
-          >
+            }
+          }}
+          className="flex flex-col gap-2 bg-gray-700 rounded-lg px-4 py-3 mb-2"
+        >
           <label className="flex items-center justify-between cursor-pointer">
             <span>{t("reservation.cash")}</span>
             <Switch
@@ -460,76 +470,78 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
         <Label htmlFor="phone" className="text-[#B90003] font-bold">
           {t("reservation.phone")}
         </Label>
-        <div className="flex items-center gap-2 mt-1">
-          <Select
-            value={selectedCountryCode}
-            onValueChange={setSelectedCountryCode}
-          >
-            <SelectTrigger className="w-40 bg-zinc-800 text-white border-none hover:bg-zinc-700">
-              <SelectValue>
-                <span className="flex items-center gap-2">
-                  <span>
-                    {
-                      countries.find((c) => c.code === selectedCountryCode)
-                        ?.flag
-                    }
-                  </span>
-                  <span>{selectedCountryCode}</span>
-                </span>
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent className="bg-zinc-800 border-zinc-700 z-[3001] max-h-60">
-              {countries.map((country) => (
-                <SelectItem
-                  key={country.code}
-                  value={country.code}
-                  className="text-white hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    <span>{country.flag}</span>
-                    <span>{country.code}</span>
-                    <span className="text-gray-400 text-sm">
-                      {country.name}
+        <div className="flex flex-col gap-2 mt-1">
+          <div className="flex items-center gap-2">
+            <Select
+              value={selectedCountryCode}
+              onValueChange={setSelectedCountryCode}
+            >
+              <SelectTrigger className="w-40 bg-zinc-800 text-white border-none hover:bg-zinc-700">
+                <SelectValue>
+                  <span className="flex items-center gap-2">
+                    <span>
+                      {
+                        countries.find((c) => c.code === selectedCountryCode)
+                          ?.flag
+                      }
                     </span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Input
-            id="phone"
-            name="phone"
-            type="tel"
-            placeholder="0(XX)XXXXXX"
-            className={`bg-zinc-800 text-white border-none flex-1 ${
-              formData.phone.replace(/\D/g, "").length === 9
-                ? "border-green-500 border-2"
-                : formData.phone.replace(/\D/g, "").length > 0
-                ? "border-yellow-500 border-2"
-                : ""
-            }`}
-            value={formatPhoneNumber(
-              formData.phone.replace(
-                new RegExp(`^\\${selectedCountryCode}`),
-                ""
-              )
-            )}
-            onChange={(e) => {
-              // Получаем только цифры из ввода (убираем все не-цифры)
-              const digitsOnly = e.target.value.replace(/\D/g, "");
+                    <span>{selectedCountryCode}</span>
+                  </span>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-800 border-zinc-700 z-[3001] max-h-60">
+                {countries.map((country) => (
+                  <SelectItem
+                    key={country.code}
+                    value={country.code}
+                    className="text-white hover:bg-zinc-700 focus:bg-zinc-700 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>{country.flag}</span>
+                      <span>{country.code}</span>
+                      <span className="text-gray-400 text-sm">
+                        {country.name}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input
+              id="phone"
+              name="phone"
+              type="tel"
+              placeholder="0(XX)XXXXXX"
+              className={`bg-zinc-800 text-white border-none flex-1 ${
+                formData.phone.replace(/\D/g, "").length === 9
+                  ? "border-green-500 border-2"
+                  : formData.phone.replace(/\D/g, "").length > 0
+                  ? "border-yellow-500 border-2"
+                  : ""
+              }`}
+              value={formatPhoneNumber(
+                formData.phone.replace(
+                  new RegExp(`^\\${selectedCountryCode}`),
+                  ""
+                )
+              )}
+              onChange={(e) => {
+                // Получаем только цифры из ввода (убираем все не-цифры)
+                const digitsOnly = e.target.value.replace(/\D/g, "");
 
-              // Ограничиваем до 9 цифр (0 + код оператора + номер)
-              const limitedDigits = digitsOnly.slice(0, 9);
+                // Ограничиваем до 9 цифр (0 + код оператора + номер)
+                const limitedDigits = digitsOnly.slice(0, 9);
 
-              setFormData((prev: FormData) => ({
-                ...prev,
-                phone: selectedCountryCode + limitedDigits,
-              }));
-            }}
-            maxLength={13}
-            required
-          />
-          <div className="text-xs mt-1 ml-2">
+                setFormData((prev: FormData) => ({
+                  ...prev,
+                  phone: selectedCountryCode + limitedDigits,
+                }));
+              }}
+              maxLength={13}
+              required
+            />
+          </div>
+          <div className="text-xs text-gray-400">
             {(() => {
               // Получаем только цифры номера (без кода страны)
               const phoneDigits = formData.phone

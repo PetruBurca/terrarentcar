@@ -61,36 +61,18 @@
     <!-- Security headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
-    <link
-      rel="modulepreload"
-      crossorigin
-      href="/assets/vendor-C1mj56OW-DBz-V2dq-DBz-V2dq.js"
+
+    <!-- Отключаем кеширование в dev режиме -->
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
     />
-    <link
-      rel="modulepreload"
-      crossorigin
-      href="/assets/ui-KGOU9Zub-DFgCEh7F-DFgCEh7F.js"
-    />
-    <link
-      rel="modulepreload"
-      crossorigin
-      href="/assets/utils-CeiXZxcG-skKCKvPK-skKCKvPK.js"
-    />
-    <link
-      rel="modulepreload"
-      crossorigin
-      href="/assets/query-CjOa7rB9-DyaCYbrZ-DyaCYbrZ.js"
-    />
-    <link
-      rel="modulepreload"
-      crossorigin
-      href="/assets/i18n-DsIgav-U-DoJSMFWb-DoJSMFWb.js"
-    />
-    <script type="module" crossorigin src="/assets/index-lx3WLt46.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BxDfKVji.css">
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
   </head>
 
   <body>
     <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,4 +1,4 @@
-import { useState, memo, Suspense } from "react";
+import { useState, memo, Suspense, useEffect } from "react";
 import {
   Car,
   Users,
@@ -78,6 +78,19 @@ const CarCard = memo(
     const imageUrl =
       images && images.length > 0 && images[0] ? images[0] : PLACEHOLDER_IMG;
 
+    // Лог для проверки загрузки компонента
+
+    // Принудительно обновляем стили через useEffect
+    useEffect(() => {
+      const cardElement = document.querySelector(`[data-car-id="${id}"]`);
+      if (cardElement) {
+        // Принудительно очищаем все красные стили
+        (cardElement as HTMLElement).style.removeProperty("border");
+        (cardElement as HTMLElement).style.removeProperty("box-shadow");
+        (cardElement as HTMLElement).style.removeProperty("background-color");
+      }
+    }, [id, name]);
+
     const handleImageLoad = () => {
       setImageLoaded(true);
       setImageError(false);
@@ -91,7 +104,8 @@ const CarCard = memo(
     return (
       <>
         <Card
-          className="group overflow-hidden car-hover bg-card/50 backdrop-blur border-border/50 hover:border-primary/50 transition-all duration-300 h-[540px] min-w-[320px] flex flex-col justify-between cursor-pointer"
+          className="group overflow-hidden car-hover bg-card/50 backdrop-blur hover:shadow-2xl transition-all duration-300 h-[540px] min-w-[320px] flex flex-col justify-between cursor-pointer"
+          data-car-id={id}
           onClick={(e) => {
             // Не открывать модалку, если клик был по кнопке бронирования
             if ((e.target as HTMLElement).closest("button")) return;

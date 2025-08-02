@@ -10,6 +10,7 @@
   to = "/index.html"
   status = 200
 
+# Кеширование для статических ресурсов (JS, CSS, изображения)
 [[headers]]
   for = "/assets/*"
   [headers.values]
@@ -25,7 +26,22 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Уменьшенное кеширование для HTML файлов для быстрого обновления
 [[headers]]
   for = "/*.html"
   [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate" 
+    Cache-Control = "public, max-age=300, must-revalidate"
+
+# Заголовки для разработки - отключаем кеширование в dev режиме
+[context.deploy-preview]
+  command = "npm run build:dev"
+
+[context.branch-deploy]
+  command = "npm run build:dev"
+
+# Специальные заголовки для preview деплоев
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-cache, no-store, must-revalidate" 

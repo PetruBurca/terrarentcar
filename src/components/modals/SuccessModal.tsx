@@ -22,6 +22,53 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
 }) => {
   const { t } = useTranslation();
 
+  // Функция для очистки кеша после успешной отправки
+  const handleCloseAndClearCache = () => {
+    console.log("🎉 Заявка успешно отправлена, очищаем кеш...");
+
+    // Очищаем все данные заявок
+    const keys = Object.keys(localStorage);
+    const reservationKeys = keys.filter(
+      (key) =>
+        key.includes("reservation-form-") ||
+        key.includes("reservation-step-") ||
+        key.includes("uploaded-photos-") ||
+        key.includes("privacy-accepted-") ||
+        key.includes("wizard-data-") ||
+        key.includes("selected-country-code-") ||
+        key.includes("active-image-index-")
+    );
+
+    reservationKeys.forEach((key) => {
+      localStorage.removeItem(key);
+      console.log("🧹 Удален ключ кеша:", key);
+    });
+
+    // Очищаем Service Worker кеш
+    if ("serviceWorker" in navigator && "caches" in window) {
+      caches.keys().then((cacheNames) => {
+        cacheNames.forEach((cacheName) => {
+          if (cacheName.includes("dynamic")) {
+            caches.delete(cacheName);
+            console.log("🧹 Очищен динамический кеш SW:", cacheName);
+          }
+        });
+      });
+    }
+
+    // Отправляем сообщение в Service Worker для очистки кеша
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.ready.then((registration) => {
+        registration.active?.postMessage({ type: "CLEAR_CACHE" });
+      });
+    }
+
+    console.log("✅ Кеш очищен после успешной отправки заявки");
+
+    // Закрываем модальное окно
+    onClose();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent
@@ -85,7 +132,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
 
           {/* Кнопка ОК */}
           <Button
-            onClick={onClose}
+            onClick={handleCloseAndClearCache}
             className="w-full bg-[#B90003] hover:bg-[#A00002] text-white font-bold text-lg py-4 rounded-xl shadow-lg shadow-[#B90003]/30 transform transition hover:scale-105 glow-effect"
           >
             ✓ {t("reservation.okButton", "Понятно, спасибо!")}

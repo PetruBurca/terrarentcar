@@ -151,6 +151,36 @@ const Cars = ({ searchDates }) => {
   const [sortBy, setSortBy] = useState<"price" | "name" | null>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
+  // Проверяем, есть ли сохраненные данные заявки
+  useEffect(() => {
+    const keys = Object.keys(localStorage);
+    const hasReservationData = keys.some(
+      (key) =>
+        key.includes("reservation-form-") ||
+        key.includes("reservation-step-") ||
+        key.includes("wizard-data-")
+    );
+
+    if (hasReservationData) {
+      console.log(
+        "👋 Привет! Ты уже выбрал машину? Данные заявки восстановлены."
+      );
+    }
+
+    // Принудительно очищаем красные стили при загрузке страницы
+    setTimeout(() => {
+      const carCards = document.querySelectorAll("[data-car-id]");
+      carCards.forEach((card) => {
+        if (card instanceof HTMLElement) {
+          card.style.border = "";
+          card.style.boxShadow = "";
+          card.style.backgroundColor = "";
+          card.style.background = "";
+        }
+      });
+    }, 100);
+  }, []);
+
   // Создаем категории с зависимостью от языка
   const categories = [
     { key: "all", label: t("cars.category.all"), value: null },

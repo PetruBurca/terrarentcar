@@ -42,55 +42,100 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
       console.error("App error:", event.error);
-      
+
       // Проверяем, не является ли ошибка связанной с кэшированием
       if (event.error && event.error.message) {
         const errorMessage = event.error.message.toLowerCase();
-        if (errorMessage.includes('cache') || errorMessage.includes('storage') || errorMessage.includes('localstorage')) {
+        if (
+          errorMessage.includes("cache") ||
+          errorMessage.includes("storage") ||
+          errorMessage.includes("localstorage")
+        ) {
           console.log("🔄 Ошибка связана с кэшированием, очищаем кэш...");
-          // Очищаем кэш при ошибках кэширования
-          if (window.cacheManager) {
-            window.cacheManager.forceClearProduction();
-          } else {
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.reload();
+          // Мягкая очистка только данных заявок
+          try {
+            const keys = Object.keys(localStorage);
+            const reservationKeys = keys.filter(
+              (key) =>
+                key.includes("reservation-form-") ||
+                key.includes("reservation-step-") ||
+                key.includes("uploaded-photos-") ||
+                key.includes("privacy-accepted-") ||
+                key.includes("wizard-data-") ||
+                key.includes("selected-country-code-") ||
+                key.includes("active-image-index-")
+            );
+            reservationKeys.forEach((key) => {
+              localStorage.removeItem(key);
+            });
+            console.log(
+              "🧹 Очищены данные заявок:",
+              reservationKeys.length,
+              "ключей"
+            );
+          } catch (clearError) {
+            console.error("Ошибка при очистке данных заявок:", clearError);
           }
           return;
         }
       }
-      
+
       setHasError(true);
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.error("Unhandled promise rejection:", event.reason);
-      
+
       // Проверяем ошибки промисов
-      if (event.reason && typeof event.reason === 'string') {
+      if (event.reason && typeof event.reason === "string") {
         const errorMessage = event.reason.toLowerCase();
-        if (errorMessage.includes('cache') || errorMessage.includes('storage')) {
-          console.log("🔄 Ошибка промиса связана с кэшированием, очищаем кэш...");
-          if (window.cacheManager) {
-            window.cacheManager.forceClearProduction();
-          } else {
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.reload();
+        if (
+          errorMessage.includes("cache") ||
+          errorMessage.includes("storage")
+        ) {
+          console.log(
+            "🔄 Ошибка промиса связана с кэшированием, очищаем кэш..."
+          );
+          // Мягкая очистка только данных заявок
+          try {
+            const keys = Object.keys(localStorage);
+            const reservationKeys = keys.filter(
+              (key) =>
+                key.includes("reservation-form-") ||
+                key.includes("reservation-step-") ||
+                key.includes("uploaded-photos-") ||
+                key.includes("privacy-accepted-") ||
+                key.includes("wizard-data-") ||
+                key.includes("selected-country-code-") ||
+                key.includes("active-image-index-")
+            );
+            reservationKeys.forEach((key) => {
+              localStorage.removeItem(key);
+            });
+            console.log(
+              "🧹 Очищены данные заявок:",
+              reservationKeys.length,
+              "ключей"
+            );
+          } catch (clearError) {
+            console.error("Ошибка при очистке данных заявок:", clearError);
           }
           return;
         }
       }
-      
+
       setHasError(true);
     };
 
     window.addEventListener("error", handleError);
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
-    
+
     return () => {
       window.removeEventListener("error", handleError);
-      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+      window.removeEventListener(
+        "unhandledrejection",
+        handleUnhandledRejection
+      );
     };
   }, []);
 
@@ -177,7 +222,7 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CacheManager
-          autoClearTime={2 * 60 * 1000} // 2 минуты для более частого обновления
+          autoClearTime={30 * 60 * 1000} // 30 минут для лучшего UX
           enableDoubleRefresh={true}
           showDebugInfo={true} // Включаем для production
         />

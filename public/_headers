@@ -4,4 +4,46 @@
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.airtable.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.airtable.com https://firebasestorage.googleapis.com https://firebase.googleapis.com; frame-src 'none'; object-src 'none' 
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.airtable.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.airtable.com https://firebasestorage.googleapis.com https://firebase.googleapis.com; frame-src 'none'; object-src 'none'
+
+# Статические ресурсы - кешируем на 1 год
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Локали - кешируем на 1 месяц
+/locales/*
+  Cache-Control: public, max-age=2592000
+
+# JavaScript и CSS файлы - кешируем на 1 год
+*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+# Изображения - кешируем на 1 год
+*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+
+*.svg
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML файлы - кешируем на 1 час (короткое время для UX)
+*.html
+  Cache-Control: public, max-age=3600
+
+# Service Worker - не кешируем
+sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+# Главная страница - кешируем на 1 час (короткое время для UX)
+/
+  Cache-Control: public, max-age=3600 
