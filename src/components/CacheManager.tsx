@@ -7,6 +7,20 @@ interface CacheManagerProps {
   showDebugInfo?: boolean;
 }
 
+interface CacheManagerWindow extends Window {
+  cacheManager?: {
+    clearAll: () => void;
+    clearQuery: () => void;
+    clearStorage: () => void;
+    getTimeSinceLastVisit: () => number;
+    shouldClearCacheByTime: () => boolean;
+    lastVisitTime: number;
+    forceClear: () => void;
+    checkCache: () => string[];
+    forceClearProduction: () => void;
+  };
+}
+
 const CacheManager = ({
   autoClearTime = 5 * 60 * 1000,
   enableDoubleRefresh = true,
@@ -45,7 +59,7 @@ const CacheManager = ({
   // Добавляем глобальные функции для отладки (доступны в production)
   useEffect(() => {
     if (showDebugInfo) {
-      (window as any).cacheManager = {
+      (window as CacheManagerWindow).cacheManager = {
         clearAll: clearAllCache,
         clearQuery: clearQueryCache,
         clearStorage: clearLocalStorage,
