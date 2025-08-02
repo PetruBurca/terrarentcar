@@ -1,4 +1,4 @@
-const CACHE_NAME = "terra-rent-car-v4";
+const CACHE_NAME = "terra-rent-car-v5";
 const urlsToCache = [
   "/",
   "/index.html",
@@ -7,12 +7,12 @@ const urlsToCache = [
   "/src/index.css",
 ];
 
-// Время жизни кэша (30 секунд для принудительного обновления)
-const CACHE_LIFETIME = 30 * 1000;
+// Время жизни кэша (5 минут - нормальное время)
+const CACHE_LIFETIME = 5 * 60 * 1000;
 
 // Install event
 self.addEventListener("install", (event) => {
-  console.log("🔄 Service Worker: Устанавливаем новую версию кэша v4");
+  console.log("🔄 Service Worker: Устанавливаем новую версию кэша v5");
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(urlsToCache).then(() => {
@@ -27,7 +27,7 @@ self.addEventListener("install", (event) => {
                   headers: {
                     ...Object.fromEntries(response.headers.entries()),
                     "sw-cache-time": Date.now().toString(),
-                    "sw-version": "v4",
+                    "sw-version": "v5",
                   },
                 });
                 return cache.put(url, newResponse);
@@ -57,12 +57,12 @@ self.addEventListener("fetch", (event) => {
         if (cacheTime) {
           const age = Date.now() - parseInt(cacheTime);
           // На мобильных устройствах используем более короткое время жизни кэша
-          // Для Chrome на мобильных еще короче
+          // Для Chrome на мобильных немного короче
           let lifetime = CACHE_LIFETIME;
           if (isMobile) {
-            lifetime = CACHE_LIFETIME / 2;
+            lifetime = CACHE_LIFETIME / 2; // 2.5 минуты для мобильных
             if (isChrome) {
-              lifetime = CACHE_LIFETIME / 4; // 30 секунд для Chrome на мобильных
+              lifetime = CACHE_LIFETIME / 3; // 1.5 минуты для Chrome на мобильных
             }
           }
           if (age > lifetime) {
