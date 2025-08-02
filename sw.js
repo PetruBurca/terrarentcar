@@ -40,8 +40,9 @@ self.addEventListener("install", (event) => {
 
 // Fetch event
 self.addEventListener("fetch", (event) => {
-  // Проверяем, является ли устройство мобильным
+  // Проверяем, является ли устройство мобильным и Chrome
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isChrome = /Chrome/i.test(navigator.userAgent);
   
   event.respondWith(
     caches.match(event.request).then((response) => {
@@ -51,7 +52,14 @@ self.addEventListener("fetch", (event) => {
         if (cacheTime) {
           const age = Date.now() - parseInt(cacheTime);
           // На мобильных устройствах используем более короткое время жизни кэша
-          const lifetime = isMobile ? CACHE_LIFETIME / 2 : CACHE_LIFETIME;
+          // Для Chrome на мобильных еще короче
+          let lifetime = CACHE_LIFETIME;
+          if (isMobile) {
+            lifetime = CACHE_LIFETIME / 2;
+            if (isChrome) {
+              lifetime = CACHE_LIFETIME / 4; // 30 секунд для Chrome на мобильных
+            }
+          }
           if (age > lifetime) {
             // Кэш устарел, удаляем его и запрашиваем свежие данные
             caches.delete(event.request);

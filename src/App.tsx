@@ -84,15 +84,26 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
 
       // На мобильных устройствах не показываем ошибку для незначительных проблем
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isChrome = /Chrome/i.test(navigator.userAgent);
+      
       if (isMobile && event.error && event.error.message) {
         const errorMessage = event.error.message.toLowerCase();
         if (
           errorMessage.includes("script") ||
           errorMessage.includes("module") ||
           errorMessage.includes("import") ||
-          errorMessage.includes("fetch")
+          errorMessage.includes("fetch") ||
+          errorMessage.includes("chrome") ||
+          errorMessage.includes("blob") ||
+          errorMessage.includes("url")
         ) {
           console.log("📱 Мобильная ошибка, игнорируем:", errorMessage);
+          return;
+        }
+        
+        // Специальная обработка для Chrome на мобильных
+        if (isChrome && isMobile) {
+          console.log("📱 Chrome мобильная ошибка, игнорируем:", errorMessage);
           return;
         }
       }
@@ -145,6 +156,8 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
 
       // На мобильных устройствах не показываем ошибку для незначительных проблем
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isChrome = /Chrome/i.test(navigator.userAgent);
+      
       if (isMobile && event.reason && typeof event.reason === "string") {
         const errorMessage = event.reason.toLowerCase();
         if (
@@ -152,9 +165,18 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
           errorMessage.includes("module") ||
           errorMessage.includes("import") ||
           errorMessage.includes("fetch") ||
-          errorMessage.includes("network")
+          errorMessage.includes("network") ||
+          errorMessage.includes("chrome") ||
+          errorMessage.includes("blob") ||
+          errorMessage.includes("url")
         ) {
           console.log("📱 Мобильная ошибка промиса, игнорируем:", errorMessage);
+          return;
+        }
+        
+        // Специальная обработка для Chrome на мобильных
+        if (isChrome && isMobile) {
+          console.log("📱 Chrome мобильная ошибка промиса, игнорируем:", errorMessage);
           return;
         }
       }
