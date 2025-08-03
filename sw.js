@@ -7,8 +7,8 @@ const urlsToCache = [
   "/src/index.css",
 ];
 
-// Время жизни кэша (5 минут)
-const CACHE_LIFETIME = 5 * 60 * 1000;
+// Время жизни кэша (1 минута - для полной очистки)
+const CACHE_LIFETIME = 1 * 60 * 1000;
 
 // Install event
 self.addEventListener("install", (event) => {

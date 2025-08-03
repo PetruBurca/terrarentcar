@@ -80,6 +80,15 @@ const CacheManager = ({
   useEffect(() => {
     const timeSinceLastVisit = getTimeSinceLastVisit();
 
+    // Принудительно очищаем localStorage в инкогнито режиме
+    if (window.location.href.includes('incognito') || 
+        window.location.href.includes('private') ||
+        !window.localStorage) {
+      console.log("🕵️ Инкогнито режим обнаружен, очищаем localStorage");
+      localStorage.clear();
+      sessionStorage.clear();
+    }
+
     // В режиме разработки очищаем кеш чаще
     if (isDevelopment) {
       // Очищаем только стили, не трогаем данные
@@ -98,6 +107,13 @@ const CacheManager = ({
       carCards.forEach((card) => {
         if (card instanceof HTMLElement) {
           card.style.border = "";
+        }
+      });
+
+      // Принудительно очищаем кэш при загрузке
+      console.log("🧹 Принудительная очистка кэша при загрузке");
+      clearServiceWorkerCache();
+      clearLocalStorage();
           card.style.boxShadow = "";
           card.style.backgroundColor = "";
           card.style.background = "";
