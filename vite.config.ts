@@ -36,18 +36,6 @@ export default defineConfig(({ mode }) => ({
         copy("CNAME", "dist/CNAME");
         copy("404.html", "dist/404.html");
         copy(".nojekyll", "dist/.nojekyll");
-        // Копируем redirect.html в корень dist
-        copy("redirect.html", "dist/redirect.html");
-
-        // Копируем файлы из dist в корень для GitHub Pages
-        if (mode === "production") {
-          copy("dist/index.html", "index.html");
-          copy("dist/assets", "assets");
-          copy("dist/locales", "locales");
-          copy("dist/robots.txt", "robots.txt");
-          copy("dist/sw.js", "sw.js");
-          copy("dist/privacy-policy.pdf", "privacy-policy.pdf");
-        }
       },
     },
   ],

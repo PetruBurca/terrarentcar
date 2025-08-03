@@ -25,6 +25,7 @@ const CacheManager = ({ showDebugInfo = false }: CacheManagerProps) => {
         "privacy-accepted",
         "selected-country-code",
         "active-image-index",
+        "app-language",
       ];
 
       keysToRemove.forEach((key) => {
