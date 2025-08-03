@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/feedback/badge";
 import { CarReservationModal } from "../modals";
 import { useTranslation } from "react-i18next";
 import { translateCarSpec } from "@/lib/carTranslations";
-import logo from "@/assets/circlelogo.webp";
+import logo from "@/assets/logo.webp";
 
 export interface CarCardProps {
   id: string;

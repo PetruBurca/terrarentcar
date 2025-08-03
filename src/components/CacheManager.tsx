@@ -1,7 +1,12 @@
 import { useEffect } from "react";
-import { useCacheManager } from "@/hooks/use-cache-manager";
 
-// Тип для глобального cacheManager
+// Расширяем window для easter egg
+declare global {
+  interface Window {
+    terraRentCarEasterEgg?: () => void;
+  }
+}
+
 interface CacheManagerGlobal {
   clearAll: () => void;
   clearQuery: () => void;
@@ -16,7 +21,6 @@ interface CacheManagerGlobal {
   clearLocalStorage: () => void;
 }
 
-// Расширяем Window интерфейс
 declare global {
   interface Window {
     cacheManager?: CacheManagerGlobal;
@@ -30,135 +34,170 @@ interface CacheManagerProps {
 }
 
 const CacheManager = ({
-  autoClearTime = 5 * 60 * 1000,
+  autoClearTime = 20 * 60 * 1000, // 20 минут для production
   enableDoubleRefresh = true,
   showDebugInfo = false,
 }: CacheManagerProps) => {
-  const {
-    clearAllCache,
-    clearQueryCache,
-    clearLocalStorage,
-    getTimeSinceLastVisit,
-    shouldClearCacheByTime,
-    lastVisitTime,
-  } = useCacheManager({
-    autoClearTime,
-    enableDoubleRefresh,
-  });
+  const isDevelopment = process.env.NODE_ENV === "development";
 
-  // Определяем режим разработки
-  const isDevelopment = import.meta.env.DEV;
-
-  // Функция для очистки Service Worker кеша
-  const clearServiceWorkerCache = async () => {
-    if ("serviceWorker" in navigator && "caches" in window) {
-      try {
-        const cacheNames = await caches.keys();
-        await Promise.all(
-          cacheNames.map((cacheName) => {
-            console.log("🧹 Очищаем SW кеш:", cacheName);
-            return caches.delete(cacheName);
-          })
-        );
-        console.log("✅ Service Worker кеш очищен");
-      } catch (error) {
-        console.error("❌ Ошибка очистки SW кеша:", error);
-      }
-    }
-  };
-
-  // Функция для отправки сообщения в Service Worker
-  const sendMessageToSW = (type: string) => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.ready.then((registration) => {
-        registration.active?.postMessage({ type });
+  // Функции для очистки кеша
+  const clearAllCache = () => {
+    if ("caches" in window) {
+      caches.keys().then((names) => {
+        names.forEach((name) => {
+          caches.delete(name);
+        });
       });
     }
   };
 
-  // Функция для принудительной очистки всех кэшей
-  const forceClearAllCache = () => {
-    console.log("🧹 Принудительная очистка всех кэшей");
-    
-    // Очищаем localStorage
-    localStorage.clear();
-    sessionStorage.clear();
-    
-    // Очищаем Service Worker кэш
-    clearServiceWorkerCache();
-    
-    // Отправляем сообщение в Service Worker
-    sendMessageToSW("CLEAR_CACHE");
-    
-    // Очищаем React Query кэш
-    clearQueryCache();
-    
-    console.log("✅ Все кэши очищены");
+  const clearQueryCache = () => {
+    if ("caches" in window) {
+      caches.keys().then((names) => {
+        names.forEach((name) => {
+          if (name.includes("query")) {
+            caches.delete(name);
+          }
+        });
+      });
+    }
   };
 
-  // КЭШИРОВАНИЕ ОТКЛЮЧЕНО
-  useEffect(() => {
-    console.log("🚫 Кэширование отключено - приложение работает без кэша");
-    
-    // Очищаем все кэши при загрузке
-    localStorage.clear();
-    sessionStorage.clear();
-    clearServiceWorkerCache();
-    clearQueryCache();
-    
-    console.log("🧹 Все кэши очищены, приложение работает чисто");
-  }, []);
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 4px;
-        font-size: 12px;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-      `;
-      clearButton.onclick = () => {
-        localStorage.clear();
-        sessionStorage.clear();
-        alert("Кэш очищен! Страница перезагрузится.");
-        window.location.reload();
-      };
-      document.body.appendChild(clearButton);
-      console.log("📱 Добавлена кнопка очистки кэша для мобильных");
-    }
+  const clearLocalStorage = () => {
+    // Очищаем все данные формы и даты
+    const keysToRemove = [
+      "search-dates",
+      "reservation-form",
+      "reservation-step",
+      "wizard-data",
+      "uploaded-photos",
+      "privacy-accepted",
+      "selected-country-code",
+      "active-image-index",
+    ];
 
-    // Проверяем, есть ли сохраненные данные заявки
-    const keys = Object.keys(localStorage);
-    const hasReservationData = keys.some(
-      (key) =>
+    keysToRemove.forEach((key) => {
+      localStorage.removeItem(key);
+    });
+
+    // Также очищаем все ключи с префиксами для конкретных машин
+    const allKeys = Object.keys(localStorage);
+    allKeys.forEach((key) => {
+      if (
         key.includes("reservation-form-") ||
         key.includes("reservation-step-") ||
-        key.includes("wizard-data-")
-    );
+        key.includes("wizard-data-") ||
+        key.includes("uploaded-photos-") ||
+        key.includes("privacy-accepted-") ||
+        key.includes("selected-country-code-") ||
+        key.includes("active-image-index-")
+      ) {
+        localStorage.removeItem(key);
+      }
+    });
 
-    if (hasReservationData) {
-      console.log(
-        "👋 Привет! Ты уже выбрал машину? Данные заявки восстановлены."
-      );
+    sessionStorage.clear();
+  };
+
+  const clearServiceWorkerCache = async () => {
+    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: "CLEAR_CACHE",
+      });
     }
+  };
 
-    // Если прошло больше времени чем autoClearTime, очищаем кэш
-    if (
-      timeSinceLastVisit > autoClearTime &&
-      timeSinceLastVisit < 24 * 60 * 60 * 1000
-    ) {
-      console.log(
-        `🕐 Прошло ${Math.round(
-          timeSinceLastVisit / 1000 / 60
-        )} минут с последнего посещения, очищаем кэш`
-      );
+  const sendMessageToSW = (type: string) => {
+    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type });
+    }
+  };
+
+  const forceClearAllCache = () => {
+    clearAllCache();
+    clearServiceWorkerCache();
+    localStorage.clear();
+    sessionStorage.clear();
+  };
+
+  // Функция для очистки кеша после успешного бронирования
+  const clearCacheAfterBooking = () => {
+    console.log("🎉 Бронирование завершено! Очищаем кеш...");
+
+    // Очищаем все данные формы
+    clearLocalStorage();
+
+    // Очищаем Service Worker кеш
+    clearServiceWorkerCache();
+
+    // Сбрасываем время последнего посещения
+    localStorage.removeItem("lastVisitTime");
+
+    // Принудительно обновляем страницу
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  };
+
+  // Получаем время последнего посещения
+  const getTimeSinceLastVisit = () => {
+    const lastVisit = localStorage.getItem("lastVisitTime");
+    if (!lastVisit) return 0;
+    return Date.now() - parseInt(lastVisit);
+  };
+
+  const shouldClearCacheByTime = () => {
+    const timeSinceLastVisit = getTimeSinceLastVisit();
+    return timeSinceLastVisit > autoClearTime;
+  };
+
+  const lastVisitTime = Date.now();
+
+  // Автоматическая очистка кеша
+  useEffect(() => {
+    const timeSinceLastVisit = getTimeSinceLastVisit();
+
+    // Проверяем и очищаем старые данные сразу при загрузке
+    if (timeSinceLastVisit > autoClearTime) {
+      console.log("⏰ Прошло больше 20 минут, очищаем старые данные");
       clearAllCache();
+      clearLocalStorage();
 
-      // Очищаем Service Worker кеш только для старых данных
+      // Очищаем Service Worker кеш для старых данных
       if (timeSinceLastVisit > 2 * 60 * 60 * 1000) {
         // 2 часа
         clearServiceWorkerCache();
       }
     }
+
+    // В dev режиме всегда очищаем даты при загрузке
+    if (isDevelopment) {
+      clearLocalStorage();
+    }
+
+    // В production сохраняем время последнего посещения
+    if (!isDevelopment) {
+      localStorage.setItem("lastVisitTime", Date.now().toString());
+    }
+  }, [autoClearTime, getTimeSinceLastVisit, clearAllCache, isDevelopment]);
+
+  // Дополнительная очистка при истечении времени (работает в фоне)
+  useEffect(() => {
+    if (isDevelopment) return; // Только для production
+
+    const checkAndClearOldData = () => {
+      const timeSinceLastVisit = getTimeSinceLastVisit();
+      if (timeSinceLastVisit > autoClearTime) {
+        console.log("🧹 Автоматическая очистка старых данных");
+        clearLocalStorage();
+        clearAllCache();
+      }
+    };
+
+    // Проверяем каждые 5 минут
+    const interval = setInterval(checkAndClearOldData, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
   }, [autoClearTime, getTimeSinceLastVisit, clearAllCache, isDevelopment]);
 
   // Добавляем глобальные функции для отладки (доступны в production)
@@ -172,39 +211,75 @@ const CacheManager = ({
         shouldClearCacheByTime,
         lastVisitTime,
         forceClear: () => {
-          console.log("🧹 Принудительная очистка всех кешей");
           clearAllCache();
           clearServiceWorkerCache();
           localStorage.clear();
           sessionStorage.clear();
-
-          // Принудительно очищаем даты поиска
           localStorage.removeItem("search-dates");
-          console.log("🗑️ Очищены даты поиска");
         },
-        forceClearAll: forceClearAllCache, // Добавляем новую функцию
+        forceClearAll: forceClearAllCache,
         forceClearProduction: () => {
-          console.log("🧹 Принудительная очистка для продакшена");
           clearAllCache();
           clearServiceWorkerCache();
           sendMessageToSW("CLEAR_CACHE");
         },
         clearLocalStorage: () => {
-          console.log("🧹 Ручная очистка localStorage");
           localStorage.clear();
           sessionStorage.clear();
-          console.log("🗑️ localStorage полностью очищен");
         },
         checkCache: () => {
           const keys = Object.keys(localStorage);
-          console.log("📋 Текущие ключи в localStorage:", keys);
           return keys;
         },
         clearServiceWorker: clearServiceWorkerCache,
+        clearAfterBooking: clearCacheAfterBooking, // Новая функция для очистки после бронирования
       };
-
-      console.log("🔧 Глобальный cacheManager доступен в window.cacheManager");
     }
+
+    // Забавное сообщение для разработчиков
+    console.log(
+      `
+🚗 %cTERRA RENT CAR - DEV MODE 🚗
+%c
+Привет, разработчик! 👋
+Ты выбрал машину? 🚙
+Если нет - самое время! 
+
+%c💡 Подсказка: Открой консоль и введи:
+%cwindow.cacheManager.checkCache()
+
+%c🎯 Найди easter egg на сайте!
+%c🎮 Попробуй: console.log("🚗 VROOM VROOM! 🚗")
+%c
+    `,
+      "color: #ff0000; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);",
+      "color: #ffffff; font-size: 14px;",
+      "color: #00ff00; font-size: 16px; font-weight: bold;",
+      "color: #ffff00; font-size: 14px; font-family: monospace;",
+      "color: #ff00ff; font-size: 16px; font-weight: bold;",
+      "color: #ffffff; font-size: 12px;",
+      "color: #00ffff; font-size: 14px; font-family: monospace;"
+    );
+
+    // Добавляем easter egg в глобальную область
+    window.terraRentCarEasterEgg = () => {
+      console.log(
+        `
+🎮 %cEaster Egg найден! 🎮
+%c
+🚗 VROOM VROOM! 🚗
+🏎️ Ты настоящий гонщик! 🏎️
+🏁 Поздравляем с находкой! 🏁
+
+%c💎 Секретный код: TERRA-RENT-ROCKS
+%c
+      `,
+        "color: #ff00ff; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);",
+        "color: #ffffff; font-size: 14px;",
+        "color: #00ff00; font-size: 16px; font-weight: bold;",
+        "color: #ffff00; font-size: 14px; font-family: monospace;"
+      );
+    };
   }, [
     showDebugInfo,
     isDevelopment,
@@ -222,8 +297,6 @@ const CacheManager = ({
       navigator.serviceWorker
         .register("/sw.js")
         .then((registration) => {
-          console.log("✅ Service Worker зарегистрирован:", registration);
-
           // Проверяем обновления SW
           registration.addEventListener("updatefound", () => {
             const newWorker = registration.installing;
@@ -233,7 +306,6 @@ const CacheManager = ({
                   newWorker.state === "installed" &&
                   navigator.serviceWorker.controller
                 ) {
-                  console.log("🔄 Доступно обновление Service Worker");
                   // Можно показать уведомление пользователю
                 }
               });
@@ -241,7 +313,7 @@ const CacheManager = ({
           });
         })
         .catch((error) => {
-          console.error("❌ Ошибка регистрации Service Worker:", error);
+          // Ошибка регистрации Service Worker
         });
     }
   }, []);

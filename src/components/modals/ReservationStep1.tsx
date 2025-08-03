@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "@/components/ui/utils/use-toast";
 import { translateCarSpec } from "@/lib/carTranslations";
 import { formatDateRange } from "@/lib/dateHelpers";
-import logo from "@/assets/circlelogo.webp";
+import logo from "@/assets/logo.webp";
 import TimePicker from "@/components/ui/inputs/time-picker-wheel";
 import { CarouselWithCenter } from "@/components/modals/CarouselWithCenter";
 import { Car, FormData, WizardData } from "@/types/reservation";

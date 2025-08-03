@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { Car, Menu, X, Phone } from "lucide-react";
 import { Button } from "@/components/ui/utils/button";
-import logo from "@/assets/circlelogo.webp";
+import logo from "@/assets/logo.webp";
 import appstore from "../../assets/appstore.svg";
 import { FaInstagram, FaFacebook, FaViber, FaWhatsapp } from "react-icons/fa";
 import { FaGlobe } from "react-icons/fa";
@@ -9,6 +9,13 @@ import { FaPhoneSquareAlt } from "react-icons/fa";
 const CallContactsModal = lazy(() => import("../modals/CallContactsModal"));
 import { useTranslation } from "react-i18next";
 import { loadLocale } from "@/lib/i18n";
+
+// Расширяем window для easter egg
+declare global {
+  interface Window {
+    terraRentCarEasterEgg?: () => void;
+  }
+}
 
 const LANGS = [
   { code: "ro", label: "Ro" },
@@ -204,11 +211,34 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           {/* Логотип */}
           <div className="flex items-center space-x-3">
-            <a href="#" className="flex items-center">
+            <a
+              href="#"
+              className="flex items-center"
+              onClick={(e) => {
+                e.preventDefault();
+                console.log(
+                  `
+🎉 %cО ты нашел! 🎉
+%c
+🚗 Тогда удачи в выборе машины! 🚗
+🏎️ Надеемся, что ты найдешь свою идеальную! 🏎️
+💫 Удачи в путешествиях! 💫
+
+%c🎯 Продолжай исследовать сайт!
+%c
+                `,
+                  "color: #ff6b35; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);",
+                  "color: #ffffff; font-size: 14px;",
+                  "color: #00ff00; font-size: 16px; font-weight: bold;",
+                  "color: #ffff00; font-size: 14px; font-family: monospace;"
+                );
+              }}
+              title="🎮 Попробуй кликнуть!"
+            >
               <img
                 src={logo}
                 alt="Logo"
-                className="w-24 h-auto object-contain"
+                className="w-24 h-auto object-contain hover:scale-105 transition-transform duration-200"
               />
             </a>
           </div>

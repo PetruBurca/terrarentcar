@@ -9,6 +9,15 @@ import {
 import { useTranslation } from "react-i18next";
 import { Car } from "@/types/reservation";
 
+// Расширяем window для cacheManager
+declare global {
+  interface Window {
+    cacheManager?: {
+      clearAfterBooking?: () => void;
+    };
+  }
+}
+
 interface SuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -26,44 +35,44 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
   const handleCloseAndClearCache = () => {
     console.log("🎉 Заявка успешно отправлена, очищаем кеш...");
 
-    // Очищаем все данные заявок
-    const keys = Object.keys(localStorage);
-    const reservationKeys = keys.filter(
-      (key) =>
-        key.includes("reservation-form-") ||
-        key.includes("reservation-step-") ||
-        key.includes("uploaded-photos-") ||
-        key.includes("privacy-accepted-") ||
-        key.includes("wizard-data-") ||
-        key.includes("selected-country-code-") ||
-        key.includes("active-image-index-")
-    );
+    // Используем глобальную функцию очистки из CacheManager
+    if (window.cacheManager?.clearAfterBooking) {
+      window.cacheManager.clearAfterBooking();
+    } else {
+      // Fallback если cacheManager недоступен
+      const keys = Object.keys(localStorage);
+      const reservationKeys = keys.filter(
+        (key) =>
+          key.includes("reservation-form-") ||
+          key.includes("reservation-step-") ||
+          key.includes("uploaded-photos-") ||
+          key.includes("privacy-accepted-") ||
+          key.includes("wizard-data-") ||
+          key.includes("selected-country-code-") ||
+          key.includes("active-image-index-") ||
+          key === "search-dates"
+      );
 
-    reservationKeys.forEach((key) => {
-      localStorage.removeItem(key);
-      console.log("🧹 Удален ключ кеша:", key);
-    });
+      reservationKeys.forEach((key) => {
+        localStorage.removeItem(key);
+      });
 
-    // Очищаем Service Worker кеш
-    if ("serviceWorker" in navigator && "caches" in window) {
-      caches.keys().then((cacheNames) => {
-        cacheNames.forEach((cacheName) => {
-          if (cacheName.includes("dynamic")) {
-            caches.delete(cacheName);
-            console.log("🧹 Очищен динамический кеш SW:", cacheName);
-          }
+      // Очищаем Service Worker кеш
+      if ("serviceWorker" in navigator && "caches" in window) {
+        caches.keys().then((cacheNames) => {
+          cacheNames.forEach((cacheName) => {
+            if (cacheName.includes("dynamic")) {
+              caches.delete(cacheName);
+            }
+          });
         });
-      });
-    }
+      }
 
-    // Отправляем сообщение в Service Worker для очистки кеша
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.ready.then((registration) => {
-        registration.active?.postMessage({ type: "CLEAR_CACHE" });
-      });
+      // Принудительно обновляем страницу
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     }
-
-    console.log("✅ Кеш очищен после успешной отправки заявки");
 
     // Закрываем модальное окно
     onClose();
