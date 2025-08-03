@@ -6,33 +6,49 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.airtable.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.airtable.com https://firebasestorage.googleapis.com https://firebase.googleapis.com; frame-src 'none'; object-src 'none'
 
-# Статические ресурсы - кешируем на 1 год
+# КЭШИРОВАНИЕ ОТКЛЮЧЕНО - все файлы не кэшируются
 /assets/*
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
 
-# Локали - кешируем на 1 месяц
+# Локали - не кэшируются
 /locales/*
-  Cache-Control: public, max-age=2592000
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
 
-# JavaScript и CSS файлы - кешируем на 1 год
+# JavaScript и CSS файлы - не кэшируются
 *.js
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
 
 *.css
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
 
-# Изображения - кешируем на 1 год
+# Изображения - не кэшируются
 *.webp
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
 
 *.png
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
 
 *.jpg
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
 
 *.svg
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
 
 # ВРЕМЕННО ОТКЛЮЧЕНО: HTML файлы - не кешируем
 *.html

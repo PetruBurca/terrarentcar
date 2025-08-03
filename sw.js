@@ -38,32 +38,10 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Fetch event
+// Fetch event - ОТКЛЮЧЕНО КЭШИРОВАНИЕ
 self.addEventListener("fetch", (event) => {
-  console.log("🔄 Service Worker: Обрабатываем запрос", event.request.url);
-  
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        // Проверяем возраст кэша
-        const cacheTime = response.headers.get("sw-cache-time");
-        if (cacheTime) {
-          const age = Date.now() - parseInt(cacheTime);
-          console.log("🔄 Кэш найден, возраст:", Math.round(age / 1000), "секунд");
-          
-          if (age > CACHE_LIFETIME) {
-            console.log("🗑️ Кэш устарел, удаляем и запрашиваем свежие данные");
-            caches.delete(event.request);
-            return fetch(event.request);
-          }
-        }
-        console.log("✅ Возвращаем кэшированный ответ");
-        return response;
-      }
-      console.log("📡 Запрашиваем свежие данные");
-      return fetch(event.request);
-    })
-  );
+  console.log("🚫 Service Worker: Кэширование отключено, запрашиваем свежие данные");
+  return fetch(event.request);
 });
 
 // Activate event

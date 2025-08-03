@@ -96,102 +96,18 @@ const CacheManager = ({
     console.log("✅ Все кэши очищены");
   };
 
-  // Проверяем необходимость очистки кэша при загрузке
+  // КЭШИРОВАНИЕ ОТКЛЮЧЕНО
   useEffect(() => {
-    const timeSinceLastVisit = getTimeSinceLastVisit();
-
-    // Принудительно очищаем localStorage в инкогнито режиме
-    if (window.location.href.includes('incognito') || 
-        window.location.href.includes('private') ||
-        !window.localStorage) {
-      console.log("🕵️ Инкогнито режим обнаружен, очищаем localStorage");
-      localStorage.clear();
-      sessionStorage.clear();
-    }
-
-    // В режиме разработки очищаем кеш чаще
-    if (isDevelopment) {
-      // Очищаем только стили, не трогаем данные
-      const allElements = document.querySelectorAll("*");
-      allElements.forEach((element) => {
-        if (element instanceof HTMLElement) {
-          element.style.removeProperty("border");
-          element.style.removeProperty("box-shadow");
-          element.style.removeProperty("background-color");
-          element.style.removeProperty("background");
-        }
-      });
-
-      // Принудительно очищаем все красные стили из карточек
-      const carCards = document.querySelectorAll("[data-car-id]");
-      carCards.forEach((card) => {
-        if (card instanceof HTMLElement) {
-          card.style.border = "";
-        }
-      });
-
-      // Принудительно очищаем кэш при загрузке
-      console.log("🧹 Принудительная очистка кэша при загрузке");
-      clearServiceWorkerCache();
-      clearLocalStorage();
-          card.style.boxShadow = "";
-          card.style.backgroundColor = "";
-          card.style.background = "";
-        }
-      });
-
-      return;
-    }
-
-    // ВРЕМЕННО ОТКЛЮЧЕНО: Принудительно обновляем Service Worker для всех пользователей
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((registration) => {
-          registration.update();
-          console.log("🔄 ВРЕМЕННО: Принудительно обновляем Service Worker");
-        });
-      });
-    }
-
-    // Отслеживаем двойное обновление страницы
-    const lastRefreshTime = localStorage.getItem("last-refresh-time");
-    const currentTime = Date.now();
-
-    if (lastRefreshTime) {
-      const timeDiff = currentTime - parseInt(lastRefreshTime);
-      // Если прошло меньше 3 секунд между обновлениями - это двойное обновление
-      if (timeDiff < 3000) {
-        console.log(
-          "🔄 Двойное обновление обнаружено! Очищаем localStorage..."
-        );
-        localStorage.clear();
-        sessionStorage.clear();
-        console.log("🗑️ localStorage полностью очищен");
-      }
-    }
-
-    // Сохраняем время текущего обновления
-    localStorage.setItem("last-refresh-time", currentTime.toString());
-
-    // ВРЕМЕННО: Принудительно очищаем даты поиска для тестирования
-    localStorage.removeItem("search-dates");
-    console.log("🗑️ ВРЕМЕННО: Очищены даты поиска для тестирования");
-
-    // Добавляем кнопку очистки для мобильных устройств
-    const isMobile =
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      );
-    if (isMobile && !document.getElementById("clear-cache-btn")) {
-      const clearButton = document.createElement("button");
-      clearButton.id = "clear-cache-btn";
-      clearButton.innerHTML = "🧹 Очистить кэш";
-      clearButton.style.cssText = `
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        z-index: 9999;
-        background: #B90003;
+    console.log("🚫 Кэширование отключено - приложение работает без кэша");
+    
+    // Очищаем все кэши при загрузке
+    localStorage.clear();
+    sessionStorage.clear();
+    clearServiceWorkerCache();
+    clearQueryCache();
+    
+    console.log("🧹 Все кэши очищены, приложение работает чисто");
+  }, []);
         color: white;
         border: none;
         padding: 8px 12px;

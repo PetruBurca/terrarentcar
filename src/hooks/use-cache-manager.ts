@@ -8,8 +8,8 @@ interface CacheManagerOptions {
 
 export const useCacheManager = (options: CacheManagerOptions = {}) => {
   const {
-    autoClearTime = 1 * 60 * 1000, // 1 минута по умолчанию (для полной очистки)
-    enableDoubleRefresh = true,
+    autoClearTime = 0, // Кэширование отключено
+    enableDoubleRefresh = false, // Отключаем двойное обновление
   } = options;
 
   const queryClient = useQueryClient();
