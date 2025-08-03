@@ -15,6 +15,9 @@ const Index = () => {
   const [searchDates, setSearchDates] = useState<{
     from: Date | null;
     to: Date | null;
+  }>({
+    from: null,
+    to: null,
   });
 
   const handleSearchDates = (dates: { from: Date | null; to: Date | null }) => {
