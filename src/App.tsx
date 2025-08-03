@@ -221,17 +221,13 @@ const App = () => {
 Если нет - самое время!
 
 %c🎯 Найди easter egg на сайте!
-%c🎮 Подсказка: в хэдере 
-%c
+%c🎮 Подсказка: в хэдере
     `,
     "color: #ff0000; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);",
     "color: #ffffff; font-size: 14px;",
     "color: #00ff00; font-size: 16px; font-weight: bold;",
     "color: #ffff00; font-size: 14px; font-family: monospace;",
-    "color: #ff00ff; font-size: 16px; font-weight: bold;",
-    "color: #ffffff; font-size: 12px;",
-    "color: #00ffff; font-size: 14px; font-family: monospace;",
-    "color: #00ff00; font-size: 14px; font-weight: bold;"
+    "color: #ff00ff; font-size: 16px; font-weight: bold;"
   );
 
   // Добавляем easter egg в глобальную область
