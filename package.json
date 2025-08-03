@@ -10,7 +10,6 @@
 
     "lint": "eslint .",
     "preview": "vite preview",
-,
     "homepage": "https://PetruBurca.github.io/terrarentcar"
   },
   "dependencies": {
