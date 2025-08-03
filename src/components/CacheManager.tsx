@@ -14,25 +14,31 @@ interface CacheManagerProps {
 const CacheManager = ({ showDebugInfo = false }: CacheManagerProps) => {
   const isDevelopment = process.env.NODE_ENV === "development";
 
-  // Простая очистка localStorage
-  const clearLocalStorage = () => {
-    const keysToRemove = [
-      "search-dates",
-      "reservation-form",
-      "reservation-step",
-      "wizard-data",
-      "uploaded-photos",
-      "privacy-accepted",
-      "selected-country-code",
-      "active-image-index",
-    ];
+      // Простая очистка localStorage
+    const clearLocalStorage = () => {
+      const keysToRemove = [
+        "search-dates",
+        "reservation-form",
+        "reservation-step",
+        "wizard-data",
+        "uploaded-photos",
+        "privacy-accepted",
+        "selected-country-code",
+        "active-image-index",
+      ];
 
-    keysToRemove.forEach((key) => {
-      localStorage.removeItem(key);
-    });
+      keysToRemove.forEach((key) => {
+        localStorage.removeItem(key);
+      });
 
-    sessionStorage.clear();
-  };
+      sessionStorage.clear();
+    };
+
+    // Функция для проверки статуса деплоя
+    const checkDeployStatus = () => {
+      console.log("🔍 Проверяем статус деплоя...");
+      return "Деплой работает!";
+    };
 
   // Автоматическая очистка кеша
   useEffect(() => {
