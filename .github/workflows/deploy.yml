@@ -34,5 +34,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          cname: terrarentcar.com
+          cname: terrarentcar.md
           force_orphan: true

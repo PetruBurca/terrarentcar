@@ -7,8 +7,8 @@ const urlsToCache = [
   "/src/index.css",
 ];
 
-// Время жизни кэша (5 минут - нормальное время)
-const CACHE_LIFETIME = 5 * 60 * 1000;
+// Время жизни кэша (1 минута - для полной очистки кэша)
+const CACHE_LIFETIME = 1 * 60 * 1000;
 
 // Install event
 self.addEventListener("install", (event) => {
@@ -49,7 +49,9 @@ self.addEventListener("fetch", (event) => {
 
 // Activate event
 self.addEventListener("activate", (event) => {
-  console.log("🔄 Service Worker: Активируем новую версию, удаляем старые кэши");
+  console.log(
+    "🔄 Service Worker: Активируем новую версию, удаляем старые кэши"
+  );
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(

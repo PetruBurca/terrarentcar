@@ -8,7 +8,7 @@ interface CacheManagerOptions {
 
 export const useCacheManager = (options: CacheManagerOptions = {}) => {
   const {
-    autoClearTime = 60 * 60 * 1000, // 1 час по умолчанию (было 30 минут)
+    autoClearTime = 1 * 60 * 1000, // 1 минута по умолчанию (для полной очистки)
     enableDoubleRefresh = true,
   } = options;
 
@@ -198,13 +198,6 @@ export const useCacheManager = (options: CacheManagerOptions = {}) => {
       "selected-car-id",
       "cookieAccepted", // Добавляем ключ куки
     ];
-
-    // Принудительно очищаем даты поиска при обновлении страницы
-    if (window.performance && window.performance.navigation.type === 1) {
-      // Страница была обновлена (F5 или Cmd+R)
-      localStorage.removeItem("search-dates");
-      console.log("🔄 Страница обновлена, очищаем даты поиска");
-    }
 
     oldKeysToRemove.forEach((key) => {
       localStorage.removeItem(key);

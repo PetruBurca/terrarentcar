@@ -140,9 +140,12 @@ const CacheManager = ({
     // ВРЕМЕННО: Принудительно очищаем даты поиска для тестирования
     localStorage.removeItem("search-dates");
     console.log("🗑️ ВРЕМЕННО: Очищены даты поиска для тестирования");
-    
+
     // Добавляем кнопку очистки для мобильных устройств
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
     if (isMobile && !document.getElementById("clear-cache-btn")) {
       const clearButton = document.createElement("button");
       clearButton.id = "clear-cache-btn";
