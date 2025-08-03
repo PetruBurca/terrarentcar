@@ -11,8 +11,7 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "homepage": "https://PetruBurca.github.io/terrarentcar"
-  },
+  "homepage": "https://PetruBurca.github.io/terrarentcar",
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
