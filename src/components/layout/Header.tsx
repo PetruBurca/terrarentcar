@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { Car, Menu, X, Phone } from "lucide-react";
 import { Button } from "@/components/ui/utils/button";
-import logo from "../../assets/logo.webp";
+import logo from "../../assets/circlelogo.webp";
 import appstore from "../../assets/appstore.svg";
 import { FaInstagram, FaFacebook, FaViber, FaWhatsapp } from "react-icons/fa";
 import { FaGlobe } from "react-icons/fa";
