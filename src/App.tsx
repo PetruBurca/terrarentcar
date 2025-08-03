@@ -227,7 +227,7 @@ const App = () => {
     "color: #ffffff; font-size: 14px;",
     "color: #00ff00; font-size: 16px; font-weight: bold;",
     "color: #ffff00; font-size: 14px; font-family: monospace;",
-    "color: #ff00ff; font-size: 16px; font-weight: bold;"
+
   );
 
   // Добавляем easter egg в глобальную область
