@@ -215,10 +215,10 @@ function CookieBanner() {
 const App = () => {
   console.log("🚀 App component loading...");
 
-  // Забавное сообщение для разработчиков
+  // Забавное сообщение для разработчиков (видимо всегда)
   console.log(
     `
-🚗 %cTERRA RENT CAR - DEV MODE 🚗
+🚗 %cTERRA RENT CAR 🚗
 %c
 Привет, разработчик! 👋
 Ты выбрал машину? 🚙
