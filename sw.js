@@ -1,4 +1,4 @@
-const CACHE_NAME = "terra-rent-car-v5";
+const CACHE_NAME = "terra-rent-car-v2";
 const urlsToCache = [
   "/",
   "/index.html",
@@ -7,12 +7,11 @@ const urlsToCache = [
   "/src/index.css",
 ];
 
-// Время жизни кэша (1 минута - для полной очистки кэша)
-const CACHE_LIFETIME = 1 * 60 * 1000;
+// Время жизни кэша (5 минут)
+const CACHE_LIFETIME = 5 * 60 * 1000;
 
 // Install event
 self.addEventListener("install", (event) => {
-  console.log("🔄 Service Worker: Устанавливаем новую версию кэша v5");
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(urlsToCache).then(() => {
@@ -27,7 +26,6 @@ self.addEventListener("install", (event) => {
                   headers: {
                     ...Object.fromEntries(response.headers.entries()),
                     "sw-cache-time": Date.now().toString(),
-                    "sw-version": "v5",
                   },
                 });
                 return cache.put(url, newResponse);
@@ -40,24 +38,35 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Fetch event - ВРЕМЕННО ОТКЛЮЧЕНО КЭШИРОВАНИЕ
+// Fetch event
 self.addEventListener("fetch", (event) => {
-  // ВРЕМЕННО: Всегда запрашиваем свежие данные, игнорируем кэш
-  console.log("🔄 ВРЕМЕННО: Игнорируем кэш, запрашиваем свежие данные");
-  return fetch(event.request);
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      if (response) {
+        // Проверяем возраст кэша
+        const cacheTime = response.headers.get("sw-cache-time");
+        if (cacheTime) {
+          const age = Date.now() - parseInt(cacheTime);
+          if (age > CACHE_LIFETIME) {
+            // Кэш устарел, удаляем его и запрашиваем свежие данные
+            caches.delete(event.request);
+            return fetch(event.request);
+          }
+        }
+        return response;
+      }
+      return fetch(event.request);
+    })
+  );
 });
 
 // Activate event
 self.addEventListener("activate", (event) => {
-  console.log(
-    "🔄 Service Worker: Активируем новую версию, удаляем старые кэши"
-  );
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log("🗑️ Удаляем старый кэш:", cacheName);
             return caches.delete(cacheName);
           }
         })
