@@ -53,7 +53,9 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
           errorMessage.includes("quota") ||
           errorMessage.includes("memory")
         ) {
-          console.log("🔄 Ошибка связана с кэшированием/памятью, очищаем кэш...");
+          console.log(
+            "🔄 Ошибка связана с кэшированием/памятью, очищаем кэш..."
+          );
           // Мягкая очистка только данных заявок
           try {
             const keys = Object.keys(localStorage);
@@ -83,9 +85,12 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
       }
 
       // На мобильных устройствах не показываем ошибку для незначительных проблем
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isMobile =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        );
       const isChrome = /Chrome/i.test(navigator.userAgent);
-      
+
       if (isMobile && event.error && event.error.message) {
         const errorMessage = event.error.message.toLowerCase();
         if (
@@ -100,7 +105,7 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
           console.log("📱 Мобильная ошибка, игнорируем:", errorMessage);
           return;
         }
-        
+
         // Специальная обработка для Chrome на мобильных
         if (isChrome && isMobile) {
           console.log("📱 Chrome мобильная ошибка, игнорируем:", errorMessage);
@@ -155,9 +160,12 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
       }
 
       // На мобильных устройствах не показываем ошибку для незначительных проблем
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isMobile =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        );
       const isChrome = /Chrome/i.test(navigator.userAgent);
-      
+
       if (isMobile && event.reason && typeof event.reason === "string") {
         const errorMessage = event.reason.toLowerCase();
         if (
@@ -173,10 +181,13 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
           console.log("📱 Мобильная ошибка промиса, игнорируем:", errorMessage);
           return;
         }
-        
+
         // Специальная обработка для Chrome на мобильных
         if (isChrome && isMobile) {
-          console.log("📱 Chrome мобильная ошибка промиса, игнорируем:", errorMessage);
+          console.log(
+            "📱 Chrome мобильная ошибка промиса, игнорируем:",
+            errorMessage
+          );
           return;
         }
       }
@@ -189,7 +200,10 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
 
     return () => {
       window.removeEventListener("error", handleError);
-      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+      window.removeEventListener(
+        "unhandledrejection",
+        handleUnhandledRejection
+      );
     };
   }, []);
 
@@ -291,7 +305,7 @@ function CookieBanner() {
 
 const App = () => {
   console.log("🚀 App component loading...");
-  
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>

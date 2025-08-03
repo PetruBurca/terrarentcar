@@ -175,9 +175,20 @@ const CacheManager = ({
       clearLocalStorage();
     }
 
+    // В production НЕ очищаем данные при загрузке, только проверяем время
+    // Это позволит пользователям продолжать работу с формой
+
+    // Проверяем, была ли жесткая перезагрузка (по отсутствию sessionStorage)
+    const wasHardRefresh = !sessionStorage.getItem("appLoaded");
+    if (wasHardRefresh && !isDevelopment) {
+      console.log("🔄 Обнаружена жесткая перезагрузка, очищаем данные формы");
+      clearLocalStorage();
+    }
+
     // В production сохраняем время последнего посещения
     if (!isDevelopment) {
       localStorage.setItem("lastVisitTime", Date.now().toString());
+      sessionStorage.setItem("appLoaded", "true");
     }
   }, [autoClearTime, getTimeSinceLastVisit, clearAllCache, isDevelopment]);
 
@@ -189,13 +200,18 @@ const CacheManager = ({
       const timeSinceLastVisit = getTimeSinceLastVisit();
       if (timeSinceLastVisit > autoClearTime) {
         console.log("🧹 Автоматическая очистка старых данных");
-        clearLocalStorage();
-        clearAllCache();
+        // Очищаем только старые данные, не трогаем активную форму
+        const keys = Object.keys(localStorage);
+        keys.forEach((key) => {
+          if (key.includes("lastVisitTime") || key.includes("search-dates")) {
+            localStorage.removeItem(key);
+          }
+        });
       }
     };
 
-    // Проверяем каждые 5 минут
-    const interval = setInterval(checkAndClearOldData, 5 * 60 * 1000);
+    // Проверяем каждые 10 минут (реже для стабильности)
+    const interval = setInterval(checkAndClearOldData, 10 * 60 * 1000);
 
     return () => clearInterval(interval);
   }, [autoClearTime, getTimeSinceLastVisit, clearAllCache, isDevelopment]);
@@ -313,9 +329,117 @@ const CacheManager = ({
           });
         })
         .catch((error) => {
-          // Ошибка регистрации Service Worker
+          // Ошибка регистрации Service Worker - игнорируем для стабильности
         });
     }
+  }, []);
+
+    // Добавляем обработчик ошибок для мобильных устройств
+  useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      console.error("🚨 Ошибка приложения:", event.error);
+      
+      // Для мобильных устройств показываем более дружелюбную ошибку
+      if (
+        /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        )
+      ) {
+        // Не перезагружаем страницу, просто логируем ошибку
+        console.log("📱 Ошибка на мобильном устройстве, продолжаем работу");
+      }
+    };
+
+    window.addEventListener("error", handleError);
+    return () => window.removeEventListener("error", handleError);
+  }, []);
+
+  // Принудительная очистка для мобильных устройств при ошибках
+  useEffect(() => {
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+    
+    if (isMobile) {
+      // Проверяем наличие старых данных, которые могут вызывать конфликты
+      const hasOldData = localStorage.getItem("search-dates") || 
+                        localStorage.getItem("reservation-form") ||
+                        localStorage.getItem("wizard-data");
+      
+      if (hasOldData) {
+        console.log("📱 Обнаружены старые данные на мобильном устройстве, очищаем...");
+        clearLocalStorage();
+        clearAllCache();
+        
+        // Принудительно перезагружаем страницу для мобильных устройств
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
+    }
+  }, []);
+
+  // Обработчик для жесткой перезагрузки (Cmd+Shift+R)
+  useEffect(() => {
+    let isHardRefresh = false;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Определяем жесткую перезагрузку: Cmd+Shift+R (Mac) или Ctrl+Shift+R (Windows/Linux)
+      if (
+        (event.metaKey || event.ctrlKey) &&
+        event.shiftKey &&
+        event.key === "R"
+      ) {
+        isHardRefresh = true;
+        console.log("🔄 Обнаружена жесткая перезагрузка, очищаем данные формы");
+      }
+    };
+
+    const handleBeforeUnload = () => {
+      if (isHardRefresh) {
+        // При жесткой перезагрузке очищаем все данные формы
+        const keysToRemove = [
+          "search-dates",
+          "reservation-form",
+          "reservation-step",
+          "wizard-data",
+          "uploaded-photos",
+          "privacy-accepted",
+          "selected-country-code",
+          "active-image-index",
+        ];
+
+        keysToRemove.forEach((key) => {
+          localStorage.removeItem(key);
+        });
+
+        // Также очищаем все ключи с префиксами для конкретных машин
+        const allKeys = Object.keys(localStorage);
+        allKeys.forEach((key) => {
+          if (
+            key.includes("reservation-form-") ||
+            key.includes("reservation-step-") ||
+            key.includes("wizard-data-") ||
+            key.includes("uploaded-photos-") ||
+            key.includes("privacy-accepted-") ||
+            key.includes("selected-country-code-") ||
+            key.includes("active-image-index-")
+          ) {
+            localStorage.removeItem(key);
+          }
+        });
+      }
+    };
+
+    // Слушаем нажатие клавиш
+    window.addEventListener("keydown", handleKeyDown);
+    // Слушаем событие beforeunload (происходит при перезагрузке)
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
   }, []);
 
   return null;
