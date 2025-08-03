@@ -153,68 +153,18 @@ const CacheManager = ({
 
   const lastVisitTime = Date.now();
 
-  // Автоматическая очистка кеша
+    // Автоматическая очистка кеша
   useEffect(() => {
-    const timeSinceLastVisit = getTimeSinceLastVisit();
-
-    // Проверяем и очищаем старые данные сразу при загрузке
-    if (timeSinceLastVisit > autoClearTime) {
-      console.log("⏰ Прошло больше 20 минут, очищаем старые данные");
-      clearAllCache();
-      clearLocalStorage();
-
-      // Очищаем Service Worker кеш для старых данных
-      if (timeSinceLastVisit > 2 * 60 * 60 * 1000) {
-        // 2 часа
-        clearServiceWorkerCache();
-      }
-    }
-
     // В dev режиме всегда очищаем даты при загрузке
     if (isDevelopment) {
       clearLocalStorage();
     }
+    
+    // В production НЕ очищаем данные при загрузке
+    // Пользователи должны иметь возможность продолжать работу с формой
+  }, [isDevelopment]);
 
-    // В production НЕ очищаем данные при загрузке, только проверяем время
-    // Это позволит пользователям продолжать работу с формой
-
-    // Проверяем, была ли жесткая перезагрузка (по отсутствию sessionStorage)
-    const wasHardRefresh = !sessionStorage.getItem("appLoaded");
-    if (wasHardRefresh && !isDevelopment) {
-      console.log("🔄 Обнаружена жесткая перезагрузка, очищаем данные формы");
-      clearLocalStorage();
-    }
-
-    // В production сохраняем время последнего посещения
-    if (!isDevelopment) {
-      localStorage.setItem("lastVisitTime", Date.now().toString());
-      sessionStorage.setItem("appLoaded", "true");
-    }
-  }, [autoClearTime, getTimeSinceLastVisit, clearAllCache, isDevelopment]);
-
-  // Дополнительная очистка при истечении времени (работает в фоне)
-  useEffect(() => {
-    if (isDevelopment) return; // Только для production
-
-    const checkAndClearOldData = () => {
-      const timeSinceLastVisit = getTimeSinceLastVisit();
-      if (timeSinceLastVisit > autoClearTime) {
-        console.log("🧹 Автоматическая очистка старых данных");
-        // Очищаем только старые данные, не трогаем активную форму
-        const keys = Object.keys(localStorage);
-        keys.forEach((key) => {
-          if (key.includes("lastVisitTime") || key.includes("search-dates")) {
-            localStorage.removeItem(key);
-          }
-        });
-      }
-    };
-
-    // Проверяем каждые 10 минут (реже для стабильности)
-    const interval = setInterval(checkAndClearOldData, 10 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [autoClearTime, getTimeSinceLastVisit, clearAllCache, isDevelopment]);
+  
 
   // Добавляем глобальные функции для отладки (доступны в production)
   useEffect(() => {
@@ -354,30 +304,7 @@ const CacheManager = ({
     return () => window.removeEventListener("error", handleError);
   }, []);
 
-  // Принудительная очистка для мобильных устройств при ошибках
-  useEffect(() => {
-    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
-    
-    if (isMobile) {
-      // Проверяем наличие старых данных, которые могут вызывать конфликты
-      const hasOldData = localStorage.getItem("search-dates") || 
-                        localStorage.getItem("reservation-form") ||
-                        localStorage.getItem("wizard-data");
-      
-      if (hasOldData) {
-        console.log("📱 Обнаружены старые данные на мобильном устройстве, очищаем...");
-        clearLocalStorage();
-        clearAllCache();
-        
-        // Принудительно перезагружаем страницу для мобильных устройств
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-      }
-    }
-  }, []);
+
 
   // Обработчик для жесткой перезагрузки (Cmd+Shift+R)
   useEffect(() => {
