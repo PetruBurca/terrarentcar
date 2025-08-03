@@ -9,7 +9,6 @@ import NotFound from "./pages/NotFound";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -42,8 +41,6 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
       console.error("App error:", event.error);
-
-
 
       // На мобильных устройствах не показываем ошибку для незначительных проблем
       const isMobile =
@@ -79,8 +76,6 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.error("Unhandled promise rejection:", event.reason);
-
-
 
       // На мобильных устройствах не показываем ошибку для незначительных проблем
       const isMobile =
@@ -213,7 +208,10 @@ function CookieBanner() {
 }
 
 const App = () => {
+  // Простой лог для проверки
   console.log("🚀 App component loading...");
+  console.log("🔧 Terra Rent Car - Developer Mode");
+  console.log("💡 Открой консоль и введи: console.log('🚗 VROOM VROOM! 🚗')");
 
   // Забавное сообщение для разработчиков (видимо всегда)
   console.log(
@@ -266,7 +264,6 @@ const App = () => {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-
           <Toaster />
           <Sonner />
           <BrowserRouter
