@@ -2,7 +2,7 @@ import {
   Header,
   Footer,
   RentSearch,
-  // LogoMarquee,
+
   About,
   Cars,
   Contact,
@@ -34,7 +34,6 @@ const Index = () => {
       <Header />
       <main>
         <RentSearch onSearch={handleSearchDates} />
-        {/* <LogoMarquee /> */}
         <Cars searchDates={searchDates} />
         <About />
        

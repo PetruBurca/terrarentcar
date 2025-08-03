@@ -36,12 +36,6 @@ Car-related functionality components:
 - `RentSearch.tsx` - Car search and filtering interface
 - `RentSearchCalendar.tsx` - Date picker for rental periods
 
-### 📁 `decorative/`
-
-Visual enhancement components:
-
-- `LogoMarquee.tsx` - Animated brand logos carousel
-- `LogoMarquee.scss` - Marquee animation styles
 
 ### 📁 `ui/`
 
@@ -70,7 +64,6 @@ import {
   About,
   Contact,
   CarReservationModal,
-  LogoMarquee,
   Button,
   Card,
 } from "@/components";
