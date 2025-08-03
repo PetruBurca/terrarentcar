@@ -25,6 +25,9 @@ export const RentSearchCalendar = ({ onSearch }) => {
   const [range, setRange] = useState<{
     from: Date | null;
     to: Date | null;
+  }>({
+    from: null,
+    to: null,
   });
 
   // Вертикальный календарь: ближайшие 12 месяцев (локальное время)
