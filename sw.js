@@ -40,6 +40,8 @@ self.addEventListener("install", (event) => {
 
 // Fetch event
 self.addEventListener("fetch", (event) => {
+  console.log("🔄 Service Worker: Обрабатываем запрос", event.request.url);
+  
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {
@@ -47,14 +49,18 @@ self.addEventListener("fetch", (event) => {
         const cacheTime = response.headers.get("sw-cache-time");
         if (cacheTime) {
           const age = Date.now() - parseInt(cacheTime);
+          console.log("🔄 Кэш найден, возраст:", Math.round(age / 1000), "секунд");
+          
           if (age > CACHE_LIFETIME) {
-            // Кэш устарел, удаляем его и запрашиваем свежие данные
+            console.log("🗑️ Кэш устарел, удаляем и запрашиваем свежие данные");
             caches.delete(event.request);
             return fetch(event.request);
           }
         }
+        console.log("✅ Возвращаем кэшированный ответ");
         return response;
       }
+      console.log("📡 Запрашиваем свежие данные");
       return fetch(event.request);
     })
   );
@@ -62,15 +68,34 @@ self.addEventListener("fetch", (event) => {
 
 // Activate event
 self.addEventListener("activate", (event) => {
+  console.log("🔄 Service Worker: Активируем новую версию, удаляем старые кэши");
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
+            console.log("🗑️ Удаляем старый кэш:", cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
+});
+
+// Message event для принудительной очистки
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "CLEAR_CACHE") {
+    console.log("🧹 Принудительная очистка кэша");
+    event.waitUntil(
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            console.log("🗑️ Удаляем кэш:", cacheName);
+            return caches.delete(cacheName);
+          })
+        );
+      })
+    );
+  }
 });

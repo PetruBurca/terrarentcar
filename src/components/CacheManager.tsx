@@ -76,6 +76,26 @@ const CacheManager = ({
     }
   };
 
+  // Функция для принудительной очистки всех кэшей
+  const forceClearAllCache = () => {
+    console.log("🧹 Принудительная очистка всех кэшей");
+    
+    // Очищаем localStorage
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Очищаем Service Worker кэш
+    clearServiceWorkerCache();
+    
+    // Отправляем сообщение в Service Worker
+    sendMessageToSW("CLEAR_CACHE");
+    
+    // Очищаем React Query кэш
+    clearQueryCache();
+    
+    console.log("✅ Все кэши очищены");
+  };
+
   // Проверяем необходимость очистки кэша при загрузке
   useEffect(() => {
     const timeSinceLastVisit = getTimeSinceLastVisit();
@@ -246,6 +266,7 @@ const CacheManager = ({
           localStorage.removeItem("search-dates");
           console.log("🗑️ Очищены даты поиска");
         },
+        forceClearAll: forceClearAllCache, // Добавляем новую функцию
         forceClearProduction: () => {
           console.log("🧹 Принудительная очистка для продакшена");
           clearAllCache();
