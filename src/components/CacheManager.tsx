@@ -68,6 +68,7 @@ const CacheManager = ({ showDebugInfo = false }: CacheManagerProps) => {
 
 %c🎯 Найди easter egg на сайте!
 %c🎮 Попробуй: console.log("🚗 VROOM VROOM! 🚗")
+%c🚀 Автоматический деплой работает!
 %c
       `,
       "color: #ff0000; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);",
@@ -76,7 +77,8 @@ const CacheManager = ({ showDebugInfo = false }: CacheManagerProps) => {
       "color: #ffff00; font-size: 14px; font-family: monospace;",
       "color: #ff00ff; font-size: 16px; font-weight: bold;",
       "color: #ffffff; font-size: 12px;",
-      "color: #00ffff; font-size: 14px; font-family: monospace;"
+      "color: #00ffff; font-size: 14px; font-family: monospace;",
+      "color: #00ff00; font-size: 14px; font-weight: bold;"
     );
 
     // Добавляем easter egg в глобальную область
