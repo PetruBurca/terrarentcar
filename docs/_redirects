@@ -1,0 +1,12 @@
+/*    /index.html   200 
+
+# Cache busting для статических ресурсов
+/assets/*  /assets/:splat  200
+/js/*      /js/:splat      200
+/css/*     /css/:splat     200
+
+# Не кэшировать API запросы
+/api/*     /api/:splat     200
+
+# Принудительное обновление SW
+/sw.js     /sw.js          200 
