@@ -9,8 +9,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { Car } from "@/types/reservation";
 
-
-
 interface SuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,10 +25,10 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
   // Функция для закрытия модального окна и перезагрузки страницы
   const handleClose = () => {
     console.log("🎉 Заявка успешно отправлена!");
-    
+
     // Закрываем модальное окно
     onClose();
-    
+
     // Перезагружаем страницу через 1 секунду для сброса всех данных
     setTimeout(() => {
       window.location.reload();
