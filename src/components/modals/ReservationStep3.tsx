@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/inputs/select";
 import { FileInput } from "@/components/ui/inputs/file-input";
 import { useTranslation } from "react-i18next";
+import { toast } from "@/components/ui/utils/use-toast";
 // Примеры фото паспорта
 import PasportFront from "@/assets/pasport/front.png";
 import PasportBack from "@/assets/pasport/back.png";
@@ -88,15 +89,12 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
       }));
     } catch (error) {
       console.error("Ошибка при изменении формы:", error);
-      // Мягкая очистка только данных формы для конкретной машины
-      try {
-        const carId = car.id;
-        localStorage.removeItem(`reservation-form-${carId}`);
-        localStorage.removeItem(`reservation-step-${carId}`);
-        console.log("🧹 Очищены данные формы для машины:", carId);
-      } catch (clearError) {
-        console.error("Ошибка при очистке данных формы:", clearError);
-      }
+      // Показываем пользователю ошибку вместо очистки данных
+      toast({
+        title: "Ошибка",
+        description: "Что-то пошло не так при заполнении формы. Попробуйте еще раз.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -168,15 +166,11 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
               }));
             } catch (error) {
               console.error("Ошибка при изменении способа оплаты:", error);
-              // Мягкая очистка только данных формы для конкретной машины
-              try {
-                const carId = car.id;
-                localStorage.removeItem(`reservation-form-${carId}`);
-                localStorage.removeItem(`reservation-step-${carId}`);
-                console.log("🧹 Очищены данные формы для машины:", carId);
-              } catch (clearError) {
-                console.error("Ошибка при очистке данных формы:", clearError);
-              }
+              toast({
+                title: "Ошибка",
+                description: "Что-то пошло не так при выборе способа оплаты. Попробуйте еще раз.",
+                variant: "destructive",
+              });
             }
           }}
           className="flex flex-col gap-2 bg-gray-700 rounded-lg px-4 py-3 mb-2"
@@ -471,12 +465,12 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
           {t("reservation.phone")}
         </Label>
         <div className="flex flex-col gap-2 mt-1">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             <Select
               value={selectedCountryCode}
               onValueChange={setSelectedCountryCode}
             >
-              <SelectTrigger className="w-40 bg-zinc-800 text-white border-none hover:bg-zinc-700">
+              <SelectTrigger className="w-full sm:w-40 bg-zinc-800 text-white border-none hover:bg-zinc-700">
                 <SelectValue>
                   <span className="flex items-center gap-2">
                     <span>
@@ -512,7 +506,7 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
               name="phone"
               type="tel"
               placeholder="0(XX)XXXXXX"
-              className={`bg-zinc-800 text-white border-none flex-1 ${
+              className={`bg-zinc-800 text-white border-none flex-1 w-full ${
                 formData.phone.replace(/\D/g, "").length === 9
                   ? "border-green-500 border-2"
                   : formData.phone.replace(/\D/g, "").length > 0

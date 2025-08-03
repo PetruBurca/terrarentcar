@@ -76,6 +76,47 @@ const CarReservationModal = ({
     // Предотвращаем повторную отправку
     if (isSubmitting) return;
 
+    // Валидация обязательных полей
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
+      toast({
+        title: "Неполная форма",
+        description: "Пожалуйста, заполните все обязательные поля.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Валидация телефона
+    const phoneDigits = formData.phone.replace(/\D/g, "");
+    if (phoneDigits.length < 9) {
+      toast({
+        title: "Неверный номер телефона",
+        description: "Пожалуйста, введите корректный номер телефона.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Валидация IDNP
+    if (!formData.idnp || formData.idnp.length !== 13) {
+      toast({
+        title: "Неверный IDNP",
+        description: "IDNP должен содержать 13 цифр.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Валидация согласия с политикой
+    if (!privacyAccepted) {
+      toast({
+        title: "Согласие обязательно",
+        description: "Необходимо согласиться с политикой конфиденциальности.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     const form = e.target as HTMLFormElement;
     const formDataObj = new globalThis.FormData(form);
@@ -116,9 +157,23 @@ const CarReservationModal = ({
       setShowSuccessModal(true);
       setIsSubmitting(false);
     } catch (e) {
+      console.error("Ошибка отправки заявки:", e);
+      
+      // Более детальная обработка ошибок
+      let errorMessage = t("reservation.errorDesc");
+      if (e instanceof Error) {
+        if (e.message.includes("network") || e.message.includes("fetch")) {
+          errorMessage = "Проблема с интернет-соединением. Проверьте подключение и попробуйте снова.";
+        } else if (e.message.includes("photo") || e.message.includes("file")) {
+          errorMessage = "Ошибка загрузки фото документов. Попробуйте загрузить фото еще раз.";
+        } else if (e.message.includes("airtable") || e.message.includes("api")) {
+          errorMessage = "Ошибка сервера. Попробуйте отправить заявку позже.";
+        }
+      }
+      
       toast({
-        title: t("reservation.errorTitle"),
-        description: t("reservation.errorDesc"),
+        title: "Ошибка отправки",
+        description: errorMessage,
         variant: "destructive",
       });
       setIsSubmitting(false); // Разблокируем кнопку при ошибке
