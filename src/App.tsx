@@ -208,10 +208,11 @@ function CookieBanner() {
 }
 
 const App = () => {
-  // Простой лог для проверки
+  // Простой лог для проверки - В САМОМ НАЧАЛЕ
   console.log("🚀 App component loading...");
   console.log("🔧 Terra Rent Car - Developer Mode");
   console.log("💡 Открой консоль и введи: console.log('🚗 VROOM VROOM! 🚗')");
+  console.log("🎯 ВЫБРАЛ МАШИНУ?");
 
   // Забавное сообщение для разработчиков (видимо всегда)
   console.log(
@@ -259,6 +260,12 @@ const App = () => {
       "color: #ffff00; font-size: 14px; font-family: monospace;"
     );
   };
+
+  // Добавляем useEffect для гарантированного выполнения логов
+  useEffect(() => {
+    console.log("🎯 ВЫБРАЛ МАШИНУ? - useEffect");
+    console.log("🚀 App component mounted successfully!");
+  }, []);
 
   return (
     <ErrorBoundary>
