@@ -8,7 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import CacheManager from "./components/CacheManager";
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,46 +43,7 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
     const handleError = (event: ErrorEvent) => {
       console.error("App error:", event.error);
 
-      // Проверяем, не является ли ошибка связанной с кэшированием
-      if (event.error && event.error.message) {
-        const errorMessage = event.error.message.toLowerCase();
-        if (
-          errorMessage.includes("cache") ||
-          errorMessage.includes("storage") ||
-          errorMessage.includes("localstorage") ||
-          errorMessage.includes("quota") ||
-          errorMessage.includes("memory")
-        ) {
-          console.log(
-            "🔄 Ошибка связана с кэшированием/памятью, очищаем кэш..."
-          );
-          // Мягкая очистка только данных заявок
-          try {
-            const keys = Object.keys(localStorage);
-            const reservationKeys = keys.filter(
-              (key) =>
-                key.includes("reservation-form-") ||
-                key.includes("reservation-step-") ||
-                key.includes("uploaded-photos-") ||
-                key.includes("privacy-accepted-") ||
-                key.includes("wizard-data-") ||
-                key.includes("selected-country-code-") ||
-                key.includes("active-image-index-")
-            );
-            reservationKeys.forEach((key) => {
-              localStorage.removeItem(key);
-            });
-            console.log(
-              "🧹 Очищены данные заявок:",
-              reservationKeys.length,
-              "ключей"
-            );
-          } catch (clearError) {
-            console.error("Ошибка при очистке данных заявок:", clearError);
-          }
-          return;
-        }
-      }
+
 
       // На мобильных устройствах не показываем ошибку для незначительных проблем
       const isMobile =
@@ -119,45 +80,7 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.error("Unhandled promise rejection:", event.reason);
 
-      // Проверяем ошибки промисов
-      if (event.reason && typeof event.reason === "string") {
-        const errorMessage = event.reason.toLowerCase();
-        if (
-          errorMessage.includes("cache") ||
-          errorMessage.includes("storage") ||
-          errorMessage.includes("quota") ||
-          errorMessage.includes("memory")
-        ) {
-          console.log(
-            "🔄 Ошибка промиса связана с кэшированием/памятью, очищаем кэш..."
-          );
-          // Мягкая очистка только данных заявок
-          try {
-            const keys = Object.keys(localStorage);
-            const reservationKeys = keys.filter(
-              (key) =>
-                key.includes("reservation-form-") ||
-                key.includes("reservation-step-") ||
-                key.includes("uploaded-photos-") ||
-                key.includes("privacy-accepted-") ||
-                key.includes("wizard-data-") ||
-                key.includes("selected-country-code-") ||
-                key.includes("active-image-index-")
-            );
-            reservationKeys.forEach((key) => {
-              localStorage.removeItem(key);
-            });
-            console.log(
-              "🧹 Очищены данные заявок:",
-              reservationKeys.length,
-              "ключей"
-            );
-          } catch (clearError) {
-            console.error("Ошибка при очистке данных заявок:", clearError);
-          }
-          return;
-        }
-      }
+
 
       // На мобильных устройствах не показываем ошибку для незначительных проблем
       const isMobile =
@@ -254,25 +177,11 @@ function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Проверяем при загрузке
-    if (!localStorage.getItem("cookieAccepted")) {
-      setVisible(true);
-    }
-
-    // Слушаем изменения в localStorage
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "cookieAccepted" && e.newValue === null) {
-        // Если ключ куки был удален, показываем баннер
-        setVisible(true);
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+    // Всегда показываем баннер при загрузке
+    setVisible(true);
   }, []);
 
   const acceptCookies = () => {
-    localStorage.setItem("cookieAccepted", "true");
     setVisible(false);
   };
 
@@ -310,11 +219,7 @@ const App = () => {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <CacheManager
-            autoClearTime={30 * 60 * 1000} // 30 минут для лучшего UX
-            enableDoubleRefresh={true}
-            showDebugInfo={true} // Включаем для production
-          />
+
           <Toaster />
           <Sonner />
           <BrowserRouter

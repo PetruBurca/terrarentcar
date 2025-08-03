@@ -153,13 +153,8 @@ const Cars = ({ searchDates }) => {
 
   // Проверяем, есть ли сохраненные данные заявки
   useEffect(() => {
-    const keys = Object.keys(localStorage);
-    const hasReservationData = keys.some(
-      (key) =>
-        key.includes("reservation-form-") ||
-        key.includes("reservation-step-") ||
-        key.includes("wizard-data-")
-    );
+
+    const hasReservationData = false;
 
     if (hasReservationData) {
       console.log(

@@ -40,22 +40,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
       window.cacheManager.clearAfterBooking();
     } else {
       // Fallback если cacheManager недоступен
-      const keys = Object.keys(localStorage);
-      const reservationKeys = keys.filter(
-        (key) =>
-          key.includes("reservation-form-") ||
-          key.includes("reservation-step-") ||
-          key.includes("uploaded-photos-") ||
-          key.includes("privacy-accepted-") ||
-          key.includes("wizard-data-") ||
-          key.includes("selected-country-code-") ||
-          key.includes("active-image-index-") ||
-          key === "search-dates"
-      );
 
-      reservationKeys.forEach((key) => {
-        localStorage.removeItem(key);
-      });
 
       // Очищаем Service Worker кеш
       if ("serviceWorker" in navigator && "caches" in window) {

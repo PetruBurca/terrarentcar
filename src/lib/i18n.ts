@@ -3,11 +3,8 @@ import { initReactI18next } from "react-i18next";
 
 const LANGS = ["ru", "en", "ro"];
 
-// Получаем сохраненный язык из localStorage или используем "ro" по умолчанию
-const savedLanguage =
-  typeof window !== "undefined"
-    ? localStorage.getItem("app-language") || "ro"
-    : "ro";
+// Всегда используем "ro" по умолчанию
+const savedLanguage = "ro";
 
 // Инициализация без ресурсов, всё грузим динамически
 i18n.use(initReactI18next).init({
@@ -23,10 +20,6 @@ export function loadLocale(lang: string) {
     .then((data) => {
       i18n.addResourceBundle(lang, "translation", data, true, true);
       i18n.changeLanguage(lang);
-      // Сохраняем выбранный язык в localStorage
-      if (typeof window !== "undefined") {
-        localStorage.setItem("app-language", lang);
-      }
     });
 }
 

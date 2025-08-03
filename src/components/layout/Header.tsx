@@ -73,7 +73,7 @@ const Header = () => {
 
   // Синхронизируем язык при загрузке компонента
   useEffect(() => {
-    const savedLang = localStorage.getItem("app-language") || "ro";
+    const savedLang = "ro";
 
     // Убеждаемся, что язык загружен в i18n
     if (i18n.language !== savedLang) {
