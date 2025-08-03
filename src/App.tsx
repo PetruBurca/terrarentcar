@@ -215,6 +215,53 @@ function CookieBanner() {
 const App = () => {
   console.log("🚀 App component loading...");
 
+  // Забавное сообщение для разработчиков
+  console.log(
+    `
+🚗 %cTERRA RENT CAR - DEV MODE 🚗
+%c
+Привет, разработчик! 👋
+Ты выбрал машину? 🚙
+Если нет - самое время!
+
+%c💡 Подсказка: Открой консоль и введи:
+%cconsole.log("🚗 VROOM VROOM! 🚗")
+
+%c🎯 Найди easter egg на сайте!
+%c🎮 Попробуй: console.log("🚗 VROOM VROOM! 🚗")
+%c🚀 Автоматический деплой работает!
+%c
+    `,
+    "color: #ff0000; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);",
+    "color: #ffffff; font-size: 14px;",
+    "color: #00ff00; font-size: 16px; font-weight: bold;",
+    "color: #ffff00; font-size: 14px; font-family: monospace;",
+    "color: #ff00ff; font-size: 16px; font-weight: bold;",
+    "color: #ffffff; font-size: 12px;",
+    "color: #00ffff; font-size: 14px; font-family: monospace;",
+    "color: #00ff00; font-size: 14px; font-weight: bold;"
+  );
+
+  // Добавляем easter egg в глобальную область
+  window.terraRentCarEasterEgg = () => {
+    console.log(
+      `
+🎮 %cEaster Egg найден! 🎮
+%c
+🚗 VROOM VROOM! 🚗
+🏎️ Ты настоящий гонщик! 🏎️
+🏁 Поздравляем с находкой! 🏁
+
+%c💎 Секретный код: TERRA-RENT-ROCKS
+%c
+      `,
+      "color: #ff00ff; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);",
+      "color: #ffffff; font-size: 14px;",
+      "color: #00ff00; font-size: 16px; font-weight: bold;",
+      "color: #ffff00; font-size: 14px; font-family: monospace;"
+    );
+  };
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>

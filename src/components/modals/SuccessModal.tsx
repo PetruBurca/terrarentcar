@@ -9,14 +9,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { Car } from "@/types/reservation";
 
-// Расширяем window для cacheManager
-declare global {
-  interface Window {
-    cacheManager?: {
-      clearAfterBooking?: () => void;
-    };
-  }
-}
+
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -31,34 +24,10 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  // Функция для очистки кеша после успешной отправки
-  const handleCloseAndClearCache = () => {
-    console.log("🎉 Заявка успешно отправлена, очищаем кеш...");
-
-    // Используем глобальную функцию очистки из CacheManager
-    if (window.cacheManager?.clearAfterBooking) {
-      window.cacheManager.clearAfterBooking();
-    } else {
-      // Fallback если cacheManager недоступен
-
-
-      // Очищаем Service Worker кеш
-      if ("serviceWorker" in navigator && "caches" in window) {
-        caches.keys().then((cacheNames) => {
-          cacheNames.forEach((cacheName) => {
-            if (cacheName.includes("dynamic")) {
-              caches.delete(cacheName);
-            }
-          });
-        });
-      }
-
-      // Принудительно обновляем страницу
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    }
-
+  // Функция для закрытия модального окна
+  const handleClose = () => {
+    console.log("🎉 Заявка успешно отправлена!");
+    
     // Закрываем модальное окно
     onClose();
   };
@@ -126,7 +95,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
 
           {/* Кнопка ОК */}
           <Button
-            onClick={handleCloseAndClearCache}
+            onClick={handleClose}
             className="w-full bg-[#B90003] hover:bg-[#A00002] text-white font-bold text-lg py-4 rounded-xl shadow-lg shadow-[#B90003]/30 transform transition hover:scale-105 glow-effect"
           >
             ✓ {t("reservation.okButton", "Понятно, спасибо!")}

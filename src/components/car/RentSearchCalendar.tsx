@@ -12,7 +12,6 @@ import { useTranslation } from "react-i18next";
 import { X, Search } from "lucide-react";
 import React from "react";
 
-
 const getLocale = (lng: string) =>
   lng === "ru" ? ru : lng === "ro" ? ro : enUS;
 
@@ -188,7 +187,10 @@ export const RentSearchCalendar = ({ onSearch }) => {
             {t("reservation.selectDates")}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            {t("reservation.selectDatesDescription", "Выберите даты начала и окончания аренды автомобиля")}
+            {t(
+              "reservation.selectDatesDescription",
+              "Выберите даты начала и окончания аренды автомобиля"
+            )}
           </DialogDescription>
           {/* Header + поля */}
           <div>

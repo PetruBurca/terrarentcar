@@ -60,8 +60,7 @@ const CarReservationModal = ({
     setSelectedCountryCode,
     activeImageIndex,
     setActiveImageIndex,
-    clearCarCache,
-    clearAllCarCaches,
+
   } = useCarReservation(car.id);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -488,8 +487,6 @@ const CarReservationModal = ({
   // Функция для закрытия модального окна успеха
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
-    // Очищаем кэш для конкретной машины после успешной отправки
-    clearCarCache();
     onClose();
   };
 
