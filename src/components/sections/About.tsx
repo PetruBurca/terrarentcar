@@ -2,6 +2,7 @@ import { Shield, Clock, Award, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/layout/card";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
+import { FAQ } from "@/components/sections";
 
 // Custom CSS for enhanced animations
 const customStyles = `
@@ -367,6 +368,11 @@ const About = () => {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="mt-20">
+          <FAQ />
         </div>
       </div>
     </section>
