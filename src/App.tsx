@@ -12,19 +12,19 @@ import { useTranslation } from "react-i18next";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 10, // 10 minutes - увеличили для лучшего кеширования
-      gcTime: 1000 * 60 * 10, // 10 minutes - увеличили для лучшего кеширования
+      staleTime: 0, // Данные считаются устаревшими сразу
+      gcTime: 1000 * 60 * 5, // 5 минут в кэше
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors
         if (error instanceof Error && error.message.includes("4")) {
           return false;
         }
-        return failureCount < 3;
+        return failureCount < 2; // Уменьшаем количество попыток
       },
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Уменьшаем задержку
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
-      // Добавляем fallback для сетевых ошибок
+      // Отключаем кэширование для мобильных устройств
       networkMode: "online",
     },
     mutations: {
@@ -48,18 +48,54 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
           navigator.userAgent
         );
       const isChrome = /Chrome/i.test(navigator.userAgent);
+      const isSafari =
+        /Safari/i.test(navigator.userAgent) &&
+        !/Chrome/i.test(navigator.userAgent);
+
+      console.log("📱 Device info:", {
+        isMobile,
+        isChrome,
+        isSafari,
+        userAgent: navigator.userAgent,
+        errorMessage: event.error?.message,
+      });
 
       if (isMobile && event.error && event.error.message) {
         const errorMessage = event.error.message.toLowerCase();
-        if (
-          errorMessage.includes("script") ||
-          errorMessage.includes("module") ||
-          errorMessage.includes("import") ||
-          errorMessage.includes("fetch") ||
-          errorMessage.includes("chrome") ||
-          errorMessage.includes("blob") ||
-          errorMessage.includes("url")
-        ) {
+
+        // Расширенный список игнорируемых ошибок для мобильных
+        const ignorableErrors = [
+          "script",
+          "module",
+          "import",
+          "fetch",
+          "chrome",
+          "blob",
+          "url",
+          "service worker",
+          "cache",
+          "storage",
+          "indexeddb",
+          "localstorage",
+          "sessionstorage",
+          "webgl",
+          "canvas",
+          "audio",
+          "video",
+          "media",
+          "permission",
+          "notification",
+          "push",
+          "background sync",
+          "sync",
+          "periodic sync",
+        ];
+
+        const shouldIgnore = ignorableErrors.some((errorType) =>
+          errorMessage.includes(errorType)
+        );
+
+        if (shouldIgnore) {
           console.log("📱 Мобильная ошибка, игнорируем:", errorMessage);
           return;
         }
@@ -67,6 +103,12 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
         // Специальная обработка для Chrome на мобильных
         if (isChrome && isMobile) {
           console.log("📱 Chrome мобильная ошибка, игнорируем:", errorMessage);
+          return;
+        }
+
+        // Специальная обработка для Safari на мобильных
+        if (isSafari && isMobile) {
+          console.log("📱 Safari мобильная ошибка, игнорируем:", errorMessage);
           return;
         }
       }
@@ -83,19 +125,47 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
           navigator.userAgent
         );
       const isChrome = /Chrome/i.test(navigator.userAgent);
+      const isSafari =
+        /Safari/i.test(navigator.userAgent) &&
+        !/Chrome/i.test(navigator.userAgent);
 
       if (isMobile && event.reason && typeof event.reason === "string") {
         const errorMessage = event.reason.toLowerCase();
-        if (
-          errorMessage.includes("script") ||
-          errorMessage.includes("module") ||
-          errorMessage.includes("import") ||
-          errorMessage.includes("fetch") ||
-          errorMessage.includes("network") ||
-          errorMessage.includes("chrome") ||
-          errorMessage.includes("blob") ||
-          errorMessage.includes("url")
-        ) {
+
+        // Расширенный список игнорируемых ошибок для мобильных
+        const ignorableErrors = [
+          "script",
+          "module",
+          "import",
+          "fetch",
+          "network",
+          "chrome",
+          "blob",
+          "url",
+          "service worker",
+          "cache",
+          "storage",
+          "indexeddb",
+          "localstorage",
+          "sessionstorage",
+          "webgl",
+          "canvas",
+          "audio",
+          "video",
+          "media",
+          "permission",
+          "notification",
+          "push",
+          "background sync",
+          "sync",
+          "periodic sync",
+        ];
+
+        const shouldIgnore = ignorableErrors.some((errorType) =>
+          errorMessage.includes(errorType)
+        );
+
+        if (shouldIgnore) {
           console.log("📱 Мобильная ошибка промиса, игнорируем:", errorMessage);
           return;
         }
@@ -104,6 +174,15 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
         if (isChrome && isMobile) {
           console.log(
             "📱 Chrome мобильная ошибка промиса, игнорируем:",
+            errorMessage
+          );
+          return;
+        }
+
+        // Специальная обработка для Safari на мобильных
+        if (isSafari && isMobile) {
+          console.log(
+            "📱 Safari мобильная ошибка промиса, игнорируем:",
             errorMessage
           );
           return;
@@ -226,8 +305,7 @@ const App = () => {
     "color: #ff0000; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);",
     "color: #ffffff; font-size: 14px;",
     "color: #00ff00; font-size: 16px; font-weight: bold;",
-    "color: #ffff00; font-size: 14px; font-family: monospace;",
-
+    "color: #ffff00; font-size: 14px; font-family: monospace;"
   );
 
   // Добавляем easter egg в глобальную область

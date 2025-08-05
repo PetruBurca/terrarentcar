@@ -60,7 +60,6 @@ const CarReservationModal = ({
     setSelectedCountryCode,
     activeImageIndex,
     setActiveImageIndex,
-
   } = useCarReservation(car.id);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,8 +74,32 @@ const CarReservationModal = ({
     // Предотвращаем повторную отправку
     if (isSubmitting) return;
 
+    // Дополнительная проверка для мобильных устройств
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+
+    console.log("📱 Mobile submit check:", {
+      isMobile,
+      userAgent: navigator.userAgent,
+      formData: {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        idnp: formData.idnp,
+        privacyAccepted,
+      },
+    });
+
     // Валидация обязательных полей
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.email ||
+      !formData.phone
+    ) {
       toast({
         title: "Неполная форма",
         description: "Пожалуйста, заполните все обязательные поля.",
@@ -121,6 +144,8 @@ const CarReservationModal = ({
     const formDataObj = new globalThis.FormData(form);
 
     try {
+      console.log("📱 Submitting order for mobile:", isMobile);
+
       await createOrder({
         name: formData.firstName + " " + formData.lastName,
         phone: formData.phone,
@@ -152,30 +177,58 @@ const CarReservationModal = ({
             : 0, // Стоимость доставки
         // washingCost: 20, // Стоимость мойки - убрали пока не создадите поле в Airtable
       });
+
+      console.log("📱 Order submitted successfully");
+
       // Показываем модальное окно успеха
       setShowSuccessModal(true);
       setIsSubmitting(false);
     } catch (e) {
       console.error("Ошибка отправки заявки:", e);
-      
-      // Более детальная обработка ошибок
-      let errorMessage = t("reservation.errorDesc");
-      if (e instanceof Error) {
-        if (e.message.includes("network") || e.message.includes("fetch")) {
-          errorMessage = "Проблема с интернет-соединением. Проверьте подключение и попробуйте снова.";
-        } else if (e.message.includes("photo") || e.message.includes("file")) {
-          errorMessage = "Ошибка загрузки фото документов. Попробуйте загрузить фото еще раз.";
-        } else if (e.message.includes("airtable") || e.message.includes("api")) {
-          errorMessage = "Ошибка сервера. Попробуйте отправить заявку позже.";
+
+      // Дополнительная обработка ошибок для мобильных
+      if (isMobile) {
+        console.log("📱 Mobile error handling:", e);
+
+        // Проверяем тип ошибки
+        const errorMessage = e instanceof Error ? e.message : String(e);
+
+        if (
+          errorMessage.includes("network") ||
+          errorMessage.includes("fetch")
+        ) {
+          toast({
+            title: "Проблема с сетью",
+            description:
+              "Проверьте подключение к интернету и попробуйте снова.",
+            variant: "destructive",
+          });
+        } else if (
+          errorMessage.includes("storage") ||
+          errorMessage.includes("cache")
+        ) {
+          toast({
+            title: "Проблема с данными",
+            description: "Попробуйте очистить кэш браузера и повторить.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Ошибка отправки",
+            description: "Попробуйте еще раз или свяжитесь с нами по телефону.",
+            variant: "destructive",
+          });
         }
+      } else {
+        toast({
+          title: "Ошибка отправки",
+          description:
+            "Произошла ошибка при отправке заявки. Попробуйте еще раз.",
+          variant: "destructive",
+        });
       }
-      
-      toast({
-        title: "Ошибка отправки",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      setIsSubmitting(false); // Разблокируем кнопку при ошибке
+
+      setIsSubmitting(false);
     }
   };
 
