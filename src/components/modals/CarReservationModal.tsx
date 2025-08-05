@@ -44,6 +44,20 @@ const CarReservationModal = ({
   const { t, i18n } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 767px)");
 
+  // Дополнительная проверка для мобильных устройств
+  const isMobileDevice =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+
+  console.log("📱 CarReservationModal mobile check:", {
+    isMobile,
+    isMobileDevice,
+    userAgent: navigator.userAgent,
+    isOpen,
+    carId: car.id,
+  });
+
   // Используем кэшированное состояние с изоляцией по машинам
   const {
     formData,
@@ -73,25 +87,6 @@ const CarReservationModal = ({
 
     // Предотвращаем повторную отправку
     if (isSubmitting) return;
-
-    // Дополнительная проверка для мобильных устройств
-    const isMobile =
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      );
-
-    console.log("📱 Mobile submit check:", {
-      isMobile,
-      userAgent: navigator.userAgent,
-      formData: {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        idnp: formData.idnp,
-        privacyAccepted,
-      },
-    });
 
     // Валидация обязательных полей
     if (
@@ -144,7 +139,7 @@ const CarReservationModal = ({
     const formDataObj = new globalThis.FormData(form);
 
     try {
-      console.log("📱 Submitting order for mobile:", isMobile);
+      console.log("📱 Submitting order for mobile:", isMobileDevice);
 
       await createOrder({
         name: formData.firstName + " " + formData.lastName,
@@ -187,7 +182,7 @@ const CarReservationModal = ({
       console.error("Ошибка отправки заявки:", e);
 
       // Дополнительная обработка ошибок для мобильных
-      if (isMobile) {
+      if (isMobileDevice) {
         console.log("📱 Mobile error handling:", e);
 
         // Проверяем тип ошибки
