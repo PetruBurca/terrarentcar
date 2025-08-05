@@ -9,7 +9,7 @@ import {
 const FAQ = () => {
   const { t, ready } = useTranslation();
 
-  // Показываем заглушку пока переводы не загружены
+  // Показываем загрузку пока переводы не готовы
   if (!ready) {
     return (
       <div className="w-full">

@@ -43,15 +43,15 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
       console.error("App error:", event.error);
 
       // На мобильных устройствах не показываем ошибку для незначительных проблем
+      const isChrome = /Chrome/.test(navigator.userAgent);
+      const isSafari =
+        /Safari/.test(navigator.userAgent) &&
+        !/Chrome/.test(navigator.userAgent);
       const isMobile =
         /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
           navigator.userAgent
         );
-      const isChrome = /Chrome/i.test(navigator.userAgent);
-      const isSafari =
-        /Safari/i.test(navigator.userAgent) &&
-        !/Chrome/i.test(navigator.userAgent);
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
 
       console.log("📱 Device info:", {
         isMobile,
@@ -121,15 +121,15 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
       console.error("Unhandled promise rejection:", event.reason);
 
       // На мобильных устройствах не показываем ошибку для незначительных проблем
+      const isChrome = /Chrome/.test(navigator.userAgent);
+      const isSafari =
+        /Safari/.test(navigator.userAgent) &&
+        !/Chrome/.test(navigator.userAgent);
       const isMobile =
         /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
           navigator.userAgent
         );
-      const isChrome = /Chrome/i.test(navigator.userAgent);
-      const isSafari =
-        /Safari/i.test(navigator.userAgent) &&
-        !/Chrome/i.test(navigator.userAgent);
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
 
       if (isMobile && event.reason && typeof event.reason === "string") {
         const errorMessage = event.reason.toLowerCase();
@@ -297,7 +297,36 @@ function CookieBanner() {
   );
 }
 
-const App = () => {
+function App() {
+  const { t } = useTranslation();
+
+  // Принудительная очистка кэша для Chrome на мобильных
+  useEffect(() => {
+    const isChrome = /Chrome/.test(navigator.userAgent);
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+
+    if (isChrome && isMobile) {
+      console.log("🧹 Chrome mobile detected - clearing cache");
+
+      // Очищаем localStorage
+      try {
+        localStorage.clear();
+      } catch (e) {
+        console.log("localStorage clear failed:", e);
+      }
+
+      // Очищаем sessionStorage
+      try {
+        sessionStorage.clear();
+      } catch (e) {
+        console.log("sessionStorage clear failed:", e);
+      }
+    }
+  }, []);
+
   // Главное сообщение для разработчиков
   console.log("🎯 ВЫБРАЛ МАШИНУ?");
 
@@ -360,6 +389,6 @@ const App = () => {
       </QueryClientProvider>
     </ErrorBoundary>
   );
-};
+}
 
 export default App;
