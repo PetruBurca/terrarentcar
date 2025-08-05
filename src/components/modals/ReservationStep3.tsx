@@ -79,26 +79,6 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
 }) => {
   const { t } = useTranslation();
 
-  // Дополнительная проверка для мобильных устройств
-  const isMobile =
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
-
-  console.log("📱 ReservationStep3 mobile check:", {
-    isMobile,
-    userAgent: navigator.userAgent,
-    currentStep,
-    formData: {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      phone: formData.phone,
-      idnp: formData.idnp,
-      privacyAccepted,
-    },
-  });
-
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {

@@ -7,15 +7,7 @@ import {
 } from "@/components/ui/navigation/accordion";
 
 const FAQ = () => {
-  const { t, ready, i18n } = useTranslation();
-
-  // Отладочная информация
-  console.log("FAQ Debug:", {
-    ready,
-    language: i18n.language,
-    hasResource: i18n.hasResourceBundle(i18n.language, "translation"),
-    resources: Object.keys(i18n.store.data),
-  });
+  const { t, ready } = useTranslation();
 
   // Показываем заглушку пока переводы не загружены
   if (!ready) {
@@ -23,9 +15,6 @@ const FAQ = () => {
       <div className="w-full">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Загрузка...</h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Загружаем вопросы...
-          </p>
         </div>
       </div>
     );

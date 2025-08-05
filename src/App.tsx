@@ -51,6 +51,7 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
       const isSafari =
         /Safari/i.test(navigator.userAgent) &&
         !/Chrome/i.test(navigator.userAgent);
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
       console.log("📱 Device info:", {
         isMobile,
@@ -128,6 +129,7 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
       const isSafari =
         /Safari/i.test(navigator.userAgent) &&
         !/Chrome/i.test(navigator.userAgent);
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
       if (isMobile && event.reason && typeof event.reason === "string") {
         const errorMessage = event.reason.toLowerCase();
@@ -183,6 +185,15 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
         if (isSafari && isMobile) {
           console.log(
             "📱 Safari мобильная ошибка промиса, игнорируем:",
+            errorMessage
+          );
+          return;
+        }
+
+        // Специальная обработка для Chrome на iOS
+        if (isChrome && isIOS) {
+          console.log(
+            "📱 Chrome iOS ошибка промиса, игнорируем:",
             errorMessage
           );
           return;

@@ -44,20 +44,6 @@ const CarReservationModal = ({
   const { t, i18n } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 767px)");
 
-  // Дополнительная проверка для мобильных устройств
-  const isMobileDevice =
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
-
-  console.log("📱 CarReservationModal mobile check:", {
-    isMobile,
-    isMobileDevice,
-    userAgent: navigator.userAgent,
-    isOpen,
-    carId: car.id,
-  });
-
   // Используем кэшированное состояние с изоляцией по машинам
   const {
     formData,
@@ -139,8 +125,6 @@ const CarReservationModal = ({
     const formDataObj = new globalThis.FormData(form);
 
     try {
-      console.log("📱 Submitting order for mobile:", isMobileDevice);
-
       await createOrder({
         name: formData.firstName + " " + formData.lastName,
         phone: formData.phone,
@@ -173,8 +157,6 @@ const CarReservationModal = ({
         // washingCost: 20, // Стоимость мойки - убрали пока не создадите поле в Airtable
       });
 
-      console.log("📱 Order submitted successfully");
-
       // Показываем модальное окно успеха
       setShowSuccessModal(true);
       setIsSubmitting(false);
@@ -182,11 +164,23 @@ const CarReservationModal = ({
       console.error("Ошибка отправки заявки:", e);
 
       // Дополнительная обработка ошибок для мобильных
-      if (isMobileDevice) {
-        console.log("📱 Mobile error handling:", e);
-
+      if (isMobile) {
         // Проверяем тип ошибки
         const errorMessage = e instanceof Error ? e.message : String(e);
+
+        // Специальная обработка для Chrome на мобильных
+        const isChrome = /Chrome/.test(navigator.userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+        if (isChrome && isIOS) {
+          console.log("📱 Chrome iOS ошибка, показываем специальное сообщение");
+          toast({
+            title: "Проблема с Chrome",
+            description: "Попробуйте использовать Safari или обновите страницу",
+            variant: "destructive",
+          });
+          return;
+        }
 
         if (
           errorMessage.includes("network") ||
@@ -195,7 +189,7 @@ const CarReservationModal = ({
           toast({
             title: "Проблема с сетью",
             description:
-              "Проверьте подключение к интернету и попробуйте снова.",
+              "Проверьте подключение к интернету и попробуйте еще раз",
             variant: "destructive",
           });
         } else if (
@@ -204,21 +198,22 @@ const CarReservationModal = ({
         ) {
           toast({
             title: "Проблема с данными",
-            description: "Попробуйте очистить кэш браузера и повторить.",
+            description:
+              "Попробуйте обновить страницу и заполнить форму заново",
             variant: "destructive",
           });
         } else {
           toast({
-            title: "Ошибка отправки",
-            description: "Попробуйте еще раз или свяжитесь с нами по телефону.",
+            title: "Ошибка",
+            description:
+              "Что-то пошло не так. Попробуйте еще раз или обновите страницу",
             variant: "destructive",
           });
         }
       } else {
         toast({
-          title: "Ошибка отправки",
-          description:
-            "Произошла ошибка при отправке заявки. Попробуйте еще раз.",
+          title: "Ошибка",
+          description: "Не удалось отправить заявку. Попробуйте еще раз.",
           variant: "destructive",
         });
       }
