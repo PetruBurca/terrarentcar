@@ -18,6 +18,9 @@ export interface Car {
   price11to20: number;
   price21to29: number;
   price30plus: number;
+  blockFromDate?: string | null; // Дата блокировки от администратора
+  blockToDate?: string | null; // Дата блокировки до администратора
+  status?: string; // Статус автомобиля (доступен, на обслуживании, в аренде)
 }
 
 export interface FormData {

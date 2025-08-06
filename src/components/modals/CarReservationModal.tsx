@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/utils/button";
 import {
@@ -164,7 +164,7 @@ const CarReservationModal = ({
       console.error("Ошибка отправки заявки:", e);
 
       // Дополнительная обработка ошибок для мобильных
-      if (isMobileDevice) {
+      if (isMobile) {
         // Проверяем тип ошибки
         const errorMessage = e instanceof Error ? e.message : String(e);
 
@@ -530,9 +530,9 @@ const CarReservationModal = ({
   }, [isOpen]);
 
   const { data: orders = [] } = useQuery({
-    queryKey: ["orders"],
+    queryKey: ["orders", i18n.language],
     queryFn: fetchOrders,
-    staleTime: 1000 * 60 * 10, // Увеличили до 10 минут
+    staleTime: 0, // Убираем кэширование
   });
   // Получаем только заявки по этой машине и только подтверждённые
   const carOrders = orders.filter((order) => {
@@ -560,18 +560,72 @@ const CarReservationModal = ({
 
   // Генерируем массив занятых дат (только дата, без времени, с универсальным парсером)
   const disabledDays: Date[] = [];
-  carOrders.forEach((order) => {
-    const start = parseDate(order.startDate);
-    const end = parseDate(order.endDate);
-    if (!start || !end) return;
-    for (
-      let d = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-      d <= end;
-      d.setDate(d.getDate() + 1)
-    ) {
-      disabledDays.push(new Date(d.getFullYear(), d.getMonth(), d.getDate()));
+
+  // Если автомобиль на обслуживании - блокируем все даты
+  if (car.status && car.status.toLowerCase() === "на обслуживании") {
+    // Генерируем все даты на ближайшие 1 года (365 дней)
+    const today = new Date();
+    for (let i = 0; i < 365; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      disabledDays.push(
+        new Date(date.getFullYear(), date.getMonth(), date.getDate())
+      );
     }
-  });
+  } else {
+    // Добавляем даты из заказов только если автомобиль не на обслуживании
+    carOrders.forEach((order) => {
+      const start = parseDate(order.startDate);
+      const end = parseDate(order.endDate);
+      if (!start || !end) return;
+      for (
+        let d = new Date(
+          start.getFullYear(),
+          start.getMonth(),
+          start.getDate()
+        );
+        d <= end;
+        d.setDate(d.getDate() + 1)
+      ) {
+        disabledDays.push(new Date(d.getFullYear(), d.getMonth(), d.getDate()));
+      }
+    });
+  }
+
+  // Добавляем даты блокировки администратора (только если автомобиль не на обслуживании)
+  if (!car.status || car.status.toLowerCase() !== "на обслуживании") {
+    if (car.blockFromDate && car.blockToDate) {
+      const blockStart = parseDate(car.blockFromDate);
+      const blockEnd = parseDate(car.blockToDate);
+      if (blockStart && blockEnd) {
+        for (
+          let d = new Date(
+            blockStart.getFullYear(),
+            blockStart.getMonth(),
+            blockStart.getDate()
+          );
+          d <= blockEnd;
+          d.setDate(d.getDate() + 1)
+        ) {
+          const disabledDay = new Date(
+            d.getFullYear(),
+            d.getMonth(),
+            d.getDate()
+          );
+          // Проверяем, что дата еще не добавлена
+          const isAlreadyDisabled = disabledDays.some(
+            (existingDate) =>
+              existingDate.getFullYear() === disabledDay.getFullYear() &&
+              existingDate.getMonth() === disabledDay.getMonth() &&
+              existingDate.getDate() === disabledDay.getDate()
+          );
+          if (!isAlreadyDisabled) {
+            disabledDays.push(disabledDay);
+          }
+        }
+      }
+    }
+  }
 
   return (
     <>

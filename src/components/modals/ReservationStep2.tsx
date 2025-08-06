@@ -124,10 +124,6 @@ export const ReservationStep2: React.FC<ReservationStep2Props> = ({
             <span>{t("reservation.ruleFuel")}</span>
           </div>
           <div className="flex items-center gap-3 text-white">
-            <img src={NoDepositIcon} alt="No deposit" className="w-7 h-7" />
-            <span>{t("reservation.ruleNoDeposit")}</span>
-          </div>
-          <div className="flex items-center gap-3 text-white">
             <img src={SpeedIcon} alt="Speed limit" className="w-7 h-7" />
             <span>{t("reservation.ruleSpeed")}</span>
           </div>

@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useRef,
-} from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 interface CarouselWithCenterProps {
   items: Array<{ label: string; value: string | number }>;
@@ -51,19 +45,19 @@ export const CarouselWithCenter: React.FC<CarouselWithCenterProps> = ({
   const directionThreshold = 5; // Порог для определения направления
 
   // Нормализация offset для истинной бесконечной прокрутки
-  const normalizeOffset = useCallback((off: number) => {
+  const normalizeOffset = (off: number) => {
     // Не нормализуем offset, позволяем ему быть любым числом
     return off;
-  }, []);
+  };
 
   // Получение активного индекса на основе offset
-  const getActiveIndex = useCallback(() => {
+  const getActiveIndex = () => {
     const rawIndex = Math.round(offset / itemWidth);
     return ((rawIndex % items.length) + items.length) % items.length;
-  }, [offset, itemWidth, items.length]);
+  };
 
   // Touch handlers с полной блокировкой вертикального скролла
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+  const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
     setIsDragging(true);
     setDragStart({ x: touch.clientX, y: touch.clientY });
@@ -72,97 +66,74 @@ export const CarouselWithCenter: React.FC<CarouselWithCenterProps> = ({
     setDragStartTime(Date.now());
     setSwipeDirection(null);
     setIsAnimating(false);
-  }, []);
+  };
 
-  const handleTouchMove = useCallback(
-    (e: React.TouchEvent) => {
-      if (!isDragging) return;
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
 
-      const touch = e.touches[0];
-      const deltaX = touch.clientX - dragStart.x;
-      const deltaY = touch.clientY - dragStart.y;
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - dragStart.x;
+    const deltaY = touch.clientY - dragStart.y;
 
-      // Определяем направление свайпа только один раз
-      if (
-        swipeDirection === null &&
-        (Math.abs(deltaX) > directionThreshold ||
-          Math.abs(deltaY) > directionThreshold)
-      ) {
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-          setSwipeDirection("horizontal");
-        } else {
-          setSwipeDirection("vertical");
-        }
+    // Определяем направление свайпа только один раз
+    if (
+      swipeDirection === null &&
+      (Math.abs(deltaX) > directionThreshold ||
+        Math.abs(deltaY) > directionThreshold)
+    ) {
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        setSwipeDirection("horizontal");
+      } else {
+        setSwipeDirection("vertical");
       }
+    }
 
-      // Если определили горизонтальный свайп - блокируем вертикальный скролл
-      if (swipeDirection === "horizontal") {
-        e.preventDefault();
-        e.stopPropagation();
-        setDragCurrent({ x: touch.clientX, y: touch.clientY });
-
-        // Плавное перемещение через dragOffset (НЕ изменяем основной offset)
-        setDragOffset(-deltaX);
-      }
-
-      // Если вертикальный свайп - НЕ блокируем, позволяем странице скроллиться
-    },
-    [
-      isDragging,
-      dragStart,
-      swipeDirection,
-      directionThreshold,
-      itemWidth,
-      offset,
-    ]
-  );
-
-  const handleTouchEnd = useCallback(
-    (e: React.TouchEvent) => {
-      if (!isDragging) return;
-
+    // Если определили горизонтальный свайп - блокируем вертикальный скролл
+    if (swipeDirection === "horizontal") {
       e.preventDefault();
       e.stopPropagation();
-      setIsDragging(false);
-      setDragOffset(0); // Сброс временного смещения
+      setDragCurrent({ x: touch.clientX, y: touch.clientY });
 
-      // Определяем какая ячейка должна быть по центру после перемещения
-      if (swipeDirection === "horizontal") {
-        // Эффективная позиция с учетом перемещения
-        const effectiveOffset = offset + dragOffset;
-        const targetIndex = Math.round(effectiveOffset / itemWidth);
-        const targetOffset = targetIndex * itemWidth;
+      // Плавное перемещение через dragOffset (НЕ изменяем основной offset)
+      setDragOffset(-deltaX);
+    }
 
-        setIsAnimating(true);
-        setOffset(targetOffset);
-        setTimeout(() => setIsAnimating(false), 250);
-      } else {
-        // Если не горизонтальный свайп - возвращаем к текущей позиции
-        const currentIndex = Math.round(offset / itemWidth);
-        const targetOffset = currentIndex * itemWidth;
+    // Если вертикальный свайп - НЕ блокируем, позволяем странице скроллиться
+  };
 
-        setIsAnimating(true);
-        setOffset(targetOffset);
-        setTimeout(() => setIsAnimating(false), 250);
-      }
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!isDragging) return;
 
-      setSwipeDirection(null);
-    },
-    [
-      isDragging,
-      swipeDirection,
-      dragCurrent,
-      dragStart,
-      swipeThreshold,
-      normalizeOffset,
-      offset,
-      itemWidth,
-      items.length,
-    ]
-  );
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    setDragOffset(0); // Сброс временного смещения
+
+    // Определяем какая ячейка должна быть по центру после перемещения
+    if (swipeDirection === "horizontal") {
+      // Эффективная позиция с учетом перемещения
+      const effectiveOffset = offset + dragOffset;
+      const targetIndex = Math.round(effectiveOffset / itemWidth);
+      const targetOffset = targetIndex * itemWidth;
+
+      setIsAnimating(true);
+      setOffset(targetOffset);
+      setTimeout(() => setIsAnimating(false), 250);
+    } else {
+      // Если не горизонтальный свайп - возвращаем к текущей позиции
+      const currentIndex = Math.round(offset / itemWidth);
+      const targetOffset = currentIndex * itemWidth;
+
+      setIsAnimating(true);
+      setOffset(targetOffset);
+      setTimeout(() => setIsAnimating(false), 250);
+    }
+
+    setSwipeDirection(null);
+  };
 
   // Mouse handlers (аналогично touch, но без учета вертикального скролла)
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+  const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
     setDragStart({ x: e.clientX, y: e.clientY });
@@ -171,22 +142,19 @@ export const CarouselWithCenter: React.FC<CarouselWithCenterProps> = ({
     setDragStartTime(Date.now());
     setSwipeDirection("horizontal"); // Для мыши всегда горизонтально
     setIsAnimating(false);
-  }, []);
+  };
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      if (!isDragging || swipeDirection !== "horizontal") return;
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || swipeDirection !== "horizontal") return;
 
-      const deltaX = e.clientX - dragStart.x;
-      setDragCurrent({ x: e.clientX, y: e.clientY });
+    const deltaX = e.clientX - dragStart.x;
+    setDragCurrent({ x: e.clientX, y: e.clientY });
 
-      // Плавное перемещение через dragOffset (НЕ изменяем основной offset)
-      setDragOffset(-deltaX);
-    },
-    [isDragging, swipeDirection, dragStart, itemWidth, offset]
-  );
+    // Плавное перемещение через dragOffset (НЕ изменяем основной offset)
+    setDragOffset(-deltaX);
+  };
 
-  const handleMouseUp = useCallback(() => {
+  const handleMouseUp = () => {
     if (!isDragging) return;
     setIsDragging(false);
     setDragOffset(0); // Сброс временного смещения
@@ -203,41 +171,31 @@ export const CarouselWithCenter: React.FC<CarouselWithCenterProps> = ({
     }
 
     setSwipeDirection(null);
-  }, [
-    isDragging,
-    swipeDirection,
-    dragCurrent,
-    dragStart,
-    swipeThreshold,
-    normalizeOffset,
-    offset,
-    itemWidth,
-    items.length,
-  ]);
+  };
 
-  const handleMouseLeave = useCallback(() => {
+  const handleMouseLeave = () => {
     if (isDragging) {
       handleMouseUp();
     }
-  }, [isDragging, handleMouseUp]);
+  };
 
   // Кнопки навигации с плавной анимацией
-  const prev = useCallback(() => {
+  const prev = () => {
     if (isAnimating) return;
     setIsAnimating(true);
     setOffset((prev) => prev - itemWidth); // Двигаем влево (к предыдущему)
     setTimeout(() => setIsAnimating(false), 250);
-  }, [itemWidth, isAnimating]);
+  };
 
-  const next = useCallback(() => {
+  const next = () => {
     if (isAnimating) return;
     setIsAnimating(true);
     setOffset((prev) => prev + itemWidth); // Двигаем вправо (к следующему)
     setTimeout(() => setIsAnimating(false), 250);
-  }, [itemWidth, isAnimating]);
+  };
 
   // Оптимизированный рендер элементов с истинной бесконечностью
-  const renderItems = useMemo(() => {
+  const renderItems = () => {
     const elements = [];
 
     // Вычисляем центральный индекс на основе текущего offset (без учета dragOffset)
@@ -355,16 +313,7 @@ export const CarouselWithCenter: React.FC<CarouselWithCenterProps> = ({
     }
 
     return elements;
-  }, [
-    offset,
-    dragOffset,
-    itemWidth,
-    items,
-    visibleCount,
-    isDragging,
-    isAnimating,
-    valueSuffix,
-  ]);
+  };
 
   return (
     <div className="w-full max-w-full md:max-w-lg mx-auto relative">
@@ -429,7 +378,7 @@ export const CarouselWithCenter: React.FC<CarouselWithCenterProps> = ({
           } as React.CSSProperties
         }
       >
-        {renderItems}
+        {renderItems()}
       </div>
 
       {/* Точки навигации */}

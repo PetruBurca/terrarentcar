@@ -30,6 +30,8 @@ interface AirtableCarFields {
   "Год выпуска"?: string;
   Двигатель?: string;
   Привод?: string;
+  "Аренда ОТ"?: string; // Дата блокировки от администратора
+  "Аренда ДО"?: string; // Дата блокировки до администратора
 }
 
 interface AirtableRecord {
@@ -79,6 +81,9 @@ export async function fetchCars() {
       price11to20: fields["Цена за 11-20 дней"] ?? fields["Цена за день"] ?? 0,
       price21to29: fields["Цена за 21-29 дней"] ?? fields["Цена за день"] ?? 0,
       price30plus: fields["Цена от 30 дней"] ?? fields["Цена за день"] ?? 0,
+      blockFromDate: fields["Аренда ОТ"] || null, // Дата блокировки от администратора
+      blockToDate: fields["Аренда ДО"] || null, // Дата блокировки до администратора
+      status: fields["Статус"] || "доступен", // Статус автомобиля
     };
   });
 }

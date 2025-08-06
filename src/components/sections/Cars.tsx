@@ -153,7 +153,6 @@ const Cars = ({ searchDates }) => {
 
   // Проверяем, есть ли сохраненные данные заявки
   useEffect(() => {
-
     const hasReservationData = false;
 
     if (hasReservationData) {
@@ -209,7 +208,7 @@ const Cars = ({ searchDates }) => {
   } = useQuery({
     queryKey: ["cars", i18n.language],
     queryFn: fetchCars,
-    staleTime: 1000 * 60 * 10, // Увеличили до 10 минут
+    staleTime: 0, // Убираем кэширование
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
@@ -218,7 +217,7 @@ const Cars = ({ searchDates }) => {
   const { data: orders = [], isLoading: isLoadingOrders } = useQuery({
     queryKey: ["orders", i18n.language],
     queryFn: fetchOrders,
-    staleTime: 1000 * 60 * 10, // Увеличили до 10 минут
+    staleTime: 0, // Убираем кэширование
   });
 
   // Принудительное обновление при смене языка
@@ -235,6 +234,11 @@ const Cars = ({ searchDates }) => {
   let availableCars = cars;
   if (searchDates?.from && searchDates?.to) {
     availableCars = cars.filter((car) => {
+      // Если автомобиль на обслуживании - скрываем его
+      if (car.status && car.status.toLowerCase() === "на обслуживании") {
+        return false;
+      }
+
       // Фильтруем заявки для этого автомобиля
       const carOrders = orders.filter((order) => {
         const hasCarId = order.carIds && order.carIds.includes(car.id);
@@ -252,7 +256,8 @@ const Cars = ({ searchDates }) => {
       const from = new Date(searchDates.from);
       const to = new Date(searchDates.to);
 
-      const isAvailable = !carOrders.some((order) => {
+      // Проверяем пересечение с заказами
+      const hasOrderOverlap = carOrders.some((order) => {
         // Пробуем разные форматы дат
         let orderStart, orderEnd;
 
@@ -270,11 +275,32 @@ const Cars = ({ searchDates }) => {
         }
 
         const overlap = isDateOverlap(from, to, orderStart, orderEnd);
-
         return overlap;
       });
 
-      return isAvailable;
+      // Проверяем пересечение с блокировкой от администратора
+      let hasAdminBlockOverlap = false;
+      if (car.blockFromDate && car.blockToDate) {
+        let blockStart, blockEnd;
+
+        // Парсим даты блокировки администратора
+        if (car.blockFromDate.includes(".")) {
+          blockStart = new Date(car.blockFromDate.replace(/\./g, "/"));
+        } else {
+          blockStart = new Date(car.blockFromDate);
+        }
+
+        if (car.blockToDate.includes(".")) {
+          blockEnd = new Date(car.blockToDate.replace(/\./g, "/"));
+        } else {
+          blockEnd = new Date(car.blockToDate);
+        }
+
+        hasAdminBlockOverlap = isDateOverlap(from, to, blockStart, blockEnd);
+      }
+
+      // Машина доступна если нет пересечений ни с заказами, ни с блокировкой администратора
+      return !hasOrderOverlap && !hasAdminBlockOverlap;
     });
   }
 
@@ -591,6 +617,9 @@ const Cars = ({ searchDates }) => {
                 description_ru={car.description_ru}
                 description_ro={car.description_ro}
                 description_en={car.description_en}
+                blockFromDate={car.blockFromDate}
+                blockToDate={car.blockToDate}
+                status={car.status}
               />
             </div>
           ))}
