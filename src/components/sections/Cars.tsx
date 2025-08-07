@@ -249,7 +249,7 @@ const Cars = ({ searchDates }) => {
   let availableCars = cars.filter((car) => {
     // Если автомобиль на обслуживании - скрываем его всегда
     if (car.status && car.status.toLowerCase() === "на обслуживании") {
-      console.log(`❌ ${car.name} - на обслуживании, скрываем`);
+      // console.log(`❌ ${car.name} - на обслуживании, скрываем`);
       return false;
     }
     return true;

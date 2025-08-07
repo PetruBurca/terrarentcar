@@ -13,7 +13,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 0, // Данные считаются устаревшими сразу
-      gcTime: 1000 * 60 * 5, // 5 минут в кэше
+      gcTime: 0, // Убираем кэширование полностью
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors
         if (error instanceof Error && error.message.includes("4")) {
