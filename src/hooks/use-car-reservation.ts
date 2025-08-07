@@ -43,8 +43,6 @@ export function useCarReservation(carId: string) {
     clubCard: false,
   });
 
-
-
   return {
     formData,
     setFormData,

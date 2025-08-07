@@ -32,6 +32,21 @@ function isDateOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) {
   return aStart <= bEnd && aEnd >= bStart;
 }
 
+// Функция для парсинга дат в разных форматах
+function parseDate(str: string) {
+  if (!str) return null;
+  if (str.includes("-")) {
+    // Формат YYYY-MM-DD
+    const [year, month, day] = str.split("-");
+    return new Date(+year, +month - 1, +day);
+  } else if (str.includes(".")) {
+    // Формат дд.мм.гггг
+    const [day, month, year] = str.split(".");
+    return new Date(+year, +month - 1, +day);
+  }
+  return null;
+}
+
 // Компонент пагинации с улучшенным отображением
 const Pagination = ({
   currentPage,
@@ -230,14 +245,25 @@ const Cars = ({ searchDates }) => {
     setCurrentPage(1);
   }, [selectedCategory, sortBy, sortDir]);
 
-  // Фильтрация по доступности
-  let availableCars = cars;
+  // Фильтрация по статусу "на обслуживании" (всегда)
+  let availableCars = cars.filter((car) => {
+    // Если автомобиль на обслуживании - скрываем его всегда
+    if (car.status && car.status.toLowerCase() === "на обслуживании") {
+      console.log(`❌ ${car.name} - на обслуживании, скрываем`);
+      return false;
+    }
+    return true;
+  });
+
+  // Фильтрация по доступности (только если выбраны даты)
   if (searchDates?.from && searchDates?.to) {
-    availableCars = cars.filter((car) => {
-      // Если автомобиль на обслуживании - скрываем его
-      if (car.status && car.status.toLowerCase() === "на обслуживании") {
-        return false;
-      }
+    console.log("=== DEBUG: Фильтрация автомобилей по датам ===");
+    console.log("Выбранные даты:", searchDates);
+
+    availableCars = availableCars.filter((car) => {
+      console.log(`\nПроверяем машину: ${car.name}`);
+      console.log(`Статус: ${car.status}`);
+      console.log(`Блокировка: ${car.blockFromDate} - ${car.blockToDate}`);
 
       // Фильтруем заявки для этого автомобиля
       const carOrders = orders.filter((order) => {
@@ -249,59 +275,76 @@ const Cars = ({ searchDates }) => {
         return hasCarId && isConfirmed && hasDates;
       });
 
-      if (carOrders.length === 0) {
-        return true;
-      }
-
       const from = new Date(searchDates.from);
       const to = new Date(searchDates.to);
 
       // Проверяем пересечение с заказами
-      const hasOrderOverlap = carOrders.some((order) => {
-        // Пробуем разные форматы дат
-        let orderStart, orderEnd;
+      let hasOrderOverlap = false;
+      if (carOrders.length > 0) {
+        hasOrderOverlap = carOrders.some((order) => {
+          const orderStart = parseDate(order.startDate);
+          const orderEnd = parseDate(order.endDate);
 
-        // Если дата в формате "dd.mm.yyyy", заменяем на "mm/dd/yyyy"
-        if (order.startDate.includes(".")) {
-          orderStart = new Date(order.startDate.replace(/\./g, "/"));
-        } else {
-          orderStart = new Date(order.startDate);
-        }
+          if (!orderStart || !orderEnd) return false;
 
-        if (order.endDate.includes(".")) {
-          orderEnd = new Date(order.endDate.replace(/\./g, "/"));
-        } else {
-          orderEnd = new Date(order.endDate);
-        }
-
-        const overlap = isDateOverlap(from, to, orderStart, orderEnd);
-        return overlap;
-      });
+          const overlap = isDateOverlap(from, to, orderStart, orderEnd);
+          return overlap;
+        });
+      }
 
       // Проверяем пересечение с блокировкой от администратора
       let hasAdminBlockOverlap = false;
       if (car.blockFromDate && car.blockToDate) {
-        let blockStart, blockEnd;
+        const blockStart = parseDate(car.blockFromDate);
+        const blockEnd = parseDate(car.blockToDate);
 
-        // Парсим даты блокировки администратора
-        if (car.blockFromDate.includes(".")) {
-          blockStart = new Date(car.blockFromDate.replace(/\./g, "/"));
+        if (blockStart && blockEnd) {
+          hasAdminBlockOverlap = isDateOverlap(from, to, blockStart, blockEnd);
+
+          console.log(
+            `  Parsed Block Dates: ${
+              blockStart.toISOString().split("T")[0]
+            } - ${blockEnd.toISOString().split("T")[0]}`
+          );
+          console.log(
+            `  User Dates: ${from.toISOString().split("T")[0]} - ${
+              to.toISOString().split("T")[0]
+            }`
+          );
+          console.log(`  Overlap Result: ${hasAdminBlockOverlap}`);
+
+          // Отладочная информация
+          console.log(`Car ${car.name}:`, {
+            blockFromDate: car.blockFromDate,
+            blockToDate: car.blockToDate,
+            parsedBlockStart: blockStart,
+            parsedBlockEnd: blockEnd,
+            userFrom: from,
+            userTo: to,
+            hasAdminBlockOverlap,
+            hasOrderOverlap,
+          });
         } else {
-          blockStart = new Date(car.blockFromDate);
+          console.log(`  ❌ Failed to parse block dates for ${car.name}`);
         }
-
-        if (car.blockToDate.includes(".")) {
-          blockEnd = new Date(car.blockToDate.replace(/\./g, "/"));
-        } else {
-          blockEnd = new Date(car.blockToDate);
-        }
-
-        hasAdminBlockOverlap = isDateOverlap(from, to, blockStart, blockEnd);
+      } else {
+        console.log(`  No admin block dates for ${car.name}`);
       }
 
       // Машина доступна если нет пересечений ни с заказами, ни с блокировкой администратора
-      return !hasOrderOverlap && !hasAdminBlockOverlap;
+      const isAvailable = !hasOrderOverlap && !hasAdminBlockOverlap;
+      console.log(
+        `DEBUG: ${car.name} - hasOrderOverlap: ${hasOrderOverlap}, hasAdminBlockOverlap: ${hasAdminBlockOverlap}, isAvailable: ${isAvailable}`
+      );
+      console.log(
+        `✅ ${car.name} - ${isAvailable ? "ДОСТУПНА" : "НЕДОСТУПНА"}`
+      );
+      return isAvailable;
     });
+
+    console.log(
+      `\nРезультат фильтрации: ${availableCars.length} из ${cars.length} машин`
+    );
   }
 
   // Check if user has scrolled to the end and hide scroll hint

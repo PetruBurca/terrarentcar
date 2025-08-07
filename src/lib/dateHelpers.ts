@@ -55,4 +55,3 @@ export function formatDateRange(
 export function formatDate(date: Date | string, language: string): string {
   return formatLocalizedDate(date, language);
 }
- 
