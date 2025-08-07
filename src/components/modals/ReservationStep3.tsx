@@ -181,24 +181,40 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
             <span>{t("reservation.cash")}</span>
             <Switch
               checked={formData.paymentMethod === "cash"}
-              onCheckedChange={(checked) =>
-                setFormData((d: FormData) => ({
-                  ...d,
-                  paymentMethod: checked ? "cash" : "card",
-                }))
-              }
+              onCheckedChange={(checked) => {
+                try {
+                  setFormData((d: FormData) => ({
+                    ...d,
+                    paymentMethod: checked ? "cash" : "card",
+                  }));
+                } catch (error) {
+                  console.error(
+                    "Ошибка при переключении способа оплаты:",
+                    error
+                  );
+                  // Игнорируем ошибку для iOS Chrome
+                }
+              }}
             />
           </label>
           <label className="flex items-center justify-between cursor-pointer">
             <span>{t("reservation.card")}</span>
             <Switch
               checked={formData.paymentMethod === "card"}
-              onCheckedChange={(checked) =>
-                setFormData((d: FormData) => ({
-                  ...d,
-                  paymentMethod: checked ? "card" : "cash",
-                }))
-              }
+              onCheckedChange={(checked) => {
+                try {
+                  setFormData((d: FormData) => ({
+                    ...d,
+                    paymentMethod: checked ? "card" : "cash",
+                  }));
+                } catch (error) {
+                  console.error(
+                    "Ошибка при переключении способа оплаты:",
+                    error
+                  );
+                  // Игнорируем ошибку для iOS Chrome
+                }
+              }}
             />
           </label>
           <div className="border-t border-[#B90003] my-2"></div>
@@ -576,7 +592,17 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
         <Switch
           id="privacy"
           checked={privacyAccepted}
-          onCheckedChange={(checked) => setPrivacyAccepted(!!checked)}
+          onCheckedChange={(checked) => {
+            try {
+              setPrivacyAccepted(!!checked);
+            } catch (error) {
+              console.error(
+                "Ошибка при переключении политики конфиденциальности:",
+                error
+              );
+              // Игнорируем ошибку для iOS Chrome
+            }
+          }}
           required
           className="mt-1"
         />

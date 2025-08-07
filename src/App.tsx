@@ -107,6 +107,12 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
           return;
         }
 
+        // Специальная обработка для iOS Chrome
+        if (isChrome && isIOS) {
+          console.log("📱 iOS Chrome ошибка, игнорируем:", errorMessage);
+          return;
+        }
+
         // Специальная обработка для Safari на мобильных
         if (isSafari && isMobile) {
           console.log("📱 Safari мобильная ошибка, игнорируем:", errorMessage);
