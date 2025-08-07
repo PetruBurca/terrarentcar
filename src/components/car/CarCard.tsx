@@ -109,7 +109,7 @@ const CarCard = ({
   return (
     <>
       <Card
-        className="group overflow-hidden car-hover bg-card/50 backdrop-blur hover:shadow-2xl transition-all duration-300 h-[620px] min-w-[320px] flex flex-col justify-between cursor-pointer"
+        className="group overflow-hidden car-hover bg-card/50 backdrop-blur hover:shadow-2xl transition-all duration-300 h-[700px] min-w-[320px] flex flex-col justify-between cursor-pointer"
         data-car-id={id}
         onClick={(e) => {
           // Не открывать модалку, если клик был по кнопке бронирования
@@ -117,7 +117,7 @@ const CarCard = ({
           setIsModalOpen(true);
         }}
       >
-        <div className="relative overflow-hidden h-[400px] w-full flex items-center justify-center bg-background">
+        <div className="relative overflow-hidden h-full w-full flex items-center justify-center bg-background">
           {(!imageLoaded || imageError) && (
             <div className="absolute inset-0 flex items-center justify-center bg-muted animate-pulse">
               <ImageIcon className="h-8 w-8 text-muted-foreground" />
@@ -126,7 +126,7 @@ const CarCard = ({
           <img
             src={imageError ? PLACEHOLDER_IMG : imageUrl}
             alt={name}
-            className={`w-full h-[400px] object-cover transition-all duration-500 ${
+            className={`w-full h-full object-cover transition-all duration-500 ${
               imageLoaded ? "group-hover:scale-110" : "opacity-0"
             }`}
             style={{ objectPosition: "center" }}

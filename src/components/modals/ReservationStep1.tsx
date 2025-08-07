@@ -126,11 +126,11 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
         <h2 className="text-2xl font-bold text-center mb-2 text-white">
           {car.name}
         </h2>
-        <div className="relative w-full max-w-md mx-auto">
+        <div className="relative w-full max-w-md mx-auto h-[500px]">
           <img
             src={car.images[activeIndex] || logo}
             alt={car.name}
-            className="w-full h-[400px] object-cover rounded-lg border border-gray-800"
+            className="w-full h-full object-cover rounded-lg border border-gray-800"
             style={{ objectPosition: "center center" }}
           />
           {/* Стрелки */}
