@@ -130,8 +130,8 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
           <img
             src={car.images[activeIndex] || logo}
             alt={car.name}
-            className="w-full h-80 object-cover rounded-lg border border-gray-800"
-            style={{ objectPosition: "center 60%" }}
+            className="w-full h-[400px] object-cover rounded-lg border border-gray-800"
+            style={{ objectPosition: "center center" }}
           />
           {/* Стрелки */}
           {car.images && car.images.length > 1 && (
