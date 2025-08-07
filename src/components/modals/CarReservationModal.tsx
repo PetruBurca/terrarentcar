@@ -545,86 +545,105 @@ const CarReservationModal = ({
   });
   // Универсальный парсер дат
   function parseDate(str: string) {
-    if (!str) return null;
-    if (str.includes("-")) {
-      // Формат YYYY-MM-DD
-      const [year, month, day] = str.split("-");
-      return new Date(+year, +month - 1, +day);
-    } else if (str.includes(".")) {
-      // Формат дд.мм.гггг
-      const [day, month, year] = str.split(".");
-      return new Date(+year, +month - 1, +day);
+    try {
+      if (!str) return null;
+      if (str.includes("-")) {
+        // Формат YYYY-MM-DD
+        const [year, month, day] = str.split("-");
+        return new Date(+year, +month - 1, +day);
+      } else if (str.includes(".")) {
+        // Формат дд.мм.гггг
+        const [day, month, year] = str.split(".");
+        return new Date(+year, +month - 1, +day);
+      }
+      return null;
+    } catch (error) {
+      console.error("❌ Ошибка в parseDate:", error, "для строки:", str);
+      return null;
     }
-    return null;
   }
 
   // Генерируем массив занятых дат (только дата, без времени, с универсальным парсером)
   const disabledDays: Date[] = [];
 
-  // Если автомобиль на обслуживании - блокируем все даты
-  if (car.status && car.status.toLowerCase() === "на обслуживании") {
-    // Генерируем все даты на ближайшие 1 года (365 дней)
-    const today = new Date();
-    for (let i = 0; i < 365; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      disabledDays.push(
-        new Date(date.getFullYear(), date.getMonth(), date.getDate())
-      );
-    }
-  } else {
-    // Добавляем даты из заказов только если автомобиль не на обслуживании
-    carOrders.forEach((order) => {
-      const start = parseDate(order.startDate);
-      const end = parseDate(order.endDate);
-      if (!start || !end) return;
-      for (
-        let d = new Date(
-          start.getFullYear(),
-          start.getMonth(),
-          start.getDate()
+  try {
+    // Если автомобиль на обслуживании - блокируем все даты
+    if (car.status && car.status.toLowerCase() === "на обслуживании") {
+      // Генерируем все даты на ближайшие 1 года (365 дней)
+      const today = new Date();
+      for (let i = 0; i < 365; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        disabledDays.push(
+          new Date(date.getFullYear(), date.getMonth(), date.getDate())
         );
-        d <= end;
-        d.setDate(d.getDate() + 1)
-      ) {
-        disabledDays.push(new Date(d.getFullYear(), d.getMonth(), d.getDate()));
       }
-    });
+    } else {
+      // Добавляем даты из заказов только если автомобиль не на обслуживании
+      carOrders.forEach((order) => {
+        try {
+          const start = parseDate(order.startDate);
+          const end = parseDate(order.endDate);
+          if (!start || !end) return;
+          for (
+            let d = new Date(
+              start.getFullYear(),
+              start.getMonth(),
+              start.getDate()
+            );
+            d <= end;
+            d.setDate(d.getDate() + 1)
+          ) {
+            disabledDays.push(
+              new Date(d.getFullYear(), d.getMonth(), d.getDate())
+            );
+          }
+        } catch (error) {
+          console.error("❌ Ошибка при обработке заказа:", error, order);
+        }
+      });
+    }
+  } catch (error) {
+    console.error("❌ Ошибка при генерации disabledDays:", error);
   }
 
   // Добавляем даты блокировки администратора (только если автомобиль не на обслуживании)
-  if (!car.status || car.status.toLowerCase() !== "на обслуживании") {
-    if (car.blockFromDate && car.blockToDate) {
-      const blockStart = parseDate(car.blockFromDate);
-      const blockEnd = parseDate(car.blockToDate);
-      if (blockStart && blockEnd) {
-        for (
-          let d = new Date(
-            blockStart.getFullYear(),
-            blockStart.getMonth(),
-            blockStart.getDate()
-          );
-          d <= blockEnd;
-          d.setDate(d.getDate() + 1)
-        ) {
-          const disabledDay = new Date(
-            d.getFullYear(),
-            d.getMonth(),
-            d.getDate()
-          );
-          // Проверяем, что дата еще не добавлена
-          const isAlreadyDisabled = disabledDays.some(
-            (existingDate) =>
-              existingDate.getFullYear() === disabledDay.getFullYear() &&
-              existingDate.getMonth() === disabledDay.getMonth() &&
-              existingDate.getDate() === disabledDay.getDate()
-          );
-          if (!isAlreadyDisabled) {
-            disabledDays.push(disabledDay);
+  try {
+    if (!car.status || car.status.toLowerCase() !== "на обслуживании") {
+      if (car.blockFromDate && car.blockToDate) {
+        const blockStart = parseDate(car.blockFromDate);
+        const blockEnd = parseDate(car.blockToDate);
+        if (blockStart && blockEnd) {
+          for (
+            let d = new Date(
+              blockStart.getFullYear(),
+              blockStart.getMonth(),
+              blockStart.getDate()
+            );
+            d <= blockEnd;
+            d.setDate(d.getDate() + 1)
+          ) {
+            const disabledDay = new Date(
+              d.getFullYear(),
+              d.getMonth(),
+              d.getDate()
+            );
+            // Проверяем, что дата еще не добавлена
+            const isAlreadyDisabled = disabledDays.some(
+              (existingDate) =>
+                existingDate.getFullYear() === disabledDay.getFullYear() &&
+                existingDate.getMonth() === disabledDay.getMonth() &&
+                existingDate.getDate() === disabledDay.getDate()
+            );
+            if (!isAlreadyDisabled) {
+              disabledDays.push(disabledDay);
+            }
           }
         }
       }
     }
+  } catch (error) {
+    console.error("❌ Ошибка при обработке блокировки администратора:", error);
   }
 
   return (

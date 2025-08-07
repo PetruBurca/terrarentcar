@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/utils/button";
 import { Input } from "@/components/ui/inputs/input";
 import { Label } from "@/components/ui/utils/label";
-import { Switch } from "@/components/ui/forms/switch";
+import { Switch, MobileSwitch } from "@/components/ui/forms/switch";
 import { RadioGroup } from "@/components/ui/forms/radio-group";
 import {
   Select,
@@ -79,24 +79,16 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
 }) => {
   const { t } = useTranslation();
 
+  // Используем обычный Switch для всех устройств
+  const SwitchComponent = Switch;
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    try {
-      setFormData((prev: FormData) => ({
-        ...prev,
-        [e.target.name]: e.target.value,
-      }));
-    } catch (error) {
-      console.error("Ошибка при изменении формы:", error);
-      // Показываем пользователю ошибку вместо очистки данных
-      toast({
-        title: "Ошибка",
-        description:
-          "Что-то пошло не так при заполнении формы. Попробуйте еще раз.",
-        variant: "destructive",
-      });
-    }
+    setFormData((prev: FormData) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   // Список стран с кодами
@@ -160,60 +152,36 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
         <RadioGroup
           value={formData.paymentMethod || "cash"}
           onValueChange={(val) => {
-            try {
+         
               setFormData((d: FormData) => ({
                 ...d,
                 paymentMethod: val as "cash" | "card" | "other",
               }));
-            } catch (error) {
-              console.error("Ошибка при изменении способа оплаты:", error);
-              toast({
-                title: "Ошибка",
-                description:
-                  "Что-то пошло не так при выборе способа оплаты. Попробуйте еще раз.",
-                variant: "destructive",
-              });
-            }
+           
           }}
           className="flex flex-col gap-2 bg-gray-700 rounded-lg px-4 py-3 mb-2"
         >
           <label className="flex items-center justify-between cursor-pointer">
             <span>{t("reservation.cash")}</span>
-            <Switch
+            <SwitchComponent
               checked={formData.paymentMethod === "cash"}
               onCheckedChange={(checked) => {
-                try {
-                  setFormData((d: FormData) => ({
-                    ...d,
-                    paymentMethod: checked ? "cash" : "card",
-                  }));
-                } catch (error) {
-                  console.error(
-                    "Ошибка при переключении способа оплаты:",
-                    error
-                  );
-                  // Игнорируем ошибку для iOS Chrome
-                }
+                setFormData((d: FormData) => ({
+                  ...d,
+                  paymentMethod: checked ? "cash" : "card",
+                }));
               }}
             />
           </label>
           <label className="flex items-center justify-between cursor-pointer">
             <span>{t("reservation.card")}</span>
-            <Switch
+            <SwitchComponent
               checked={formData.paymentMethod === "card"}
               onCheckedChange={(checked) => {
-                try {
-                  setFormData((d: FormData) => ({
-                    ...d,
-                    paymentMethod: checked ? "card" : "cash",
-                  }));
-                } catch (error) {
-                  console.error(
-                    "Ошибка при переключении способа оплаты:",
-                    error
-                  );
-                  // Игнорируем ошибку для iOS Chrome
-                }
+                setFormData((d: FormData) => ({
+                  ...d,
+                  paymentMethod: checked ? "card" : "cash",
+                }));
               }}
             />
           </label>
@@ -589,19 +557,11 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
 
       {/* Чекбокс согласия */}
       <div className="flex items-start gap-2 mt-2">
-        <Switch
+        <SwitchComponent
           id="privacy"
           checked={privacyAccepted}
           onCheckedChange={(checked) => {
-            try {
-              setPrivacyAccepted(!!checked);
-            } catch (error) {
-              console.error(
-                "Ошибка при переключении политики конфиденциальности:",
-                error
-              );
-              // Игнорируем ошибку для iOS Chrome
-            }
+            setPrivacyAccepted(!!checked);
           }}
           required
           className="mt-1"

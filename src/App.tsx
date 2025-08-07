@@ -107,12 +107,6 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        // Специальная обработка для iOS Chrome
-        if (isChrome && isIOS) {
-          console.log("📱 iOS Chrome ошибка, игнорируем:", errorMessage);
-          return;
-        }
-
         // Специальная обработка для Safari на мобильных
         if (isSafari && isMobile) {
           console.log("📱 Safari мобильная ошибка, игнорируем:", errorMessage);
@@ -375,7 +369,6 @@ function App() {
   };
 
   return (
-    <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
@@ -393,7 +386,6 @@ function App() {
           {/* {process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />} */}
         </TooltipProvider>
       </QueryClientProvider>
-    </ErrorBoundary>
   );
 }
 
