@@ -262,11 +262,30 @@ function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Всегда показываем баннер при загрузке
-    setVisible(true);
+    // Проверяем, когда пользователь последний раз согласился с куками
+    const cookiesAccepted = localStorage.getItem("cookiesAccepted");
+    const lastAccepted = localStorage.getItem("cookiesLastAccepted");
+
+    if (!cookiesAccepted) {
+      // Если никогда не соглашался - показываем
+      setVisible(true);
+    } else if (lastAccepted) {
+      // Проверяем, прошла ли неделя с последнего согласия
+      const lastAcceptedDate = new Date(lastAccepted);
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+      // Проверяем, прошла ли неделя с последнего согласия
+      if (lastAcceptedDate < oneWeekAgo) {
+        setVisible(true);
+      }
+    }
   }, []);
 
   const acceptCookies = () => {
+    // Сохраняем согласие и дату в localStorage
+    localStorage.setItem("cookiesAccepted", "true");
+    localStorage.setItem("cookiesLastAccepted", new Date().toISOString());
     setVisible(false);
   };
 
@@ -369,23 +388,23 @@ function App() {
   };
 
   return (
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter
-            future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-          >
-            <Routes>
-              <Route path="/" element={<Index />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-          <CookieBanner />
-          {/* {process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />} */}
-        </TooltipProvider>
-      </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter
+          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+        >
+          <Routes>
+            <Route path="/" element={<Index />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+        <CookieBanner />
+        {/* {process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />} */}
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
 

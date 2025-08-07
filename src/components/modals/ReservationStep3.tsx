@@ -152,12 +152,10 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
         <RadioGroup
           value={formData.paymentMethod || "cash"}
           onValueChange={(val) => {
-         
-              setFormData((d: FormData) => ({
-                ...d,
-                paymentMethod: val as "cash" | "card" | "other",
-              }));
-           
+            setFormData((d: FormData) => ({
+              ...d,
+              paymentMethod: val as "cash" | "card" | "other",
+            }));
           }}
           className="flex flex-col gap-2 bg-gray-700 rounded-lg px-4 py-3 mb-2"
         >
