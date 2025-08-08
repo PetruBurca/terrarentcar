@@ -56,8 +56,7 @@ export async function getFileURL(filePath: string): Promise<string> {
     const fileRef = ref(storage, filePath);
     const url = await getDownloadURL(fileRef);
     // Добавляем секретный токен для доступа к фото паспорта
-    const secretToken =
-      import.meta.env.VITE_FIREBASE_SECRET_TOKEN;
+    const secretToken = import.meta.env.VITE_FIREBASE_SECRET_TOKEN;
     return `${url}?token=${secretToken}`;
   } catch (error) {
     console.error("Ошибка получения URL файла:", error);
