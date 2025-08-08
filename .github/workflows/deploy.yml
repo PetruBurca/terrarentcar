@@ -40,6 +40,7 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           VITE_AIRTABLE_TOKEN: ${{ secrets.VITE_AIRTABLE_TOKEN }}
           VITE_AIRTABLE_BASE_ID: ${{ secrets.VITE_AIRTABLE_BASE_ID }}
+          VITE_FIREBASE_SECRET_TOKEN: ${{ secrets.VITE_FIREBASE_SECRET_TOKEN }}
         run: npm run build
 
       - name: Setup Pages
@@ -48,7 +49,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: "./dist"
 
       - name: Deploy to GitHub Pages
         id: deployment

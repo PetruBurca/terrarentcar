@@ -50,11 +50,15 @@ export async function uploadFileToFirebase(
   }
 }
 
-// Функция для получения URL файла по ссылке
+// Функция для получения URL файла с токеном доступа
 export async function getFileURL(filePath: string): Promise<string> {
   try {
     const fileRef = ref(storage, filePath);
-    return await getDownloadURL(fileRef);
+    const url = await getDownloadURL(fileRef);
+    // Добавляем секретный токен для доступа к фото паспорта
+    const secretToken =
+      import.meta.env.VITE_FIREBASE_SECRET_TOKEN;
+    return `${url}?token=${secretToken}`;
   } catch (error) {
     console.error("Ошибка получения URL файла:", error);
     throw error;

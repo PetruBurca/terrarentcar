@@ -83,7 +83,6 @@ export async function fetchCars() {
       price30plus: fields["Цена от 30 дней"] ?? fields["Цена за день"] ?? 0,
       blockFromDate: fields["Аренда ОТ"] || null, // Дата блокировки от администратора
       blockToDate: fields["Аренда ДО"] || null, // Дата блокировки до администратора
-      status: fields["Статус"] || "доступен", // Статус автомобиля
     };
 
     // Отладочная информация для машин с блокировкой
