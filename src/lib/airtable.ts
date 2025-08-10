@@ -1,10 +1,15 @@
-const AIRTABLE_BASE_ID =
-  import.meta.env.VITE_AIRTABLE_BASE_ID || "app2d5VGYA0UjVj9u";
+const AIRTABLE_BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID;
+
+if (!AIRTABLE_BASE_ID) {
+  throw new Error("VITE_AIRTABLE_BASE_ID не установлен в переменных окружения");
+}
 const AIRTABLE_TABLE_NAME = "Автомобили (Cars)"; // Имя таблицы в Airtable (точно как в базе)
 const AIRTABLE_CONTACT_TABLE = "Заявки на связь"; // Новая таблица для контактных форм
-const AIRTABLE_TOKEN =
-  import.meta.env.VITE_AIRTABLE_TOKEN ||
-  "patMiGkMfV2eHj8Bz.93dd90b012b1ce19e00368c03986794b45064f1d7d16bd91a99f38c4889aee8c";
+const AIRTABLE_TOKEN = import.meta.env.VITE_AIRTABLE_TOKEN;
+
+if (!AIRTABLE_TOKEN) {
+  throw new Error("VITE_AIRTABLE_TOKEN не установлен в переменных окружения");
+}
 
 import { uploadFileToFirebase } from "./firebase";
 

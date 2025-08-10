@@ -1,24 +1,26 @@
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-// Конфигурация Firebase для проекта terrarentcar-f1fda
+// Конфигурация Firebase
 const firebaseConfig = {
-  apiKey:
-    import.meta.env.VITE_FIREBASE_API_KEY ||
-    "AIzaSyCnH5K4RB7i5RNgDthSK0wPAiM0wTkYnAE",
-  authDomain:
-    import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ||
-    "terrarentcar-f1fda.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "terrarentcar-f1fda",
-  storageBucket:
-    import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ||
-    "terrarentcar-f1fda.firebasestorage.app",
-  messagingSenderId:
-    import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "114261195759",
-  appId:
-    import.meta.env.VITE_FIREBASE_APP_ID ||
-    "1:114261195759:web:33356a53fcd35612d2541a",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
+
+// Проверяем наличие обязательных переменных окружения
+if (
+  !firebaseConfig.apiKey ||
+  !firebaseConfig.authDomain ||
+  !firebaseConfig.projectId
+) {
+  throw new Error(
+    "Не все обязательные переменные Firebase не установлены в переменных окружения"
+  );
+}
 
 // Инициализация Firebase
 const app = initializeApp(firebaseConfig);
