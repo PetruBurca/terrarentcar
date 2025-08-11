@@ -59,15 +59,32 @@ export async function getFileURL(filePath: string): Promise<string> {
   try {
     // Проверяем, что путь к паспорту
 
+    // Отладочная информация
+    const secureKey = import.meta.env.VITE_SECURE_KEY || import.meta.env.VITE_FIREBASE_SECRET_TOKEN;
+    console.log('🔍 Отладка SECURE_KEY:', {
+      secureKey,
+      secureKeyLength: secureKey?.length,
+      secureKeyType: typeof secureKey,
+      isUndefined: secureKey === undefined,
+      isEmpty: secureKey === '',
+      envVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_'))
+    });
+
+    if (!secureKey) {
+      throw new Error('VITE_SECURE_KEY не установлен в переменных окружения');
+    }
+
     // Используем callable function вместо hardcoded ссылки
     const getPassport = httpsCallable(functions, "getPassport");
-
+    
     // Создаем безопасный payload с зашифрованным ключом
     const securePayload = createSecurePayload(
       filePath,
-      import.meta.env.VITE_SECURE_KEY
+      secureKey
     );
-
+    
+    console.log('📤 Отправляемый payload:', securePayload);
+    
     const result = await getPassport(securePayload);
 
     if (
