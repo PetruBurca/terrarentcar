@@ -1,8 +1,41 @@
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import admin from "firebase-admin";
 import { initializeApp } from "firebase-admin/app";
+import CryptoJS from "crypto-js";
+import NodeRSA from "node-rsa";
 
-initializeApp()
+initializeApp();
+
+// Функция для генерации SHA-256 хеша
+function generateSHA256Hash(data) {
+  return CryptoJS.SHA256(data).toString();
+}
+
+// Функция для RSA шифрования
+function encryptWithRSA(data, publicKey) {
+  try {
+    const key = new NodeRSA(publicKey);
+    key.setOptions({ encryptionScheme: "pkcs1" });
+    return key.encrypt(data, "base64");
+  } catch (error) {
+    console.error("RSA encryption error:", error);
+    throw new HttpsError("internal", "Encryption failed");
+  }
+}
+
+// Функция для проверки зашифрованного ключа
+function verifyEncryptedKey(encryptedKey, originalKey) {
+  try {
+    // Генерируем SHA-256 хеш от оригинального ключа
+    const hashedKey = generateSHA256Hash(originalKey);
+
+    // Сравниваем с зашифрованным ключом
+    return encryptedKey === hashedKey;
+  } catch (error) {
+    console.error("Key verification error:", error);
+    return false;
+  }
+}
 
 export const getPassport = onCall(async (request) => {
   const { id, key } = request.data;
@@ -11,9 +44,15 @@ export const getPassport = onCall(async (request) => {
     throw new HttpsError("aborted", "Parameters not defined");
   }
 
-  // Проверка секретного ключа
+  // Проверка секретного ключа с использованием шифрования
   const secretKey = process.env.SECURE_KEY;
-  if (key !== secretKey) {
+  if (!secretKey) {
+    throw new HttpsError("internal", "Secure key not configured");
+  }
+
+  // Проверяем ключ с использованием SHA-256 хеширования
+  const isKeyValid = verifyEncryptedKey(key, secretKey);
+  if (!isKeyValid) {
     throw new HttpsError("aborted", "Invalid access key");
   }
 
@@ -49,4 +88,27 @@ export const getPassport = onCall(async (request) => {
     expiresAt: fiveDaysFromNow.toISOString(),
     fileName: id,
   };
+});
+
+// Новая функция для генерации зашифрованного ключа (для клиентской стороны)
+export const generateSecureKey = onCall(async (request) => {
+  const { originalKey } = request.data;
+
+  if (!originalKey) {
+    throw new HttpsError("aborted", "Original key not provided");
+  }
+
+  try {
+    // Генерируем SHA-256 хеш от оригинального ключа
+    const hashedKey = generateSHA256Hash(originalKey);
+
+    return {
+      success: true,
+      encryptedKey: hashedKey,
+      algorithm: "SHA-256",
+    };
+  } catch (error) {
+    console.error("Key generation error:", error);
+    throw new HttpsError("internal", "Failed to generate secure key");
+  }
 });

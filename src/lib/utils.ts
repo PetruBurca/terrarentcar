@@ -9,3 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 export function getLocale(lng: string) {
   return lng === "ro" ? ro : lng === "en" ? enUS : ru;
 }
+
+// Экспорт криптографических функций
+export * from "./cryptoUtils";
+export * from "./cryptoExamples";

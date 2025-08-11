@@ -1,5 +1,7 @@
 import { initializeApp } from "firebase/app";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { httpsCallable, getFunctions } from "firebase/functions";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { createSecurePayload } from "./cryptoUtils";
 
 // Конфигурация Firebase
 const firebaseConfig = {
@@ -25,7 +27,7 @@ if (
 // Инициализация Firebase
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
-
+const functions = getFunctions(app);
 // Функция для загрузки файла в Firebase Storage
 export async function uploadFileToFirebase(
   file: File,
@@ -43,7 +45,7 @@ export async function uploadFileToFirebase(
     const snapshot = await uploadBytes(storageRef, file);
 
     // Получаем URL для скачивания
-    const downloadURL = await getDownloadURL(snapshot.ref);
+    const downloadURL = await getFileURL(fileName);
 
     return downloadURL;
   } catch (error) {
@@ -55,11 +57,30 @@ export async function uploadFileToFirebase(
 // Функция для получения URL файла с токеном доступа
 export async function getFileURL(filePath: string): Promise<string> {
   try {
-    const fileRef = ref(storage, filePath);
-    const url = await getDownloadURL(fileRef);
-    // Добавляем секретный токен для доступа к фото паспорта
-    const secretToken = import.meta.env.VITE_FIREBASE_SECRET_TOKEN;
-    return `${url}?token=${secretToken}`;
+    // Проверяем, что путь к паспорту
+
+    // Используем callable function вместо hardcoded ссылки
+    const getPassport = httpsCallable(functions, "getPassport");
+
+    // Создаем безопасный payload с зашифрованным ключом
+    const securePayload = createSecurePayload(
+      filePath,
+      import.meta.env.VITE_SECURE_KEY
+    );
+
+    const result = await getPassport(securePayload);
+
+    if (
+      result.data &&
+      typeof result.data === "object" &&
+      "downloadUrl" in result.data
+    ) {
+      return (result.data as { downloadUrl: string }).downloadUrl;
+    } else {
+      throw new Error("Invalid response from Cloud Function");
+    }
+
+    // Для обычных файлов используем стандартный способ
   } catch (error) {
     console.error("Ошибка получения URL файла:", error);
     throw error;
