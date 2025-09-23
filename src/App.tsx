@@ -12,8 +12,8 @@ import { useTranslation } from "react-i18next";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // Кэшируем на 5 минут
-      gcTime: 10 * 60 * 1000, // Храним в памяти 10 минут
+      staleTime: 0, // Убираем кэширование
+      gcTime: 0, // Убираем кэширование
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors
         if (error instanceof Error && error.message.includes("4")) {
@@ -21,14 +21,14 @@ const queryClient = new QueryClient({
         }
         return failureCount < 1; // Уменьшаем количество попыток до 1
       },
-      retryDelay: 5000, // Увеличиваем задержку между попытками
+      retryDelay: 2000, // Уменьшаем задержку
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
       networkMode: "online",
     },
     mutations: {
       retry: 1,
-      retryDelay: 5000,
+      retryDelay: 2000,
     },
   },
 });
