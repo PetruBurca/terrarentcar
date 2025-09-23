@@ -72,6 +72,9 @@ export async function fetchCars() {
     if (res.status === 429) {
       throw new Error("Превышен лимит запросов к Airtable. Попробуйте позже.");
     }
+    if (res.status === 402) {
+      throw new Error("Превышен лимит тарифа Airtable. Обновите план или подождите до следующего месяца.");
+    }
     if (res.status === 401) {
       throw new Error("Неверный токен Airtable. Проверьте настройки.");
     }

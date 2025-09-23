@@ -223,9 +223,9 @@ const Cars = ({ searchDates }) => {
   } = useQuery({
     queryKey: ["cars", i18n.language],
     queryFn: fetchCars,
-    staleTime: 5 * 60 * 1000, // Кэшируем на 5 минут
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(5000 * 2 ** attemptIndex, 60000), // Увеличиваем задержку
+    staleTime: 30 * 60 * 1000, // Кэшируем на 30 минут
+    retry: 1, // Уменьшаем количество попыток
+    retryDelay: 10000, // 10 секунд между попытками
   });
 
   // Получаем заявки
