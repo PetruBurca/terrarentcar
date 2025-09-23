@@ -45,6 +45,16 @@ interface AirtableRecord {
 }
 
 export async function fetchCars() {
+  console.log("🔍 Загружаем данные автомобилей из Airtable...");
+  console.log(
+    "📋 Base ID:",
+    AIRTABLE_BASE_ID ? "✅ Установлен" : "❌ Не установлен"
+  );
+  console.log(
+    "🔑 Token:",
+    AIRTABLE_TOKEN ? "✅ Установлен" : "❌ Не установлен"
+  );
+
   const res = await fetch(
     `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}?sort[0][field]=Название/модель&sort[0][direction]=asc`,
     {
@@ -54,8 +64,33 @@ export async function fetchCars() {
       },
     }
   );
-  if (!res.ok) throw new Error("Ошибка загрузки данных из Airtable");
+
+  console.log("📊 Статус ответа:", res.status, res.statusText);
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error("❌ Ошибка Airtable:", errorText);
+
+    let errorMessage = "Ошибка загрузки данных из Airtable";
+
+    if (res.status === 401) {
+      errorMessage = "Ошибка авторизации Airtable. Проверьте токен доступа.";
+    } else if (res.status === 404) {
+      errorMessage = "База данных Airtable не найдена. Проверьте настройки.";
+    } else if (res.status === 429) {
+      errorMessage = "Превышен лимит запросов к Airtable. Попробуйте позже.";
+    } else if (res.status >= 500) {
+      errorMessage = "Сервер Airtable временно недоступен.";
+    }
+
+    throw new Error(errorMessage);
+  }
+
   const data = await res.json();
+  console.log(
+    "✅ Данные успешно загружены, записей:",
+    data.records?.length || 0
+  );
   return data.records.map((rec: AirtableRecord) => {
     const fields = rec.fields;
     return {
