@@ -45,6 +45,13 @@ interface AirtableRecord {
 }
 
 export async function fetchCars() {
+  // Отладочная информация
+  console.log("Airtable config:", {
+    baseId: AIRTABLE_BASE_ID ? "✅ Установлен" : "❌ Не установлен",
+    token: AIRTABLE_TOKEN ? "✅ Установлен" : "❌ Не установлен",
+    tableName: AIRTABLE_TABLE_NAME
+  });
+
   const res = await fetch(
     `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}?sort[0][field]=Название/модель&sort[0][direction]=asc`,
     {
@@ -54,12 +61,24 @@ export async function fetchCars() {
       },
     }
   );
-  
+
   if (!res.ok) {
+    console.error("Airtable API Error:", {
+      status: res.status,
+      statusText: res.statusText,
+      url: res.url
+    });
+    
     if (res.status === 429) {
       throw new Error("Превышен лимит запросов к Airtable. Попробуйте позже.");
     }
-    throw new Error("Ошибка загрузки данных из Airtable");
+    if (res.status === 401) {
+      throw new Error("Неверный токен Airtable. Проверьте настройки.");
+    }
+    if (res.status === 404) {
+      throw new Error("База данных Airtable не найдена. Проверьте Base ID.");
+    }
+    throw new Error(`Ошибка загрузки данных из Airtable: ${res.status} ${res.statusText}`);
   }
   const data = await res.json();
   return data.records.map((rec: AirtableRecord) => {
