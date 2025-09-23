@@ -54,7 +54,13 @@ export async function fetchCars() {
       },
     }
   );
-  if (!res.ok) throw new Error("Ошибка загрузки данных из Airtable");
+  
+  if (!res.ok) {
+    if (res.status === 429) {
+      throw new Error("Превышен лимит запросов к Airtable. Попробуйте позже.");
+    }
+    throw new Error("Ошибка загрузки данных из Airtable");
+  }
   const data = await res.json();
   return data.records.map((rec: AirtableRecord) => {
     const fields = rec.fields;
