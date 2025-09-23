@@ -12,23 +12,24 @@ import { useTranslation } from "react-i18next";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0, // Убираем кэширование
-      gcTime: 0, // Убираем кэширование
+      staleTime: 0, // Данные считаются устаревшими сразу
+      gcTime: 0, // Убираем кэширование полностью
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors
         if (error instanceof Error && error.message.includes("4")) {
           return false;
         }
-        return failureCount < 1; // Уменьшаем количество попыток до 1
+        return failureCount < 2; // Уменьшаем количество попыток
       },
-      retryDelay: 2000, // Уменьшаем задержку
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Уменьшаем задержку
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
+      // Отключаем кэширование для мобильных устройств
       networkMode: "online",
     },
     mutations: {
       retry: 1,
-      retryDelay: 2000,
+      retryDelay: 1000,
     },
   },
 });
