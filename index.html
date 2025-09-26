@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,102 +8,122 @@
       name="description"
       content="Terra Rent Car - больше чем аренда автомобилей. Премиальные автомобили для ваших путешествий по Молдове и Европе. 24/7 поддержка, прозрачные цены."
     />
-    <meta name="keywords" content="аренда авто, Молдова, Кишинев, премиум автомобили, аренда машин" />
     <meta name="author" content="Terra Rent Car" />
-    
+    <meta
+      name="keywords"
+      content="аренда авто, прокат автомобилей, аренда машин, Кишинев, Молдова, аренда автомобилей, прокат авто, аренда авто Кишинев, аренда авто Молдова, прокат машин Кишинев, аренда автомобилей Молдова, аренда авто аэропорт, прокат автомобилей Кишинев"
+    />
+    <meta
+      name="robots"
+      content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+    />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="bingbot" content="index, follow" />
+
     <!-- Open Graph / Facebook -->
+    <meta
+      property="og:title"
+      content="Terra Rent Car - Премиальная аренда автомобилей"
+    />
+    <meta
+      property="og:description"
+      content="Больше чем аренда автомобилей. Премиальные автомобили для ваших путешествий."
+    />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://terrarentcar.md/" />
-    <meta property="og:title" content="Terra Rent Car - Премиальная аренда автомобилей" />
-    <meta property="og:description" content="Премиальные автомобили для ваших путешествий по Молдове и Европе" />
-    <meta property="og:image" content="https://terrarentcar.md/logo.webp" />
+    <meta
+      property="og:image"
+      content="https://kichzero-terra-rent-dev.netlify.app/src/assets/logo.webp"
+    />
+    <meta
+      property="og:url"
+      content="https://kichzero-terra-rent-dev.netlify.app"
+    />
+    <meta property="og:site_name" content="Terra Rent Car" />
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://terrarentcar.md/" />
-    <meta property="twitter:title" content="Terra Rent Car - Премиальная аренда автомобилей" />
-    <meta property="twitter:description" content="Премиальные автомобили для ваших путешествий по Молдове и Европе" />
-    <meta property="twitter:image" content="https://terrarentcar.md/logo.webp" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@terra_rent_car" />
+    <meta
+      name="twitter:title"
+      content="Terra Rent Car - Премиальная аренда автомобилей"
+    />
+    <meta
+      name="twitter:description"
+      content="Больше чем аренда автомобилей. Премиальные автомобили для ваших путешествий."
+    />
+    <meta
+      name="      twitter:image"
+      content="https://kichzero-terra-rent-dev.netlify.app/src/assets/logo.webp"
+    />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/circlelogo.png" />
-    
-    <!-- Preload critical resources -->
-    <link rel="preload" href="/src/assets/hero-road.webp" as="image" />
-    <link rel="preload" href="/src/assets/logo.webp" as="image" />
-    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Audiowide:wght@400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap"
       rel="stylesheet"
     />
 
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-          'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-          sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        background: #000;
-        color: #fff;
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/src/assets/circlelogo.png?v=7" />
+    <link rel="apple-touch-icon" href="/src/assets/circlelogo.png?v=7" />
+    <link
+      rel="shortcut icon"
+      type="image/png"
+      href="/src/assets/circlelogo.png?v=7"
+    />
+
+    <!-- Theme color -->
+    <meta name="theme-color" content="#000000" />
+    <meta name="msapplication-TileColor" content="#000000" />
+
+    <!-- Security headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+
+    <!-- Отключаем кеширование в dev режиме -->
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "CarRentalService",
+        "name": "Terra Rent Car",
+        "description": "Премиальная аренда автомобилей в Молдове. 24/7 поддержка, прозрачные цены.",
+        "url": "https://kichzero-terra-rent-dev.netlify.app",
+        "telephone": "+373-XXX-XXXXX",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Кишинев",
+          "addressCountry": "MD"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": "47.0105",
+          "longitude": "28.8638"
+        },
+        "openingHours": "Mo-Su 00:00-23:59",
+        "priceRange": "€€",
+        "areaServed": {
+          "@type": "Country",
+          "name": "Молдова"
+        },
+        "serviceType": "Аренда автомобилей",
+        "keywords": "аренда авто, прокат автомобилей, Кишинев, Молдова, аренда машин"
       }
-      
-      #root {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-      }
-      
-      .loading {
-        text-align: center;
-      }
-      
-      .logo {
-        width: 200px;
-        height: 200px;
-        margin-bottom: 20px;
-        animation: pulse 2s infinite;
-      }
-      
-      @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.5; }
-        100% { opacity: 1; }
-      }
-      
-      .loading-text {
-        font-size: 24px;
-        margin-bottom: 10px;
-      }
-      
-      .loading-subtext {
-        font-size: 16px;
-        opacity: 0.7;
-      }
-    </style>
+    </script>
+
+    <!-- Vite dev server will inject scripts here -->
+    <script type="module" src="/src/main.tsx"></script>
   </head>
 
   <body>
-    <div id="root">
-      <div class="loading">
-        <img src="/src/assets/logo.webp" alt="Terra Rent Car" class="logo" />
-        <div class="loading-text">Terra Rent Car</div>
-        <div class="loading-subtext">Загрузка...</div>
-      </div>
-    </div>
-
-    <script>
-      // Простой скрипт для показа, что сайт работает
-      setTimeout(() => {
-        document.querySelector('.loading-subtext').textContent = 'Сайт временно недоступен. Пожалуйста, попробуйте позже.';
-      }, 3000);
-    </script>
+    <div id="root"></div>
   </body>
 </html>
