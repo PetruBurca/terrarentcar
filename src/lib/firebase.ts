@@ -73,7 +73,7 @@ export async function getFileURL(filePath: string): Promise<string> {
     // Проверяем, что путь к паспорту
 
     // Отладочная информация
-    const secureKey = import.meta.env.VITE_FIREBASE_SECRET_TOKEN;
+    const secureKey = import.meta.env.VITE_SECURE_KEY;
     console.log("🔍 Отладка SECURE_KEY:", {
       secureKey,
       secureKeyLength: secureKey?.length,
@@ -87,7 +87,7 @@ export async function getFileURL(filePath: string): Promise<string> {
 
     if (!secureKey) {
       throw new Error(
-        "VITE_FIREBASE_SECRET_TOKEN не установлен в переменных окружения"
+        "VITE_SECURE_KEY не установлен в переменных окружения"
       );
     }
 
