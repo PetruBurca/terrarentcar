@@ -14,7 +14,6 @@
     "firebase:rules": "firebase deploy --only firestore:rules",
     "firebase:indexes": "firebase deploy --only firestore:indexes"
   },
-  "homepage": "https://KichZero.github.io/terra-rent-dev",
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
