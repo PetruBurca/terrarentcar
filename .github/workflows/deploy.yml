@@ -25,8 +25,8 @@ jobs:
 
       - name: Build
         run: npm run build
-         env:
-           VITE_SECURE_KEY: ${{ secrets.VITE_SECURE_KEY }}
+        env:
+          VITE_SECURE_KEY: ${{ secrets.VITE_SECURE_KEY }}
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

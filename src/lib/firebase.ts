@@ -86,9 +86,7 @@ export async function getFileURL(filePath: string): Promise<string> {
     });
 
     if (!secureKey) {
-      throw new Error(
-        "VITE_SECURE_KEY не установлен в переменных окружения"
-      );
+      throw new Error("VITE_SECURE_KEY не установлен в переменных окружения");
     }
 
     // Используем callable function вместо hardcoded ссылки
