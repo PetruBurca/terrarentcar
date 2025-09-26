@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { createSecurePayload } from "./cryptoUtils";
 
-// Конфигурация Firebase (клиентский проект)
+// Конфигурация Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCnH5K4RB7i5RNgDthSK0wPAiM0wTkYnAE",
   authDomain: "terrarentcar-f1fda.firebaseapp.com",
@@ -73,7 +73,7 @@ export async function getFileURL(filePath: string): Promise<string> {
     // Проверяем, что путь к паспорту
 
     // Отладочная информация
-    const secureKey = import.meta.env.VITE_SECURE_KEY;
+    const secureKey = import.meta.env.VITE_FIREBASE_SECRET_TOKEN;
     console.log("🔍 Отладка SECURE_KEY:", {
       secureKey,
       secureKeyLength: secureKey?.length,
@@ -86,7 +86,9 @@ export async function getFileURL(filePath: string): Promise<string> {
     });
 
     if (!secureKey) {
-      throw new Error("VITE_SECURE_KEY не установлен в переменных окружения");
+      throw new Error(
+        "VITE_FIREBASE_SECRET_TOKEN не установлен в переменных окружения"
+      );
     }
 
     // Используем callable function вместо hardcoded ссылки
