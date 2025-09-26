@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { FormData, WizardData, UploadedPhotos } from "@/types/reservation";
+import {
+  FormData,
+  WizardData,
+  UploadedPhotos,
+  PassportFiles,
+  PassportUrls,
+} from "@/types/reservation";
 
 // Простое состояние без кэширования
 export function useCarReservation(carId: string) {
@@ -21,12 +27,21 @@ export function useCarReservation(carId: string) {
     clubCard: false,
     paymentMethod: "cash" as "cash" | "card" | "other",
     paymentOther: "",
+    paymentMessage: "",
   });
 
   const [currentStep, setCurrentStep] = useState(0);
   const [uploadedPhotos, setUploadedPhotos] = useState<UploadedPhotos>({
     front: false,
     back: false,
+  });
+  const [passportFiles, setPassportFiles] = useState<PassportFiles>({
+    front: null,
+    back: null,
+  });
+  const [passportUrls, setPassportUrls] = useState<PassportUrls>({
+    front: null,
+    back: null,
   });
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [selectedCountryCode, setSelectedCountryCode] = useState("+373");
@@ -50,6 +65,10 @@ export function useCarReservation(carId: string) {
     setCurrentStep,
     uploadedPhotos,
     setUploadedPhotos,
+    passportFiles,
+    setPassportFiles,
+    passportUrls,
+    setPassportUrls,
     privacyAccepted,
     setPrivacyAccepted,
     wizardData,

@@ -12,7 +12,40 @@ import {
 } from "@/components/ui/layout/card";
 import { toast } from "@/components/ui/utils/use-toast";
 import { useTranslation } from "react-i18next";
-import { createContactRequest } from "@/lib/airtable";
+import { createContactRequest } from "@/lib/firestore";
+
+// Функция форматирования номера телефона
+const formatPhoneNumber = (input: string): string => {
+  if (!input) return "";
+
+  // Убираем все не-цифры из ввода
+  const cleanDigits = input.replace(/\D/g, "");
+
+  // Форматируем по маске 0(XX)XXXXXX
+  if (cleanDigits.length === 0) {
+    return "";
+  } else if (cleanDigits.length === 1) {
+    return cleanDigits;
+  } else if (cleanDigits.length <= 3) {
+    return `0(${cleanDigits.slice(1)}`;
+  } else if (cleanDigits.length <= 9) {
+    return `0(${cleanDigits.slice(1, 3)})${cleanDigits.slice(3)}`;
+  } else {
+    return `0(${cleanDigits.slice(1, 3)})${cleanDigits.slice(3, 9)}`;
+  }
+};
+
+// Функция валидации email
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+// Функция валидации телефона
+const isValidPhone = (phone: string): boolean => {
+  const cleanDigits = phone.replace(/\D/g, "");
+  return cleanDigits.length === 9 && cleanDigits.startsWith("0");
+};
 
 const Contact = () => {
   const { t } = useTranslation();
@@ -29,10 +62,21 @@ const Contact = () => {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    
+    // Специальная обработка для телефона
+    if (name === "phone") {
+      const formattedPhone = formatPhoneNumber(value);
+      setFormData({
+        ...formData,
+        [name]: formattedPhone,
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   const handleResetForm = () => {
@@ -48,6 +92,9 @@ const Contact = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Предотвращаем повторную отправку
+    if (isSubmitting) return;
 
     // Валидация полей
     if (!formData.name.trim()) {
@@ -68,6 +115,15 @@ const Contact = () => {
       return;
     }
 
+    if (!isValidEmail(formData.email)) {
+      toast({
+        title: t("validation.error", "Ошибка"),
+        description: t("validation.emailInvalid", "Введите корректный email"),
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!formData.phone.trim()) {
       toast({
         title: t("validation.error", "Ошибка"),
@@ -77,14 +133,40 @@ const Contact = () => {
       return;
     }
 
+    if (!isValidPhone(formData.phone)) {
+      toast({
+        title: t("validation.error", "Ошибка"),
+        description: t("validation.phoneInvalid", "Введите корректный номер телефона"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log("📧 Начинаем отправку сообщения...");
     setIsSubmitting(true);
 
     try {
-      await createContactRequest({
-        fullName: formData.name,
+      const result = await createContactRequest({
+        name: formData.name,
         email: formData.email,
         phone: formData.phone,
         message: formData.message,
+        subject: formData.subject,
+      });
+
+      console.log("✅ Сообщение успешно отправлено:", result);
+
+      // Минимальная задержка для лучшего UX
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Показываем уведомление об успехе
+      toast({
+        title: t("contact.successTitle", "Сообщение отправлено!"),
+        description: t(
+          "contact.successMessage",
+          "Мы свяжемся с вами в ближайшее время."
+        ),
+        variant: "default",
       });
 
       setIsSubmitted(true);
@@ -99,6 +181,7 @@ const Contact = () => {
         message: "",
       });
     } catch (e) {
+      console.error("❌ Ошибка отправки сообщения:", e);
       setIsSubmitting(false);
       const error = e instanceof Error ? e : new Error(String(e));
       toast({
@@ -206,10 +289,7 @@ const Contact = () => {
                                     .map((phone, phoneIdx) => (
                                       <a
                                         key={phoneIdx}
-                                        href={`tel:${phone.replace(
-                                          /\s/g,
-                                          ""
-                                        )}`}
+                                        href={`tel:${phone.replace(/\s/g, "")}`}
                                         className="text-sm text-primary hover:text-primary/80 transition-colors cursor-pointer"
                                       >
                                         {phone}
@@ -424,8 +504,19 @@ const Contact = () => {
                           onChange={handleInputChange}
                           required
                           disabled={isSubmitting}
-                          className="mt-1"
+                          className={`mt-1 ${
+                            formData.email && isValidEmail(formData.email)
+                              ? "border-green-500 border-2"
+                              : formData.email && !isValidEmail(formData.email)
+                              ? "border-red-500 border-2"
+                              : ""
+                          }`}
                         />
+                        {formData.email && !isValidEmail(formData.email) && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {t("validation.emailInvalid", "Введите корректный email")}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <Label htmlFor="phone">{t("contact.phoneLabel")}</Label>
@@ -433,11 +524,23 @@ const Contact = () => {
                           id="phone"
                           name="phone"
                           type="tel"
+                          placeholder="0(XX)XXXXXX"
                           value={formData.phone}
                           onChange={handleInputChange}
                           disabled={isSubmitting}
-                          className="mt-1"
+                          className={`mt-1 ${
+                            formData.phone && isValidPhone(formData.phone)
+                              ? "border-green-500 border-2"
+                              : formData.phone && !isValidPhone(formData.phone)
+                              ? "border-red-500 border-2"
+                              : ""
+                          }`}
                         />
+                        {formData.phone && !isValidPhone(formData.phone) && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {t("validation.phoneInvalid", "Введите корректный номер телефона")}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -460,19 +563,27 @@ const Contact = () => {
 
                     <Button
                       type="submit"
-                      className="w-full glow-effect"
+                      className={`w-full glow-effect transition-all duration-300 ${
+                        isSubmitting
+                          ? "opacity-75 cursor-not-allowed"
+                          : "hover:scale-105 active:scale-95"
+                      }`}
                       size="lg"
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
                         <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          {t("contact.sending", "Отправляем...")}
+                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
+                          <span className="font-semibold">
+                            {t("contact.sending", "Отправляем...")}
+                          </span>
                         </>
                       ) : (
                         <>
-                          <Send className="mr-2 h-4 w-4" />
-                          {t("contact.sendMessageButton")}
+                          <Send className="mr-2 h-5 w-5" />
+                          <span className="font-semibold">
+                            {t("contact.sendMessageButton")}
+                          </span>
                         </>
                       )}
                     </Button>

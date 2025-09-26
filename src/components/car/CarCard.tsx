@@ -1,6 +1,6 @@
 import { useState, Suspense, useEffect } from "react";
 import {
-  Car,
+  Car as CarIcon,
   Users,
   Fuel,
   Settings,
@@ -13,34 +13,36 @@ import { Badge } from "@/components/ui/feedback/badge";
 import { CarReservationModal } from "../modals";
 import { useTranslation } from "react-i18next";
 import { translateCarSpec } from "@/lib/carTranslations";
+import { Car } from "@/types/reservation";
 import logo from "@/assets/logo.webp";
 
 export interface CarCardProps {
   id: string;
   name: string;
+  carNumber: string; // НОМЕР машины (не отображается на сайте, нужен для админ панели)
   images: string[];
   price: number;
   rating: number;
-  passengers: number;
+  seats: number;
   transmission: string;
-  fuel: string;
+  fuelType: string;
   year: string;
   engine: string;
   drive: string;
+  doors: number;
   description_ru?: string;
   description_ro?: string;
   description_en?: string;
   category: string;
   features: string[];
   description: string;
-  pricePerDay: number;
   price2to10: number;
   price11to20: number;
   price21to29: number;
   price30plus: number;
   blockFromDate?: string | null; // Дата блокировки от администратора
   blockToDate?: string | null; // Дата блокировки до администратора
-  status?: string; // Статус автомобиля (доступен, на обслуживании, в аренде)
+  status?: "Подтверждена" | "Отклонена" | "В процессе"; // Статус автомобиля
 }
 
 const PLACEHOLDER_IMG = logo;
@@ -50,22 +52,23 @@ const PLACEHOLDER_IMG = logo;
 const CarCard = ({
   id,
   name,
+  carNumber,
   images,
   price,
   rating,
-  passengers,
+  seats,
   transmission,
-  fuel,
+  fuelType,
   year,
   engine,
   drive,
+  doors,
   description_ru,
   description_ro,
   description_en,
   category,
   features,
   description,
-  pricePerDay,
   price2to10,
   price11to20,
   price21to29,
@@ -81,9 +84,18 @@ const CarCard = ({
   const { t } = useTranslation();
   const safeFeatures = Array.isArray(features) ? features : [];
   const imageUrl =
-    images && images.length > 0 && images[0] ? images[0] : PLACEHOLDER_IMG;
+    images && images.length > 0 && images[0] && images[0].startsWith("http")
+      ? images[0]
+      : PLACEHOLDER_IMG;
 
   // Лог для проверки загрузки компонента
+  // useEffect(() => {
+  //   console.log(`CarCard ${name}:`, {
+  //     hasImages: images && images.length > 0,
+  //     imageUrl,
+  //     isPlaceholder: imageUrl === PLACEHOLDER_IMG,
+  //   });
+  // }, [name, images, imageUrl]);
 
   // Принудительно обновляем стили через useEffect
   useEffect(() => {
@@ -102,14 +114,36 @@ const CarCard = ({
   };
 
   const handleImageError = () => {
+    console.log(`Ошибка загрузки изображения для ${name}:`, imageUrl);
     setImageError(true);
     setImageLoaded(true);
+  };
+
+  // Простая оптимизация Firebase URL
+  const getOptimizedImageUrl = (url: string) => {
+    if (!url || url.includes("placeholder") || !url.startsWith("http")) {
+      return url;
+    }
+
+    // Для Firebase Storage добавляем только базовые параметры оптимизации
+    if (url.includes("firebasestorage.googleapis.com")) {
+      const params = new URLSearchParams();
+      params.set("w", "400"); // Фиксированная ширина для карточек
+      params.set("h", "auto");
+      params.set("q", "90"); // Высокое качество
+      params.set("f", "webp");
+      params.set("alt", "media");
+
+      return `${url}?${params.toString()}`;
+    }
+
+    return url;
   };
 
   return (
     <>
       <Card
-        className="group overflow-hidden car-hover bg-card/50 backdrop-blur hover:shadow-2xl transition-all duration-300 h-[700px] min-w-[320px] flex flex-col justify-between cursor-pointer"
+        className="group overflow-hidden car-hover bg-card/50 backdrop-blur hover:shadow-2xl transition-all duration-300 h-[480px] w-full flex flex-col justify-between cursor-pointer border-0"
         data-car-id={id}
         onClick={(e) => {
           // Не открывать модалку, если клик был по кнопке бронирования
@@ -117,19 +151,25 @@ const CarCard = ({
           setIsModalOpen(true);
         }}
       >
-        <div className="relative overflow-hidden h-full w-full flex items-center justify-center bg-background">
+        <div className="relative overflow-hidden h-[330px] w-full flex items-center justify-center bg-black">
           {(!imageLoaded || imageError) && (
             <div className="absolute inset-0 flex items-center justify-center bg-muted animate-pulse">
               <ImageIcon className="h-8 w-8 text-muted-foreground" />
             </div>
           )}
           <img
-            src={imageError ? PLACEHOLDER_IMG : imageUrl}
+            src={imageError ? PLACEHOLDER_IMG : getOptimizedImageUrl(imageUrl)}
             alt={name}
-            className={`w-full h-full object-cover transition-all duration-500 ${
+            className={`transition-all duration-500 ${
               imageLoaded ? "group-hover:scale-110" : "opacity-0"
+            } ${
+              imageError || imageUrl === PLACEHOLDER_IMG
+                ? "w-auto h-auto max-w-[300px] max-h-[250px] object-contain p-4"
+                : "w-full h-full object-cover"
             }`}
-            style={{ objectPosition: "center" }}
+            style={{
+              objectPosition: "center",
+            }}
             loading="lazy"
             onLoad={handleImageLoad}
             onError={handleImageError}
@@ -158,18 +198,16 @@ const CarCard = ({
           <div className="grid grid-cols-3 gap-3 mb-3">
             <div className="flex items-center space-x-1 text-muted-foreground">
               <Users className="h-3 w-3" />
-              <span className="text-xs">{passengers}</span>
+              <span className="text-xs">{seats}</span>
             </div>
             <div className="flex items-center space-x-1 text-muted-foreground">
               <Settings className="h-3 w-3" />
-              <span className="text-xs">
-                {translateCarSpec("transmission", transmission, t)}
-              </span>
+              <span className="text-xs">{transmission}</span>
             </div>
             <div className="flex items-center space-x-1 text-muted-foreground">
               <Fuel className="h-3 w-3" />
               <span className="text-xs">
-                {translateCarSpec("fuel", fuel, t)}
+                {translateCarSpec("fuel", fuelType, t)}
               </span>
             </div>
           </div>
@@ -235,7 +273,7 @@ const CarCard = ({
               setIsModalOpen(true);
             }}
           >
-            <Car className="mr-2 h-4 w-4" />
+            <CarIcon className="mr-2 h-4 w-4" />
             {t("cars.book")}
           </Button>
         </CardFooter>
@@ -245,30 +283,36 @@ const CarCard = ({
         <CarReservationModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          car={{
-            id,
-            name,
-            images,
-            price,
-            rating,
-            passengers,
-            transmission,
-            fuel,
-            year,
-            engine,
-            drive,
-            description_ru,
-            description_ro,
-            description_en,
-            pricePerDay,
-            price2to10,
-            price11to20,
-            price21to29,
-            price30plus,
-            blockFromDate,
-            blockToDate,
-            status,
-          }}
+          car={
+            {
+              id,
+              name,
+              carNumber,
+              images,
+              price,
+              rating,
+              seats,
+              transmission,
+              fuelType,
+              year,
+              engine,
+              drive,
+              doors,
+              description,
+              description_ru,
+              description_ro,
+              description_en,
+              category,
+              features,
+              price2to10,
+              price11to20,
+              price21to29,
+              price30plus,
+              blockFromDate,
+              blockToDate,
+              status,
+            } as Car
+          }
         />
       </Suspense>
     </>

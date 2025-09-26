@@ -67,9 +67,7 @@ export const getPassport = onCall(async (request) => {
   // Проверка существования файла
   const [exists] = await file.exists();
   if (!exists) {
-    return res.status(404).json({
-      error: "File not found",
-    });
+    throw new HttpsError("not-found", "File not found");
   }
 
   // Генерация подписанной ссылки с истечением через 5 дней

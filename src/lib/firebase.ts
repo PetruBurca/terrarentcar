@@ -1,16 +1,26 @@
 import { initializeApp } from "firebase/app";
 import { httpsCallable, getFunctions } from "firebase/functions";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  query,
+  orderBy,
+  limit,
+} from "firebase/firestore";
 import { createSecurePayload } from "./cryptoUtils";
 
-// Конфигурация Firebase
+// Конфигурация Firebase (клиентский проект)
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyCnH5K4RB7i5RNgDthSK0wPAiM0wTkYnAE",
+  authDomain: "terrarentcar-f1fda.firebaseapp.com",
+  projectId: "terrarentcar-f1fda",
+  storageBucket: "terrarentcar-f1fda.firebasestorage.app",
+  messagingSenderId: "114261195759",
+  appId: "1:114261195759:web:33356a53fcd35612d2541a",
+  // measurementId: "G-9D32Y58JV2", // Убрано - у клиента нет Google Analytics
 };
 
 // Проверяем наличие обязательных переменных окружения
@@ -25,9 +35,11 @@ if (
 }
 
 // Инициализация Firebase
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
-const functions = getFunctions(app);
+export const functions = getFunctions(app);
+export const db = getFirestore(app);
+
 // Функция для загрузки файла в Firebase Storage
 export async function uploadFileToFirebase(
   file: File,
@@ -44,9 +56,10 @@ export async function uploadFileToFirebase(
     // Загружаем файл
     const snapshot = await uploadBytes(storageRef, file);
 
-    // Получаем URL для скачивания
-    const downloadURL = await getFileURL(fileName);
+    // Получаем прямой URL из Storage
+    const downloadURL = await getDownloadURL(snapshot.ref);
 
+    console.log("✅ Файл загружен:", fileName, "URL:", downloadURL);
     return downloadURL;
   } catch (error) {
     console.error("Ошибка загрузки файла в Firebase:", error);
@@ -59,12 +72,23 @@ export async function getFileURL(filePath: string): Promise<string> {
   try {
     // Проверяем, что путь к паспорту
 
-    const secureKey =
-      import.meta.env.VITE_SECURE_KEY ||
-      import.meta.env.VITE_FIREBASE_SECRET_TOKEN;
+    // Отладочная информация
+    const secureKey = import.meta.env.VITE_FIREBASE_SECRET_TOKEN;
+    console.log("🔍 Отладка SECURE_KEY:", {
+      secureKey,
+      secureKeyLength: secureKey?.length,
+      secureKeyType: typeof secureKey,
+      isUndefined: secureKey === undefined,
+      isEmpty: secureKey === "",
+      envVars: Object.keys(import.meta.env).filter((key) =>
+        key.startsWith("VITE_")
+      ),
+    });
 
     if (!secureKey) {
-      throw new Error("VITE_SECURE_KEY не установлен в переменных окружения");
+      throw new Error(
+        "VITE_FIREBASE_SECRET_TOKEN не установлен в переменных окружения"
+      );
     }
 
     // Используем callable function вместо hardcoded ссылки
@@ -72,6 +96,8 @@ export async function getFileURL(filePath: string): Promise<string> {
 
     // Создаем безопасный payload с зашифрованным ключом
     const securePayload = createSecurePayload(filePath, secureKey);
+
+    console.log("📤 Отправляемый payload:", securePayload);
 
     const result = await getPassport(securePayload);
 

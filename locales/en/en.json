@@ -164,6 +164,8 @@
     "messageSentDesc": "We have received your message and will contact you soon.",
     "sendAnotherMessage": "Send another message",
     "sending": "Sending...",
+    "successTitle": "Message sent!",
+    "successMessage": "We will contact you as soon as possible.",
     "errorTitle": "Error sending",
     "modalDescription": "Choose a phone number to contact us"
   },

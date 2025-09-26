@@ -9,11 +9,11 @@ import {
   DialogDescription,
 } from "@/components/ui/overlays/dialog";
 import { useTranslation } from "react-i18next";
-import { createOrder } from "@/lib/airtable";
+import { createOrder, fetchOrders, Timestamp } from "@/lib/firestore";
+import { uploadFileToFirebase } from "@/lib/firebase";
 import { useMediaQuery } from "@/hooks";
 import { useCarReservation } from "@/hooks/use-car-reservation";
 import { useQuery } from "@tanstack/react-query";
-import { fetchOrders } from "@/lib/airtable";
 import { toast } from "@/components/ui/utils/use-toast";
 
 // Импорт новых компонентов
@@ -22,10 +22,15 @@ import { ReservationStep2 } from "./ReservationStep2";
 import { ReservationStep3 } from "./ReservationStep3";
 import { SuccessModal } from "./SuccessModal";
 import {
-  Car,
+  Car as BaseCar,
   FormData as ReservationFormData,
   WizardData,
+  PassportFiles,
+  PassportUrls,
 } from "@/types/reservation";
+
+// Используем интерфейс Car из types/reservation.ts который уже содержит carNumber
+type Car = BaseCar;
 
 interface CarReservationModalProps {
   isOpen: boolean;
@@ -52,6 +57,10 @@ const CarReservationModal = ({
     setCurrentStep,
     uploadedPhotos,
     setUploadedPhotos,
+    passportFiles,
+    setPassportFiles,
+    passportUrls,
+    setPassportUrls,
     privacyAccepted,
     setPrivacyAccepted,
     wizardData,
@@ -64,6 +73,65 @@ const CarReservationModal = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  // Функция для загрузки фото паспорта
+  const uploadPassportPhotos = async (): Promise<{
+    front: string;
+    back: string;
+  }> => {
+    console.log("🔄 Начинаем загрузку фото паспорта:", passportFiles);
+
+    const uploadPromises = [];
+
+    if (passportFiles.front) {
+      console.log("📤 Загружаем лицевую сторону:", passportFiles.front.name);
+      uploadPromises.push(
+        uploadFileToFirebase(passportFiles.front, "passport-front")
+          .then((url) => {
+            console.log("✅ Лицевая сторона загружена:", url);
+            return { type: "front", url };
+          })
+          .catch((error) => {
+            console.error("❌ Ошибка загрузки лицевой стороны:", error);
+            return { type: "front", url: null };
+          })
+      );
+    } else {
+      console.log("⚠️ Лицевая сторона не выбрана");
+      uploadPromises.push(Promise.resolve({ type: "front", url: null }));
+    }
+
+    if (passportFiles.back) {
+      console.log("📤 Загружаем обратную сторону:", passportFiles.back.name);
+      uploadPromises.push(
+        uploadFileToFirebase(passportFiles.back, "passport-back")
+          .then((url) => {
+            console.log("✅ Обратная сторона загружена:", url);
+            return { type: "back", url };
+          })
+          .catch((error) => {
+            console.error("❌ Ошибка загрузки обратной стороны:", error);
+            return { type: "back", url: null };
+          })
+      );
+    } else {
+      console.log("⚠️ Обратная сторона не выбрана");
+      uploadPromises.push(Promise.resolve({ type: "back", url: null }));
+    }
+
+    const results = await Promise.all(uploadPromises);
+    console.log("📋 Результаты загрузки:", results);
+
+    const frontUrl =
+      results.find((r) => r.type === "front")?.url ||
+      "https://example.com/passport-front.jpg";
+    const backUrl =
+      results.find((r) => r.type === "back")?.url ||
+      "https://example.com/passport-back.jpg";
+
+    console.log("🔗 Финальные URL:", { front: frontUrl, back: backUrl });
+    return { front: frontUrl, back: backUrl };
+  };
 
   // Индикатор шагов
   const stepIndicator = `${currentStep + 1}/${STEPS.length}`;
@@ -125,36 +193,40 @@ const CarReservationModal = ({
     const formDataObj = new globalThis.FormData(form);
 
     try {
+      // Загружаем фото паспорта в Firebase Storage
+      const documents = await uploadPassportPhotos();
+
       await createOrder({
-        name: formData.firstName + " " + formData.lastName,
-        phone: formData.phone,
-        email: formData.email,
-        car: [car.id], // <-- передаём id машины как массив
-        startDate: formData.pickupDate,
-        endDate: formData.returnDate,
-        comment: formData.message,
+        carId: car.id,
+        carName: car.name,
+        carNumber: car.carNumber,
+        customerName: formData.firstName + " " + formData.lastName,
+        customerEmail: formData.email,
+        customerPhone: formData.phone,
+        customerPassport: formData.idnp,
+        rentFrom: Timestamp.fromDate(new Date(formData.pickupDate)),
+        rentTo: Timestamp.fromDate(new Date(formData.returnDate)),
+        totalDays: calculateDays(),
+        totalPrice: finalRentalCost,
+        status: "pending",
+        documents: {
+          front: documents.front,
+          back: documents.back,
+        },
+        // Новые поля для расширенной функциональности
         pickupTime: formData.pickupTime,
-        idnp: formData.idnp,
-        pickupType: formData.pickupType,
-        pickupAddress: formData.pickupAddress,
-        unlimitedMileage: formData.unlimitedMileage,
-        goldCard: formData.goldCard,
-        clubCard: formData.clubCard,
         paymentMethod: formData.paymentMethod,
-        paymentOther: formData.paymentOther,
-        idPhotoFront: formDataObj.get("idPhotoFront") as File,
-        idPhotoBack: formDataObj.get("idPhotoBack") as File,
-        totalCost: finalRentalCost, // Итоговая стоимость уже включает все услуги
-        discountAmount: discount, // Сумма скидки
-        unlimitedMileageCost: wizardData.unlimitedMileage
-          ? calculateDays() * 20
-          : 0, // Стоимость двойного км
-        deliveryCost:
-          wizardData.pickupType === "address" ||
-          wizardData.pickupType === "airport"
-            ? 20
-            : 0, // Стоимость доставки
-        // washingCost: 20, // Стоимость мойки - убрали пока не создадите поле в Airtable
+        paymentMessage: formData.paymentMessage || "",
+        pickupType: formData.pickupType,
+        deliveryType: formData.pickupType === "address" ? "delivery" : "pickup",
+        deliveryAddress: formData.pickupAddress,
+        unlimitedMileage: formData.unlimitedMileage,
+        clubCard: formData.clubCard,
+        goldCard: formData.goldCard,
+        doubleKmAmount: formData.doubleKmAmount || 0,
+        discountAmount: formData.discountAmount || 0,
+        deliveryAmount: formData.deliveryAmount || 0,
+        servedBy: formData.servedBy || "",
       });
 
       // Показываем модальное окно успеха
@@ -226,7 +298,7 @@ const CarReservationModal = ({
     if (days >= 21) return car.price21to29;
     if (days >= 11) return car.price11to20;
     if (days >= 2) return car.price2to10;
-    return car.pricePerDay;
+    return car.price;
   };
   const pricePerDay = getPricePerDay(days);
   const totalPrice = pricePerDay * days;
@@ -527,7 +599,7 @@ const CarReservationModal = ({
       setUploadedPhotos({ front: false, back: false });
       setShowSuccessModal(false);
     }
-  }, [isOpen]);
+  }, [isOpen, setCurrentStep, setPrivacyAccepted, setUploadedPhotos]);
 
   const { data: orders = [] } = useQuery({
     queryKey: ["orders", i18n.language],
@@ -536,10 +608,9 @@ const CarReservationModal = ({
   });
   // Получаем только заявки по этой машине и только подтверждённые
   const carOrders = orders.filter((order) => {
-    const hasCarId = order.carIds && order.carIds.includes(car.id);
-    const isConfirmed =
-      order.status === "подтверждена" || order.status === "подтвержден";
-    const hasDates = order.startDate && order.endDate;
+    const hasCarId = order.carId === car.id;
+    const isConfirmed = order.status === "confirmed";
+    const hasDates = order.rentFrom && order.rentTo;
 
     return hasCarId && isConfirmed && hasDates;
   });
@@ -582,8 +653,8 @@ const CarReservationModal = ({
       // Добавляем даты из заказов только если автомобиль не на обслуживании
       carOrders.forEach((order) => {
         try {
-          const start = parseDate(order.startDate);
-          const end = parseDate(order.endDate);
+          const start = order.rentFrom.toDate();
+          const end = order.rentTo.toDate();
           if (!start || !end) return;
           for (
             let d = new Date(
@@ -725,6 +796,10 @@ const CarReservationModal = ({
                 setFormData={setFormData}
                 uploadedPhotos={uploadedPhotos}
                 setUploadedPhotos={setUploadedPhotos}
+                passportFiles={passportFiles}
+                setPassportFiles={setPassportFiles}
+                passportUrls={passportUrls}
+                setPassportUrls={setPassportUrls}
                 privacyAccepted={privacyAccepted}
                 setPrivacyAccepted={setPrivacyAccepted}
                 selectedCountryCode={selectedCountryCode}

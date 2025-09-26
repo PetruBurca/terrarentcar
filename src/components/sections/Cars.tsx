@@ -15,18 +15,11 @@ import { useTranslation } from "react-i18next";
 import i18n from "i18next";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
-import { fetchCars, fetchOrders } from "@/lib/airtable";
+import { fetchCars, fetchOrders, type FirestoreCar } from "@/lib/firestore";
+import { translateCarSpec } from "@/lib/carTranslations";
 import ContactNumbersModal from "../modals/ContactNumbersModal";
 
-const categoryMap = {
-  sedan: "Седан",
-  convertible: "Кабриолет",
-  wagon: "Универсал",
-  crossover: "Кроссовер",
-  suv: "Внедорожник",
-  pickup: "Пикап",
-  hatchback: "Хэтчбэк",
-};
+// Убираем categoryMap, так как в данных уже используются правильные ключи
 
 function isDateOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) {
   return aStart <= bEnd && aEnd >= bStart;
@@ -223,10 +216,15 @@ const Cars = ({ searchDates }) => {
   } = useQuery({
     queryKey: ["cars", i18n.language],
     queryFn: fetchCars,
-    staleTime: 30 * 60 * 1000, // Кэшируем на 30 минут
-    retry: 1, // Уменьшаем количество попыток
-    retryDelay: 10000, // 10 секунд между попытками
+    staleTime: 0, // Убираем кэширование
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
+
+  // DEBUG: Логируем данные для отладки
+  // console.log("=== DEBUG: Данные машин ===");
+  // console.log("Всего машин загружено:", cars.length);
+  // console.log("Машины:", cars);
 
   // Получаем заявки
   const { data: orders = [], isLoading: isLoadingOrders } = useQuery({
@@ -245,15 +243,27 @@ const Cars = ({ searchDates }) => {
     setCurrentPage(1);
   }, [selectedCategory, sortBy, sortDir]);
 
-  // Фильтрация по статусу "на обслуживании" (всегда)
+  // Фильтрация по статусу (всегда) - теперь используем только status
   let availableCars = cars.filter((car) => {
-    // Если автомобиль на обслуживании - скрываем его всегда
-    if (car.status && car.status.toLowerCase() === "на обслуживании") {
-      // console.log(`❌ ${car.name} - на обслуживании, скрываем`);
+    // Если статус не "available" - скрываем его всегда
+    if (car.status !== "available") {
+      // console.log(`❌ ${car.name} - статус: ${car.status}, скрываем`);
       return false;
     }
     return true;
   });
+
+  // DEBUG: Логируем фильтрацию
+  // console.log("=== DEBUG: Фильтрация ===");
+  // console.log("Доступных машин после фильтрации:", availableCars.length);
+  // console.log(
+  //   "Доступные машины:",
+  //   availableCars.map((car) => ({
+  //     name: car.name,
+  //     available: car.available,
+  //     status: car.status,
+  //   }))
+  // );
 
   // Фильтрация по доступности (только если выбраны даты)
   if (searchDates?.from && searchDates?.to) {
@@ -261,16 +271,15 @@ const Cars = ({ searchDates }) => {
     console.log("Выбранные даты:", searchDates);
 
     availableCars = availableCars.filter((car) => {
-      console.log(`\nПроверяем машину: ${car.name}`);
-      console.log(`Статус: ${car.status}`);
-      console.log(`Блокировка: ${car.blockFromDate} - ${car.blockToDate}`);
+      // console.log(`\nПроверяем машину: ${car.name}`);
+      // console.log(`Статус: ${car.status}`);
+      // console.log(`Доступность: ${car.available}`);
 
       // Фильтруем заявки для этого автомобиля
       const carOrders = orders.filter((order) => {
-        const hasCarId = order.carIds && order.carIds.includes(car.id);
-        const isConfirmed =
-          order.status === "подтверждена" || order.status === "подтвержден";
-        const hasDates = order.startDate && order.endDate;
+        const hasCarId = order.carId === car.id;
+        const isConfirmed = order.status === "confirmed";
+        const hasDates = order.rentFrom && order.rentTo;
 
         return hasCarId && isConfirmed && hasDates;
       });
@@ -282,69 +291,61 @@ const Cars = ({ searchDates }) => {
       let hasOrderOverlap = false;
       if (carOrders.length > 0) {
         hasOrderOverlap = carOrders.some((order) => {
-          const orderStart = parseDate(order.startDate);
-          const orderEnd = parseDate(order.endDate);
-
-          if (!orderStart || !orderEnd) return false;
+          const orderStart = order.rentFrom.toDate();
+          const orderEnd = order.rentTo.toDate();
 
           const overlap = isDateOverlap(from, to, orderStart, orderEnd);
           return overlap;
         });
       }
 
-      // Проверяем пересечение с блокировкой от администратора
-      let hasAdminBlockOverlap = false;
-      if (car.blockFromDate && car.blockToDate) {
-        const blockStart = parseDate(car.blockFromDate);
-        const blockEnd = parseDate(car.blockToDate);
+      // Проверяем пересечение с датами аренды
+      let hasRentOverlap = false;
+      if (car.rentFrom && car.rentTo) {
+        const rentStart = car.rentFrom;
+        const rentEnd = car.rentTo;
 
-        if (blockStart && blockEnd) {
-          hasAdminBlockOverlap = isDateOverlap(from, to, blockStart, blockEnd);
+        hasRentOverlap = isDateOverlap(from, to, rentStart, rentEnd);
 
-          console.log(
-            `  Parsed Block Dates: ${
-              blockStart.toISOString().split("T")[0]
-            } - ${blockEnd.toISOString().split("T")[0]}`
-          );
-          console.log(
-            `  User Dates: ${from.toISOString().split("T")[0]} - ${
-              to.toISOString().split("T")[0]
-            }`
-          );
-          console.log(`  Overlap Result: ${hasAdminBlockOverlap}`);
+        // console.log(
+        //   `  Rent Dates: ${rentStart.toISOString().split("T")[0]} - ${
+        //     rentEnd.toISOString().split("T")[0]
+        //   }`
+        // );
+        // console.log(
+        //   `  User Dates: ${from.toISOString().split("T")[0]} - ${
+        //     to.toISOString().split("T")[0]
+        //   }`
+        // );
+        // console.log(`  Overlap Result: ${hasRentOverlap}`);
 
-          // Отладочная информация
-          console.log(`Car ${car.name}:`, {
-            blockFromDate: car.blockFromDate,
-            blockToDate: car.blockToDate,
-            parsedBlockStart: blockStart,
-            parsedBlockEnd: blockEnd,
-            userFrom: from,
-            userTo: to,
-            hasAdminBlockOverlap,
-            hasOrderOverlap,
-          });
-        } else {
-          console.log(`  ❌ Failed to parse block dates for ${car.name}`);
-        }
+        // Отладочная информация
+        // console.log(`Car ${car.name}:`, {
+        // rentFrom: car.rentFrom,
+        // rentTo: car.rentTo,
+        //   userFrom: from,
+        //   userTo: to,
+        // hasRentOverlap,
+        //   hasOrderOverlap,
+        // });
       } else {
-        console.log(`  No admin block dates for ${car.name}`);
+        // console.log(`  No rent dates for ${car.name}`);
       }
 
-      // Машина доступна если нет пересечений ни с заказами, ни с блокировкой администратора
-      const isAvailable = !hasOrderOverlap && !hasAdminBlockOverlap;
-      console.log(
-        `DEBUG: ${car.name} - hasOrderOverlap: ${hasOrderOverlap}, hasAdminBlockOverlap: ${hasAdminBlockOverlap}, isAvailable: ${isAvailable}`
-      );
-      console.log(
-        `✅ ${car.name} - ${isAvailable ? "ДОСТУПНА" : "НЕДОСТУПНА"}`
-      );
+      // Машина доступна если нет пересечений ни с заказами, ни с датами аренды
+      const isAvailable = !hasOrderOverlap && !hasRentOverlap;
+      // console.log(
+      //   `DEBUG: ${car.name} - hasOrderOverlap: ${hasOrderOverlap}, hasRentOverlap: ${hasRentOverlap}, isAvailable: ${isAvailable}`
+      // );
+      // console.log(
+      //   `✅ ${car.name} - ${isAvailable ? "ДОСТУПНА" : "НЕДОСТУПНА"}`
+      // );
       return isAvailable;
     });
 
-    console.log(
-      `\nРезультат фильтрации: ${availableCars.length} из ${cars.length} машин`
-    );
+    // console.log(
+    //   `\nРезультат фильтрации: ${availableCars.length} из ${cars.length} машин`
+    // );
   }
 
   // Check if user has scrolled to the end and hide scroll hint
@@ -427,16 +428,23 @@ const Cars = ({ searchDates }) => {
     selectedCategory === "all"
       ? availableCars
       : availableCars.filter(
-          (car: CarCardProps) => car.category === categoryMap[selectedCategory]
+          (car: FirestoreCar) => car.category === selectedCategory
         );
+
+  // DEBUG: Логируем финальную фильтрацию
+  // console.log("=== DEBUG: Финальная фильтрация ===");
+  // console.log("Выбранная категория:", selectedCategory);
+  // console.log("Машин после фильтрации по категории:", filteredCars.length);
+  // console.log(
+  //   "Отфильтрованные машины:",
+  //   filteredCars.map((car) => car.name)
+  //       );
 
   // Сортировка
   const sortedCars = [...filteredCars];
   if (sortBy === "price") {
     sortedCars.sort((a, b) =>
-      sortDir === "asc"
-        ? a.pricePerDay - b.pricePerDay
-        : b.pricePerDay - a.pricePerDay
+      sortDir === "asc" ? a.price - b.price : b.price - a.price
     );
   } else if (sortBy === "name") {
     sortedCars.sort((a, b) =>
@@ -453,6 +461,17 @@ const Cars = ({ searchDates }) => {
     (currentPage - 1) * currentCarsPerPage,
     currentPage * currentCarsPerPage
   );
+
+  // DEBUG: Логируем пагинацию
+  // console.log("=== DEBUG: Пагинация ===");
+  // console.log("Текущая страница:", currentPage);
+  // console.log("Машин на странице:", currentCarsPerPage);
+  // console.log("Всего страниц:", totalPages);
+  // console.log("Машин для отображения:", paginatedCars.length);
+  // console.log(
+  //   "Машины на текущей странице:",
+  //   paginatedCars.map((car) => car.name)
+  // );
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -639,30 +658,46 @@ const Cars = ({ searchDates }) => {
         {/* Cars Grid */}
         <div
           key={`cars-grid-${i18n.language}`}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6"
         >
-          {paginatedCars.map((car: CarCardProps, index: number) => (
+          {paginatedCars.map((car: FirestoreCar, index: number) => (
             <div
               key={`${car.id}-${i18n.language}`}
               className="animate-fade-in"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <CarCard
-                {...car}
-                pricePerDay={car.pricePerDay}
+                id={car.id || ""}
+                name={car.name}
+                carNumber={car.carNumber || ""}
+                images={car.images}
+                price={car.price}
                 price2to10={car.price2to10}
                 price11to20={car.price11to20}
                 price21to29={car.price21to29}
                 price30plus={car.price30plus}
-                year={car.year}
-                engine={car.engine}
-                drive={car.drive}
-                description_ru={car.description_ru}
-                description_ro={car.description_ro}
-                description_en={car.description_en}
+                rating={car.rating}
+                seats={car.seats || 0}
+                transmission={translateCarSpec(
+                  "transmission",
+                  car.transmission,
+                  t
+                )}
+                fuelType={car.fuelType}
+                drive={translateCarSpec("drive", car.drive || "", t)}
+                engine={car.engine || ""}
+                doors={car.doors || 0}
+                year={car.year.toString()}
+                category={t(`cars.category.${car.category}`)}
+                features={car.features.map((feature) =>
+                  t(`cars.features.${feature}`)
+                )}
+                description={car.description || ""}
                 blockFromDate={car.blockFromDate}
                 blockToDate={car.blockToDate}
-                status={car.status}
+                status={
+                  car.status as "Подтверждена" | "Отклонена" | "В процессе"
+                }
               />
             </div>
           ))}

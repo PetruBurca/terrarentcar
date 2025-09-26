@@ -14,6 +14,12 @@ const transmissionMap: Record<string, string> = {
   Manuală: "manual",
   Robotizată: "robot",
   Variator: "variator",
+  // Добавляем маппинг для английских ключей из базы данных
+  automatic: "automatic",
+  manual: "manual",
+  robot: "robot",
+  variator: "variator",
+  cvt: "variator",
 };
 
 const fuelMap: Record<string, string> = {
@@ -28,6 +34,11 @@ const fuelMap: Record<string, string> = {
   Benzină: "petrol",
   Motorină: "diesel",
   Hibrid: "hybrid",
+  // Добавляем маппинг для английских ключей из базы данных
+  petrol: "petrol",
+  diesel: "diesel",
+  electric: "electric",
+  hybrid: "hybrid",
 };
 
 const driveMap: Record<string, string> = {
@@ -41,6 +52,11 @@ const driveMap: Record<string, string> = {
   Față: "front",
   Spate: "rear",
   Integrală: "awd",
+  // Добавляем маппинг для английских ключей из базы данных
+  front: "front",
+  rear: "rear",
+  awd: "awd",
+  "4wd": "4wd",
 };
 
 const featureMap: Record<string, string> = {
@@ -100,8 +116,24 @@ const categoryMap: Record<string, string> = {
 
 // Функция для перевода коробки передач
 export function translateTransmission(value: string, t: TFunction): string {
+  console.log(`=== DEBUG: translateTransmission ===`);
+  console.log(`Входящее значение: "${value}"`);
+  console.log(
+    `Доступные ключи в transmissionMap:`,
+    Object.keys(transmissionMap)
+  );
+
   const key = transmissionMap[value];
-  return key ? t(`cars.transmission.${key}`) : value;
+  console.log(`Найденный ключ: "${key}"`);
+
+  if (key) {
+    const translated = t(`cars.transmission.${key}`);
+    console.log(`Переведенное значение: "${translated}"`);
+    return translated;
+  } else {
+    console.log(`Ключ не найден, возвращаем исходное значение: "${value}"`);
+    return value;
+  }
 }
 
 // Функция для перевода типа топлива

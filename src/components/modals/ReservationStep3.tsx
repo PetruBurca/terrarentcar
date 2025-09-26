@@ -17,7 +17,13 @@ import { toast } from "@/components/ui/utils/use-toast";
 // Примеры фото паспорта
 import PasportFront from "@/assets/pasport/front.png";
 import PasportBack from "@/assets/pasport/back.png";
-import { Car, FormData, UploadedPhotos } from "@/types/reservation";
+import {
+  Car,
+  FormData,
+  UploadedPhotos,
+  PassportFiles,
+  PassportUrls,
+} from "@/types/reservation";
 
 interface ReservationStep3Props {
   car: Car;
@@ -26,6 +32,14 @@ interface ReservationStep3Props {
   uploadedPhotos: UploadedPhotos;
   setUploadedPhotos: (
     data: UploadedPhotos | ((prev: UploadedPhotos) => UploadedPhotos)
+  ) => void;
+  passportFiles: PassportFiles;
+  setPassportFiles: (
+    data: PassportFiles | ((prev: PassportFiles) => PassportFiles)
+  ) => void;
+  passportUrls: PassportUrls;
+  setPassportUrls: (
+    data: PassportUrls | ((prev: PassportUrls) => PassportUrls)
   ) => void;
   privacyAccepted: boolean;
   setPrivacyAccepted: (accepted: boolean) => void;
@@ -66,6 +80,10 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
   setFormData,
   uploadedPhotos,
   setUploadedPhotos,
+  passportFiles,
+  setPassportFiles,
+  passportUrls,
+  setPassportUrls,
   privacyAccepted,
   setPrivacyAccepted,
   selectedCountryCode,
@@ -192,7 +210,7 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
               placeholder={t("reservation.other")}
               value={
                 formData.paymentMethod === "other"
-                  ? formData.paymentOther || ""
+                  ? formData.paymentMessage || ""
                   : ""
               }
               onFocus={() =>
@@ -205,7 +223,7 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
                 setFormData((d: FormData) => ({
                   ...d,
                   paymentMethod: "other" as const,
-                  paymentOther: e.target.value,
+                  paymentMessage: e.target.value,
                 }))
               }
             />
@@ -301,9 +319,21 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
               required
               onChange={(e) => {
                 if (e.target.files && e.target.files[0]) {
+                  const file = e.target.files[0];
+                  setPassportFiles((prev: PassportFiles) => ({
+                    ...prev,
+                    front: file,
+                  }));
                   setUploadedPhotos((prev: UploadedPhotos) => ({
                     ...prev,
                     front: true,
+                  }));
+
+                  // Создаем preview URL
+                  const url = URL.createObjectURL(file);
+                  setPassportUrls((prev: PassportUrls) => ({
+                    ...prev,
+                    front: url,
                   }));
                 }
               }}
@@ -355,12 +385,20 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
                   </span>
                 </span>
               )}
-              {/* Пример */}
-              <img
-                src={PasportFront}
-                alt={t("reservation.frontExample")}
-                className="absolute bottom-1 left-1 w-16 h-12 object-cover rounded shadow border border-gray-700 bg-black"
-              />
+              {/* Preview или Пример */}
+              {passportUrls.front ? (
+                <img
+                  src={passportUrls.front}
+                  alt="Preview загруженного фото"
+                  className="absolute bottom-1 left-1 w-16 h-12 object-cover rounded shadow border border-gray-700 bg-black"
+                />
+              ) : (
+                <img
+                  src={PasportFront}
+                  alt={t("reservation.frontExample")}
+                  className="absolute bottom-1 left-1 w-16 h-12 object-cover rounded shadow border border-gray-700 bg-black"
+                />
+              )}
             </FileInput>
             <span className="text-xs text-gray-400 mt-1">
               {t("reservation.frontExample")}
@@ -375,9 +413,21 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
               required
               onChange={(e) => {
                 if (e.target.files && e.target.files[0]) {
+                  const file = e.target.files[0];
+                  setPassportFiles((prev: PassportFiles) => ({
+                    ...prev,
+                    back: file,
+                  }));
                   setUploadedPhotos((prev: UploadedPhotos) => ({
                     ...prev,
                     back: true,
+                  }));
+
+                  // Создаем preview URL
+                  const url = URL.createObjectURL(file);
+                  setPassportUrls((prev: PassportUrls) => ({
+                    ...prev,
+                    back: url,
                   }));
                 }
               }}
@@ -429,12 +479,20 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
                   </span>
                 </span>
               )}
-              {/* Пример */}
-              <img
-                src={PasportBack}
-                alt={t("reservation.backExample")}
-                className="absolute bottom-1 left-1 w-16 h-12 object-cover rounded shadow border border-gray-700 bg-black"
-              />
+              {/* Preview или Пример */}
+              {passportUrls.back ? (
+                <img
+                  src={passportUrls.back}
+                  alt="Preview загруженного фото"
+                  className="absolute bottom-1 left-1 w-16 h-12 object-cover rounded shadow border border-gray-700 bg-black"
+                />
+              ) : (
+                <img
+                  src={PasportBack}
+                  alt={t("reservation.backExample")}
+                  className="absolute bottom-1 left-1 w-16 h-12 object-cover rounded shadow border border-gray-700 bg-black"
+                />
+              )}
             </FileInput>
             <span className="text-xs text-gray-400 mt-1">
               {t("reservation.backExample")}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Button } from "@/components/ui/utils/button";
 import { Input } from "@/components/ui/inputs/input";
 import { Switch } from "@/components/ui/forms/switch";
@@ -47,6 +47,12 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
   const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [showDescription, setShowDescription] = React.useState(false);
+  const thumbnailCarouselRef = useRef<HTMLDivElement>(null);
+  const [touchStart, setTouchStart] = React.useState(0);
+  const [touchEnd, setTouchEnd] = React.useState(0);
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [dragOffset, setDragOffset] = React.useState(0);
+  const [startIndex, setStartIndex] = React.useState(0);
   const images = Array.isArray(car.images) ? car.images : [];
 
   const handlePrev = () =>
@@ -54,13 +60,50 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
   const handleNext = () =>
     setActiveIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
 
-  const lang = i18n.language;
-  const description =
-    lang === "en"
-      ? car.description_en || car.description_ru || car.description_ro || ""
-      : lang === "ro"
-      ? car.description_ro || car.description_ru || car.description_en || ""
-      : car.description_ru || car.description_ro || car.description_en || "";
+  // Обработчики свайпов для карусели миниатюр
+  const handleThumbnailTouchStart = (
+    e: React.TouchEvent | React.MouseEvent
+  ) => {
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    setTouchStart(clientX);
+    setTouchEnd(clientX);
+    setDragOffset(0);
+    setStartIndex(activeIndex);
+    setIsDragging(true);
+  };
+
+  const handleThumbnailTouchMove = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!isDragging) return;
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    setTouchEnd(clientX);
+
+    // Вычисляем смещение для плавного перетаскивания
+    const offset = clientX - touchStart;
+    setDragOffset(offset);
+  };
+
+  const handleThumbnailTouchEnd = () => {
+    if (!isDragging) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe && activeIndex < images.length - 1) {
+      setActiveIndex(activeIndex + 1);
+    }
+    if (isRightSwipe && activeIndex > 0) {
+      setActiveIndex(activeIndex - 1);
+    }
+
+    // Сбрасываем значения
+    setTouchStart(0);
+    setTouchEnd(0);
+    setDragOffset(0);
+    setIsDragging(false);
+  };
+
+  const description = car.description || "";
 
   // Преобразование даты в локальный формат YYYY-MM-DD
   const toLocalDateString = (date: Date | undefined) =>
@@ -120,18 +163,38 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
     : new Date();
 
   return (
-    <div className="flex flex-col items-center gap-1 pb-4">
+    <div className="flex flex-col items-center gap-1 pb-4 overflow-x-hidden">
       {/* Фото (carousel) */}
       <div className="w-full flex flex-col items-center">
         <h2 className="text-2xl font-bold text-center mb-2 text-white">
           {car.name}
         </h2>
-        <div className="relative w-full max-w-md mx-auto h-[500px]">
+        {description && (
+          <p className="text-sm text-gray-300 text-center mb-4 max-w-md px-4">
+            {description}
+          </p>
+        )}
+        <div
+          className={`relative w-full max-w-lg mx-auto h-[250px] sm:h-[300px] md:h-[400px] flex items-center justify-center overflow-hidden ${
+            !car.images[activeIndex] || car.images[activeIndex] === logo
+              ? "bg-gradient-to-br from-muted/50 to-muted/30 rounded-lg"
+              : "bg-black rounded-lg"
+          }`}
+        >
           <img
             src={car.images[activeIndex] || logo}
             alt={car.name}
-            className="w-full h-full object-cover rounded-lg border border-gray-800"
-            style={{ objectPosition: "center center" }}
+            className={`transition-all duration-500 ${
+              !car.images[activeIndex] || car.images[activeIndex] === logo
+                ? "w-auto h-auto max-w-[250px] max-h-[200px] sm:max-w-[300px] sm:max-h-[250px] md:max-w-[400px] md:max-h-[320px] object-contain p-4 sm:p-6 md:p-8 rounded-lg"
+                : "w-full h-full object-cover"
+            }`}
+            style={{
+              objectPosition: "center center",
+              minWidth: "100%",
+              minHeight: "100%",
+            }}
+            loading="eager" // Критическое изображение загружаем сразу
           />
           {/* Стрелки */}
           {car.images && car.images.length > 1 && (
@@ -139,11 +202,11 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
               <button
                 type="button"
                 onClick={handlePrev}
-                className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/80 backdrop-blur-sm text-white rounded-full p-3 hover:bg-[#B90003] hover:text-white transition-all duration-300 hover:scale-110 shadow-lg border border-white/20"
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-black/80 backdrop-blur-sm text-white rounded-full p-2 sm:p-4 hover:bg-[#B90003] hover:text-white transition-all duration-300 hover:scale-110 shadow-lg border border-white/20"
                 aria-label="Prev"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 sm:w-6 sm:h-6"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -157,11 +220,11 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
               <button
                 type="button"
                 onClick={handleNext}
-                className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/80 backdrop-blur-sm text-white rounded-full p-3 hover:bg-[#B90003] hover:text-white transition-all duration-300 hover:scale-110 shadow-lg border border-white/20"
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-black/80 backdrop-blur-sm text-white rounded-full p-2 sm:p-4 hover:bg-[#B90003] hover:text-white transition-all duration-300 hover:scale-110 shadow-lg border border-white/20"
                 aria-label="Next"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 sm:w-6 sm:h-6"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -175,20 +238,145 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
             </>
           )}
         </div>
-        {/* Миниатюры */}
+        {/* Миниатюры - Карусель */}
         {car.images && car.images.length > 1 && (
-          <div className="flex justify-center gap-2 mt-2">
-            {car.images.map((img, idx) => (
-              <img
-                key={idx}
-                src={img}
-                alt={`thumb-${idx}`}
-                className={`w-14 h-14 object-cover rounded cursor-pointer border-2 ${
-                  activeIndex === idx ? "border-[#B90003]" : "border-gray-700"
-                }`}
-                onClick={() => setActiveIndex(idx)}
-              />
-            ))}
+          <div className="mt-4">
+            {/* Контейнер с дополнительным пространством для стрелок */}
+            <div className="relative w-full max-w-[320px] sm:max-w-[400px] mx-auto px-2 sm:px-4 md:px-8">
+              {/* Видимая область карусели */}
+              <div
+                ref={thumbnailCarouselRef}
+                className="relative overflow-hidden w-[240px] sm:w-[280px] mx-auto cursor-grab active:cursor-grabbing"
+                onTouchStart={handleThumbnailTouchStart}
+                onTouchMove={handleThumbnailTouchMove}
+                onTouchEnd={handleThumbnailTouchEnd}
+                onMouseDown={handleThumbnailTouchStart}
+                onMouseMove={handleThumbnailTouchMove}
+                onMouseUp={handleThumbnailTouchEnd}
+                onMouseLeave={handleThumbnailTouchEnd}
+              >
+                <div
+                  className={`flex gap-2 transition-transform duration-300 ease-in-out ${
+                    isDragging ? "transition-none" : ""
+                  }`}
+                  style={{
+                    transform: `translateX(${
+                      -Math.max(
+                        0,
+                        Math.min(activeIndex - 2, car.images.length - 5)
+                      ) *
+                        56 +
+                      (isDragging ? dragOffset * 0.3 : 0)
+                    }px)`,
+                  }}
+                >
+                  {car.images.map((img, idx) => (
+                    <div
+                      key={idx}
+                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden cursor-pointer transition-all duration-200 bg-black flex-shrink-0 ${
+                        activeIndex === idx
+                          ? "ring-2 ring-[#B90003] scale-110"
+                          : "hover:ring-1 hover:ring-gray-500"
+                      } ${isDragging ? "opacity-80" : ""}`}
+                      onClick={() => !isDragging && setActiveIndex(idx)}
+                    >
+                      <img
+                        src={img}
+                        alt={`thumb-${idx}`}
+                        className="w-full h-full object-contain"
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Индикаторы прокрутки - вне внутреннего контейнера */}
+              {car.images.length > 1 && (
+                <>
+                  {/* Левая стрелка */}
+                  {activeIndex > 0 && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActiveIndex(Math.max(0, activeIndex - 1))
+                      }
+                      className="absolute left-0 top-1/2 -translate-y-1/2 bg-[#B90003] text-white rounded-full p-1 sm:p-2 hover:bg-[#A00002] transition-all duration-300 shadow-lg border-2 border-white hover:scale-110 z-10 backdrop-blur-sm"
+                      aria-label="Previous thumbnail"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  )}
+
+                  {/* Правая стрелка */}
+                  {activeIndex < car.images.length - 1 && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActiveIndex(
+                          Math.min(car.images.length - 1, activeIndex + 1)
+                        )
+                      }
+                      className="absolute right-0 top-1/2 -translate-y-1/2 bg-[#B90003] text-white rounded-full p-1 sm:p-2 hover:bg-[#A00002] transition-all duration-300 shadow-lg border-2 border-white hover:scale-110 z-10 backdrop-blur-sm"
+                      aria-label="Next thumbnail"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Индикатор позиции */}
+            {car.images.length > 5 && (
+              <div className="flex justify-center mt-2 gap-1">
+                {Array.from({ length: Math.min(5, car.images.length) }).map(
+                  (_, idx) => {
+                    // Вычисляем активную позицию в видимой области карусели
+                    let activePosition = 2; // По умолчанию центр (позиция 2)
+
+                    if (activeIndex < 2) {
+                      // Если активна одна из первых двух фотографий
+                      activePosition = activeIndex;
+                    } else if (activeIndex >= car.images.length - 2) {
+                      // Если активна одна из последних двух фотографий
+                      activePosition =
+                        4 - (car.images.length - 1 - activeIndex);
+                    }
+
+                    const isActive = idx === activePosition;
+                    return (
+                      <div
+                        key={idx}
+                        className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                          isActive ? "bg-[#B90003]" : "bg-gray-500"
+                        }`}
+                      />
+                    );
+                  }
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -198,7 +386,7 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
         items={[
           {
             label: t("reservation.pricePerDay"),
-            value: car.pricePerDay,
+            value: car.price,
           },
           {
             label: t("reservation.price2to10"),
@@ -227,12 +415,12 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
       <CarouselWithCenter
         items={[
           {
-            label: t("reservation.drive"),
-            value: translateCarSpec("drive", car.drive, t),
+            label: t("reservation.transmission"),
+            value: translateCarSpec("transmission", car.transmission, t),
           },
           {
             label: t("reservation.fuel"),
-            value: translateCarSpec("fuel", car.fuel, t),
+            value: translateCarSpec("fuel", car.fuelType || "", t),
           },
           {
             label: t("reservation.rating"),
@@ -240,19 +428,11 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
           },
           {
             label: t("reservation.passengers"),
-            value: car.passengers,
-          },
-          {
-            label: t("reservation.transmission"),
-            value: translateCarSpec("transmission", car.transmission, t),
+            value: car.seats,
           },
           {
             label: t("reservation.year"),
             value: car.year,
-          },
-          {
-            label: t("reservation.engine"),
-            value: car.engine,
           },
         ]}
         title={t("reservation.featuresTitle")}
@@ -404,7 +584,7 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
       </div>
 
       {/* Доп. услуги */}
-      <div className="w-full max-w-md sm:max-w-full mx-auto mb-2">
+      <div className="w-full max-w-sm sm:max-w-md mx-auto mb-2 px-2 sm:px-0">
         <h3 className="text-xl font-bold text-center mb-2">
           {t("reservation.extraServices")}
         </h3>
@@ -431,7 +611,7 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
       </div>
 
       {/* Как забрать машину */}
-      <div className="w-full max-w-md sm:max-w-full mx-auto mb-2">
+      <div className="w-full max-w-sm sm:max-w-md mx-auto mb-2 px-2 sm:px-0">
         <h3 className="text-xl font-bold text-center mb-2">
           {t("reservation.pickupType")}
         </h3>
@@ -509,14 +689,14 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
       </div>
       {/* Шаг 1: компактные отступы */}
       <Button
-        className="w-full bg-[#B90003] hover:bg-[#A00002] text-white text-lg font-bold py-3 rounded-xl"
+        className="w-full max-w-sm sm:max-w-md mx-auto bg-[#B90003] hover:bg-[#A00002] text-white text-base sm:text-lg font-bold py-2 sm:py-3 rounded-xl"
         onClick={goNext}
         disabled={!formData.pickupDate || !formData.returnDate}
       >
         {t("reservation.next")}
       </Button>
       <Button
-        className="w-full mt-2 bg-black text-[#B90003] border-[#B90003] border-2 text-lg font-bold py-3 rounded-xl"
+        className="w-full max-w-sm sm:max-w-md mx-auto mt-2 bg-black text-[#B90003] border-[#B90003] border-2 text-base sm:text-lg font-bold py-2 sm:py-3 rounded-xl"
         variant="outline"
         onClick={goBack}
       >
