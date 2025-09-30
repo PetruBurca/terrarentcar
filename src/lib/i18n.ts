@@ -18,7 +18,7 @@ i18n.use(initReactI18next).init({
 });
 
 export function loadLocale(lang: string) {
-  return fetch(`/locales/${lang}/${lang}.json`)
+  return fetch(`./locales/${lang}/${lang}.json`)
     .then((res) => {
       if (!res.ok) {
         throw new Error(`Failed to load locale: ${res.status}`);
@@ -33,7 +33,7 @@ export function loadLocale(lang: string) {
     .catch((error) => {
       console.error(`Error loading locale ${lang}:`, error);
       // Загружаем fallback язык
-      return fetch(`/locales/ro/ro.json`)
+      return fetch(`./locales/ro/ro.json`)
         .then((res) => res.json())
         .then((data) => {
           i18n.addResourceBundle("ro", "translation", data, true, true);
