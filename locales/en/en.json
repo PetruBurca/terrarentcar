@@ -236,7 +236,6 @@
     "costTitle": "Cost",
     "duration": "Rental duration",
     "days": "day(s)",
-    "wash": "Car wash",
     "unlimitedMileageCost": "Double mileage",
     "delivery": "Delivery",
     "rentCost": "Car rental cost",
@@ -314,10 +313,6 @@
     "insurance": {
       "question": "Are the cars insured?",
       "answer": "Yes, the car is insured with mandatory RCA insurance. At the renter's request, full CASCO insurance can be arranged for a fee (from 25€ per day)."
-    },
-    "carWash": {
-      "question": "Car wash and fueling",
-      "answer": "When you choose a car, you pay for its wash. If you return the car clean, the wash fee is refunded. The car must be returned with the same amount of fuel as it had at the time of rental."
     },
     "delivery": {
       "question": "Is delivery available?",

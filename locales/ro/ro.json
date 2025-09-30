@@ -236,7 +236,6 @@
     "costTitle": "Costul",
     "duration": "Durata închirierii",
     "days": "zi(le)",
-    "wash": "Spălare",
     "unlimitedMileageCost": "Kilometraj dublu",
     "delivery": "Livrare",
     "rentCost": "Costul închirierii auto",
@@ -314,10 +313,6 @@
     "insurance": {
       "question": "Mașinile sunt asigurate?",
       "answer": "Da, mașina este asigurată cu asigurarea obligatorie RCA. La cererea închirietorului se poate aranja asigurarea completă CASCO contra cost (de la 25€ pe zi)."
-    },
-    "carWash": {
-      "question": "Spălarea și alimentarea mașinii",
-      "answer": "Când alegeți o mașină, plătiți pentru spălarea sa. Dacă returnați mașina curată, taxa de spălare se rambursează. Mașina trebuie returnată cu aceeași cantitate de combustibil pe care o avea la momentul închirierii."
     },
     "delivery": {
       "question": "Este posibil să aranjez livrarea?",

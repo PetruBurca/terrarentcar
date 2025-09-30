@@ -325,9 +325,7 @@ const CarReservationModal = ({
       ? 20
       : 0; // Стоимость доставки
   const additionalServices = unlimitedMileageCost + deliveryCost; // Все дополнительные услуги
-  const washingCost = 20; // Стоимость мойки (фиксированная)
-  const finalRentalCost =
-    rentalCostWithDiscount + additionalServices + washingCost; // Итоговая стоимость
+  const finalRentalCost = rentalCostWithDiscount + additionalServices; // Итоговая стоимость
 
   // Валидация для каждого шага
   const validateStep = (stepIndex: number): boolean => {
