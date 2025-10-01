@@ -59,7 +59,6 @@ export async function uploadFileToFirebase(
     // Получаем прямой URL из Storage
     const downloadURL = await getDownloadURL(snapshot.ref);
 
-    console.log("✅ Файл загружен:", fileName, "URL:", downloadURL);
     return downloadURL;
   } catch (error) {
     console.error("Ошибка загрузки файла в Firebase:", error);
@@ -74,16 +73,16 @@ export async function getFileURL(filePath: string): Promise<string> {
 
     // Отладочная информация
     const secureKey = import.meta.env.VITE_FIREBASE_SECRET_TOKEN;
-    console.log("🔍 Отладка SECURE_KEY:", {
-      secureKey,
-      secureKeyLength: secureKey?.length,
-      secureKeyType: typeof secureKey,
-      isUndefined: secureKey === undefined,
-      isEmpty: secureKey === "",
-      envVars: Object.keys(import.meta.env).filter((key) =>
-        key.startsWith("VITE_")
-      ),
-    });
+    // console.log({
+    //   secureKey,
+    //   secureKeyLength: secureKey?.length,
+    //   secureKeyType: typeof secureKey,
+    //   isUndefined: secureKey === undefined,
+    //   isEmpty: secureKey === "",
+    //   envVars: Object.keys(import.meta.env).filter((key) =>
+    //     key.startsWith("VITE_")
+    //   ),
+    // });
 
     if (!secureKey) {
       throw new Error(
@@ -96,8 +95,6 @@ export async function getFileURL(filePath: string): Promise<string> {
 
     // Создаем безопасный payload с зашифрованным ключом
     const securePayload = createSecurePayload(filePath, secureKey);
-
-    console.log("📤 Отправляемый payload:", securePayload);
 
     const result = await getPassport(securePayload);
 

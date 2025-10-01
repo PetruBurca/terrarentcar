@@ -74,6 +74,25 @@ const formatPhoneNumber = (input: string): string => {
   }
 };
 
+// Функция для обработки автозаполнения с iPhone
+const handlePhoneAutofill = (input: string, countryCode: string): string => {
+  if (!input) return "";
+
+  // Убираем все не-цифры
+  const cleanDigits = input.replace(/\D/g, "");
+
+  // Если номер начинается с кода страны, убираем его
+  const countryDigits = countryCode.replace(/\D/g, "");
+  let phoneDigits = cleanDigits;
+
+  if (cleanDigits.startsWith(countryDigits)) {
+    phoneDigits = cleanDigits.slice(countryDigits.length);
+  }
+
+  // Ограничиваем до 9 цифр (0 + код оператора + номер)
+  return phoneDigits.slice(0, 9);
+};
+
 export const ReservationStep3: React.FC<ReservationStep3Props> = ({
   car,
   formData,
@@ -507,21 +526,21 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
           {t("reservation.phone")}
         </Label>
         <div className="flex flex-col gap-2 mt-1">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+          <div className="flex items-center gap-2">
             <Select
               value={selectedCountryCode}
               onValueChange={setSelectedCountryCode}
             >
-              <SelectTrigger className="w-full sm:w-40 bg-zinc-800 text-white border-none hover:bg-zinc-700">
+              <SelectTrigger className="w-24 bg-zinc-800 text-white border-none hover:bg-zinc-700">
                 <SelectValue>
-                  <span className="flex items-center gap-2">
-                    <span>
+                  <span className="flex items-center gap-1">
+                    <span className="text-sm">
                       {
                         countries.find((c) => c.code === selectedCountryCode)
                           ?.flag
                       }
                     </span>
-                    <span>{selectedCountryCode}</span>
+                    <span className="text-xs">{selectedCountryCode}</span>
                   </span>
                 </SelectValue>
               </SelectTrigger>
@@ -548,7 +567,7 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
               name="phone"
               type="tel"
               placeholder="0(XX)XXXXXX"
-              className={`bg-zinc-800 text-white border-none flex-1 w-full ${
+              className={`bg-zinc-800 text-white border-none flex-1 ${
                 formData.phone.replace(/\D/g, "").length === 9
                   ? "border-green-500 border-2"
                   : formData.phone.replace(/\D/g, "").length > 0
@@ -562,15 +581,28 @@ export const ReservationStep3: React.FC<ReservationStep3Props> = ({
                 )
               )}
               onChange={(e) => {
-                // Получаем только цифры из ввода (убираем все не-цифры)
-                const digitsOnly = e.target.value.replace(/\D/g, "");
-
-                // Ограничиваем до 9 цифр (0 + код оператора + номер)
-                const limitedDigits = digitsOnly.slice(0, 9);
+                // Используем новую функцию для обработки автозаполнения
+                const processedDigits = handlePhoneAutofill(
+                  e.target.value,
+                  selectedCountryCode
+                );
 
                 setFormData((prev: FormData) => ({
                   ...prev,
-                  phone: selectedCountryCode + limitedDigits,
+                  phone: selectedCountryCode + processedDigits,
+                }));
+              }}
+              onPaste={(e) => {
+                e.preventDefault();
+                const pastedText = e.clipboardData.getData("text");
+                const processedDigits = handlePhoneAutofill(
+                  pastedText,
+                  selectedCountryCode
+                );
+
+                setFormData((prev: FormData) => ({
+                  ...prev,
+                  phone: selectedCountryCode + processedDigits,
                 }));
               }}
               maxLength={13}

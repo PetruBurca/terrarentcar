@@ -79,16 +79,13 @@ const CarReservationModal = ({
     front: string;
     back: string;
   }> => {
-    console.log("🔄 Начинаем загрузку фото паспорта:", passportFiles);
 
     const uploadPromises = [];
 
     if (passportFiles.front) {
-      console.log("📤 Загружаем лицевую сторону:", passportFiles.front.name);
       uploadPromises.push(
         uploadFileToFirebase(passportFiles.front, "passport-front")
           .then((url) => {
-            console.log("✅ Лицевая сторона загружена:", url);
             return { type: "front", url };
           })
           .catch((error) => {
@@ -97,16 +94,13 @@ const CarReservationModal = ({
           })
       );
     } else {
-      console.log("⚠️ Лицевая сторона не выбрана");
       uploadPromises.push(Promise.resolve({ type: "front", url: null }));
     }
 
     if (passportFiles.back) {
-      console.log("📤 Загружаем обратную сторону:", passportFiles.back.name);
       uploadPromises.push(
         uploadFileToFirebase(passportFiles.back, "passport-back")
           .then((url) => {
-            console.log("✅ Обратная сторона загружена:", url);
             return { type: "back", url };
           })
           .catch((error) => {
@@ -115,12 +109,10 @@ const CarReservationModal = ({
           })
       );
     } else {
-      console.log("⚠️ Обратная сторона не выбрана");
       uploadPromises.push(Promise.resolve({ type: "back", url: null }));
     }
 
     const results = await Promise.all(uploadPromises);
-    console.log("📋 Результаты загрузки:", results);
 
     const frontUrl =
       results.find((r) => r.type === "front")?.url ||
@@ -129,7 +121,6 @@ const CarReservationModal = ({
       results.find((r) => r.type === "back")?.url ||
       "https://example.com/passport-back.jpg";
 
-    console.log("🔗 Финальные URL:", { front: frontUrl, back: backUrl });
     return { front: frontUrl, back: backUrl };
   };
 

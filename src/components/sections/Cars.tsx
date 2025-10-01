@@ -164,9 +164,9 @@ const Cars = ({ searchDates }) => {
     const hasReservationData = false;
 
     if (hasReservationData) {
-      console.log(
-        "👋 Привет! Ты уже выбрал машину? Данные заявки восстановлены."
-      );
+      // console.log(
+      //   "👋 Привет! Ты уже выбрал машину? Данные заявки восстановлены."
+      // );
     }
 
     // Принудительно очищаем красные стили при загрузке страницы
@@ -222,9 +222,6 @@ const Cars = ({ searchDates }) => {
   });
 
   // DEBUG: Логируем данные для отладки
-  // console.log("=== DEBUG: Данные машин ===");
-  // console.log("Всего машин загружено:", cars.length);
-  // console.log("Машины:", cars);
 
   // Получаем заявки
   const { data: orders = [], isLoading: isLoadingOrders } = useQuery({
@@ -247,16 +244,12 @@ const Cars = ({ searchDates }) => {
   let availableCars = cars.filter((car) => {
     // Если статус не "available" - скрываем его всегда
     if (car.status !== "available") {
-      // console.log(`❌ ${car.name} - статус: ${car.status}, скрываем`);
       return false;
     }
     return true;
   });
 
   // DEBUG: Логируем фильтрацию
-  // console.log("=== DEBUG: Фильтрация ===");
-  // console.log("Доступных машин после фильтрации:", availableCars.length);
-  // console.log(
   //   "Доступные машины:",
   //   availableCars.map((car) => ({
   //     name: car.name,
@@ -267,14 +260,7 @@ const Cars = ({ searchDates }) => {
 
   // Фильтрация по доступности (только если выбраны даты)
   if (searchDates?.from && searchDates?.to) {
-    console.log("=== DEBUG: Фильтрация автомобилей по датам ===");
-    console.log("Выбранные даты:", searchDates);
-
     availableCars = availableCars.filter((car) => {
-      // console.log(`\nПроверяем машину: ${car.name}`);
-      // console.log(`Статус: ${car.status}`);
-      // console.log(`Доступность: ${car.available}`);
-
       // Фильтруем заявки для этого автомобиля
       const carOrders = orders.filter((order) => {
         const hasCarId = order.carId === car.id;
@@ -307,20 +293,16 @@ const Cars = ({ searchDates }) => {
 
         hasRentOverlap = isDateOverlap(from, to, rentStart, rentEnd);
 
-        // console.log(
         //   `  Rent Dates: ${rentStart.toISOString().split("T")[0]} - ${
         //     rentEnd.toISOString().split("T")[0]
         //   }`
         // );
-        // console.log(
         //   `  User Dates: ${from.toISOString().split("T")[0]} - ${
         //     to.toISOString().split("T")[0]
         //   }`
         // );
-        // console.log(`  Overlap Result: ${hasRentOverlap}`);
 
         // Отладочная информация
-        // console.log(`Car ${car.name}:`, {
         // rentFrom: car.rentFrom,
         // rentTo: car.rentTo,
         //   userFrom: from,
@@ -329,21 +311,17 @@ const Cars = ({ searchDates }) => {
         //   hasOrderOverlap,
         // });
       } else {
-        // console.log(`  No rent dates for ${car.name}`);
       }
 
       // Машина доступна если нет пересечений ни с заказами, ни с датами аренды
       const isAvailable = !hasOrderOverlap && !hasRentOverlap;
-      // console.log(
       //   `DEBUG: ${car.name} - hasOrderOverlap: ${hasOrderOverlap}, hasRentOverlap: ${hasRentOverlap}, isAvailable: ${isAvailable}`
       // );
-      // console.log(
       //   `✅ ${car.name} - ${isAvailable ? "ДОСТУПНА" : "НЕДОСТУПНА"}`
       // );
       return isAvailable;
     });
 
-    // console.log(
     //   `\nРезультат фильтрации: ${availableCars.length} из ${cars.length} машин`
     // );
   }
@@ -432,10 +410,6 @@ const Cars = ({ searchDates }) => {
         );
 
   // DEBUG: Логируем финальную фильтрацию
-  // console.log("=== DEBUG: Финальная фильтрация ===");
-  // console.log("Выбранная категория:", selectedCategory);
-  // console.log("Машин после фильтрации по категории:", filteredCars.length);
-  // console.log(
   //   "Отфильтрованные машины:",
   //   filteredCars.map((car) => car.name)
   //       );
@@ -463,12 +437,6 @@ const Cars = ({ searchDates }) => {
   );
 
   // DEBUG: Логируем пагинацию
-  // console.log("=== DEBUG: Пагинация ===");
-  // console.log("Текущая страница:", currentPage);
-  // console.log("Машин на странице:", currentCarsPerPage);
-  // console.log("Всего страниц:", totalPages);
-  // console.log("Машин для отображения:", paginatedCars.length);
-  // console.log(
   //   "Машины на текущей странице:",
   //   paginatedCars.map((car) => car.name)
   // );

@@ -142,7 +142,6 @@ const Contact = () => {
       return;
     }
 
-    console.log("📧 Начинаем отправку сообщения...");
     setIsSubmitting(true);
 
     try {
@@ -154,7 +153,6 @@ const Contact = () => {
         subject: formData.subject,
       });
 
-      console.log("✅ Сообщение успешно отправлено:", result);
 
       // Минимальная задержка для лучшего UX
       await new Promise((resolve) => setTimeout(resolve, 500));

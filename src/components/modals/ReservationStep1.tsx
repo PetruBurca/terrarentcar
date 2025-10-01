@@ -86,13 +86,13 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
     if (!isDragging) return;
 
     const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
+    const threshold = 30; // Уменьшили порог для более чувствительного свайпа
+    const isLeftSwipe = distance > threshold;
+    const isRightSwipe = distance < -threshold;
 
     if (isLeftSwipe && activeIndex < images.length - 1) {
       setActiveIndex(activeIndex + 1);
-    }
-    if (isRightSwipe && activeIndex > 0) {
+    } else if (isRightSwipe && activeIndex > 0) {
       setActiveIndex(activeIndex - 1);
     }
 
@@ -187,7 +187,7 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
             className={`transition-all duration-500 ${
               !car.images[activeIndex] || car.images[activeIndex] === logo
                 ? "w-auto h-auto max-w-[250px] max-h-[200px] sm:max-w-[300px] sm:max-h-[250px] md:max-w-[400px] md:max-h-[320px] object-contain p-4 sm:p-6 md:p-8 rounded-lg"
-                : "w-full h-full object-cover"
+                : "w-full h-full object-contain"
             }`}
             style={{
               objectPosition: "center center",
@@ -240,13 +240,13 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
         </div>
         {/* Миниатюры - Карусель */}
         {car.images && car.images.length > 1 && (
-          <div className="mt-4">
+          <div className="mt-4 py-4">
             {/* Контейнер с дополнительным пространством для стрелок */}
-            <div className="relative w-full max-w-[320px] sm:max-w-[400px] mx-auto px-2 sm:px-4 md:px-8">
+            <div className="relative w-full max-w-[360px] sm:max-w-[380px] mx-auto px-2 sm:px-4 md:px-8">
               {/* Видимая область карусели */}
               <div
                 ref={thumbnailCarouselRef}
-                className="relative overflow-hidden w-[240px] sm:w-[280px] mx-auto cursor-grab active:cursor-grabbing"
+                className="relative overflow-hidden w-[260px] sm:w-[280px] mx-auto cursor-grab active:cursor-grabbing select-none"
                 onTouchStart={handleThumbnailTouchStart}
                 onTouchMove={handleThumbnailTouchMove}
                 onTouchEnd={handleThumbnailTouchEnd}
@@ -263,19 +263,19 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
                     transform: `translateX(${
                       -Math.max(
                         0,
-                        Math.min(activeIndex - 2, car.images.length - 5)
+                        Math.min(activeIndex - 1, car.images.length - 1)
                       ) *
                         56 +
-                      (isDragging ? dragOffset * 0.3 : 0)
+                      (isDragging ? dragOffset * 0.2 : 0)
                     }px)`,
                   }}
                 >
                   {car.images.map((img, idx) => (
                     <div
                       key={idx}
-                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden cursor-pointer transition-all duration-200 bg-black flex-shrink-0 ${
+                      className={`w-16 h-16 sm:w-18 sm:h-18 rounded-lg overflow-hidden cursor-pointer transition-all duration-200 bg-black flex-shrink-0 p-0 m-0.5 ${
                         activeIndex === idx
-                          ? "ring-2 ring-[#B90003] scale-110"
+                          ? "ring-2 ring-[#B90003]"
                           : "hover:ring-1 hover:ring-gray-500"
                       } ${isDragging ? "opacity-80" : ""}`}
                       onClick={() => !isDragging && setActiveIndex(idx)}
@@ -283,7 +283,7 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
                       <img
                         src={img}
                         alt={`thumb-${idx}`}
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-cover rounded-md"
                         loading="lazy"
                       />
                     </div>
@@ -301,11 +301,11 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
                       onClick={() =>
                         setActiveIndex(Math.max(0, activeIndex - 1))
                       }
-                      className="absolute left-0 top-1/2 -translate-y-1/2 bg-[#B90003] text-white rounded-full p-1 sm:p-2 hover:bg-[#A00002] transition-all duration-300 shadow-lg border-2 border-white hover:scale-110 z-10 backdrop-blur-sm"
+                      className="absolute -left-5 sm:-left-7 top-1/2 -translate-y-1/2 bg-[#B90003] text-white rounded-full p-1.5 sm:p-2.5 hover:bg-[#A00002] transition-all duration-300 shadow-lg border border-white hover:scale-105 z-10 backdrop-blur-sm"
                       aria-label="Previous thumbnail"
                     >
                       <svg
-                        className="w-4 h-4"
+                        className="w-3 h-3 sm:w-4 sm:h-4"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -327,11 +327,11 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
                           Math.min(car.images.length - 1, activeIndex + 1)
                         )
                       }
-                      className="absolute right-0 top-1/2 -translate-y-1/2 bg-[#B90003] text-white rounded-full p-1 sm:p-2 hover:bg-[#A00002] transition-all duration-300 shadow-lg border-2 border-white hover:scale-110 z-10 backdrop-blur-sm"
+                      className="absolute -right-5 sm:-right-7 top-1/2 -translate-y-1/2 bg-[#B90003] text-white rounded-full p-1.5 sm:p-2.5 hover:bg-[#A00002] transition-all duration-300 shadow-lg border border-white hover:scale-105 z-10 backdrop-blur-sm"
                       aria-label="Next thumbnail"
                     >
                       <svg
-                        className="w-4 h-4"
+                        className="w-3 h-3 sm:w-4 sm:h-4"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -382,70 +382,74 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
       </div>
 
       {/* Стоимость (carousel) */}
-      <CarouselWithCenter
-        items={[
-          {
-            label: t("reservation.pricePerDay"),
-            value: car.price,
-          },
-          {
-            label: t("reservation.price2to10"),
-            value: car.price2to10,
-          },
-          {
-            label: t("reservation.price11to20"),
-            value: car.price11to20,
-          },
-          {
-            label: t("reservation.price21to29"),
-            value: car.price21to29,
-          },
-          {
-            label: t("reservation.price30plus"),
-            value: car.price30plus,
-          },
-        ]}
-        title={t("reservation.priceTitle")}
-        colorCenter="bg-[#B90003] text-white"
-        colorSide="bg-gray-800 text-white opacity-60"
-        valueSuffix="€"
-      />
+      <div className="w-full max-w-sm sm:max-w-md mx-auto">
+        <CarouselWithCenter
+          items={[
+            {
+              label: t("reservation.pricePerDay"),
+              value: car.price,
+            },
+            {
+              label: t("reservation.price2to10"),
+              value: car.price2to10,
+            },
+            {
+              label: t("reservation.price11to20"),
+              value: car.price11to20,
+            },
+            {
+              label: t("reservation.price21to29"),
+              value: car.price21to29,
+            },
+            {
+              label: t("reservation.price30plus"),
+              value: car.price30plus,
+            },
+          ]}
+          title={t("reservation.priceTitle")}
+          colorCenter="bg-[#B90003] text-white"
+          colorSide="bg-gray-800 text-white opacity-60"
+          valueSuffix="€"
+        />
+      </div>
 
       {/* Характеристики (carousel) */}
-      <CarouselWithCenter
-        items={[
-          {
-            label: t("reservation.transmission"),
-            value: translateCarSpec("transmission", car.transmission, t),
-          },
-          {
-            label: t("reservation.fuel"),
-            value: translateCarSpec("fuel", car.fuelType || "", t),
-          },
-          {
-            label: t("reservation.rating"),
-            value: car.rating,
-          },
-          {
-            label: t("reservation.passengers"),
-            value: car.seats,
-          },
-          {
-            label: t("reservation.year"),
-            value: car.year,
-          },
-        ]}
-        title={t("reservation.featuresTitle")}
-        colorCenter="bg-[#B90003] text-white"
-        colorSide="bg-gray-800 text-white opacity-60"
-      />
+      <div className="w-full max-w-sm sm:max-w-md mx-auto">
+        <CarouselWithCenter
+          items={[
+            {
+              label: t("reservation.transmission"),
+              value: translateCarSpec("transmission", car.transmission, t),
+            },
+            {
+              label: t("reservation.fuel"),
+              value: translateCarSpec("fuel", car.fuelType || "", t),
+            },
+            {
+              label: t("reservation.rating"),
+              value: car.rating,
+            },
+            {
+              label: t("reservation.passengers"),
+              value: car.seats,
+            },
+            {
+              label: t("reservation.year"),
+              value: car.year,
+            },
+          ]}
+          title={t("reservation.featuresTitle")}
+          colorCenter="bg-[#B90003] text-white"
+          colorSide="bg-gray-800 text-white opacity-60"
+        />
+      </div>
 
       {/* Календарь и время */}
-      <div className="w-full max-w-md mx-auto">
-        <h3 className="text-xl font-bold text-center mb-2">
+      <div className="w-full max-w-xl mx-auto">
+        <h3 className="text-xl font-bold text-center mb-6">
           {t("reservation.calendarTitle")}
         </h3>
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-4">
           <ShadcnCalendar
             key={`${pickupDate}-${returnDate}`}
             mode="range"
@@ -548,7 +552,7 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
             }}
             disabled={disabledDays}
             fromDate={new Date()}
-            className="rounded-xl bg-zinc-900/80 border border-zinc-700 shadow-lg p-2 text-white"
+            className="rounded-xl bg-zinc-900/80 border border-zinc-700 shadow-lg p-4 text-white scale-110"
             classNames={{
               day_selected: "bg-[#B90003] text-white hover:bg-[#A00002]",
               day_range_middle: "bg-[#B90003]/30 text-white",

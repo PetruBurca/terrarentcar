@@ -90,7 +90,6 @@ const CarCard = ({
 
   // Лог для проверки загрузки компонента
   // useEffect(() => {
-  //   console.log(`CarCard ${name}:`, {
   //     hasImages: images && images.length > 0,
   //     imageUrl,
   //     isPlaceholder: imageUrl === PLACEHOLDER_IMG,
@@ -114,7 +113,6 @@ const CarCard = ({
   };
 
   const handleImageError = () => {
-    console.log(`Ошибка загрузки изображения для ${name}:`, imageUrl);
     setImageError(true);
     setImageLoaded(true);
   };

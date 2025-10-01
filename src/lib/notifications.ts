@@ -21,7 +21,6 @@ export async function sendNewRequestNotification(requestData: any) {
       adminEmails,
     });
 
-    console.log("Уведомление о новой заявке отправлено:", result.data);
     return result.data;
   } catch (error) {
     console.error("Ошибка отправки уведомления:", error);
@@ -44,7 +43,6 @@ export async function sendRequestResponse(
       adminName,
     });
 
-    console.log("Ответ клиенту отправлен:", result.data);
     return result.data;
   } catch (error) {
     console.error("Ошибка отправки ответа клиенту:", error);

@@ -116,22 +116,22 @@ const categoryMap: Record<string, string> = {
 
 // Функция для перевода коробки передач
 export function translateTransmission(value: string, t: TFunction): string {
-  console.log(`=== DEBUG: translateTransmission ===`);
-  console.log(`Входящее значение: "${value}"`);
-  console.log(
-    `Доступные ключи в transmissionMap:`,
-    Object.keys(transmissionMap)
-  );
+  // console.log(`=== DEBUG: translateTransmission ===`);
+  // console.log(`Входящее значение: "${value}"`);
+  // console.log(
+  //   `Доступные ключи в transmissionMap:`,
+  //   Object.keys(transmissionMap)
+  // );
 
   const key = transmissionMap[value];
-  console.log(`Найденный ключ: "${key}"`);
+  // console.log(`Найденный ключ: "${key}"`);
 
   if (key) {
     const translated = t(`cars.transmission.${key}`);
-    console.log(`Переведенное значение: "${translated}"`);
+    // console.log(`Переведенное значение: "${translated}"`);
     return translated;
   } else {
-    console.log(`Ключ не найден, возвращаем исходное значение: "${value}"`);
+    // console.log(`Ключ не найден, возвращаем исходное значение: "${value}"`);
     return value;
   }
 }
