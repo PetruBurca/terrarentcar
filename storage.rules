@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Фото машин - публичное чтение, запись только для авторизованных
+    match /car-images/{carId}/{imageId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // ПАСПОРТА - Полный доступ всем для загрузки, чтение всем для получения URL
+    match /passport-front/{allFiles=**} {
+      allow read, write: if true;  // ✅ Клиенты могут загружать и получать URL
+    }
+    
+    match /passport-back/{allFiles=**} {
+      allow read, write: if true;  // ✅ Клиенты могут загружать и получать URL
+    }
+  }
+}
+

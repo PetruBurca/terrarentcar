@@ -21,7 +21,7 @@
     ]
   },
   "functions": {
-    "source": "functions",
+    "source": "../scripts/functions",
     "runtime": "nodejs18"
   },
   "firestore": {

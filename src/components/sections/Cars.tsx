@@ -163,12 +163,6 @@ const Cars = ({ searchDates }) => {
   useEffect(() => {
     const hasReservationData = false;
 
-    if (hasReservationData) {
-      // console.log(
-      //   "👋 Привет! Ты уже выбрал машину? Данные заявки восстановлены."
-      // );
-    }
-
     // Принудительно очищаем красные стили при загрузке страницы
     setTimeout(() => {
       const carCards = document.querySelectorAll("[data-car-id]");

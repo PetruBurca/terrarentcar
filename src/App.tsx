@@ -53,14 +53,6 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
         );
       const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
 
-      // console.log("📱 Device info:", {
-      //   isMobile,
-      //   isChrome,
-      //   isSafari,
-      //   userAgent: navigator.userAgent,
-      //   errorMessage: event.error?.message,
-      // });
-
       if (isMobile && event.error && event.error.message) {
         const errorMessage = event.error.message.toLowerCase();
 
@@ -97,19 +89,16 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
         );
 
         if (shouldIgnore) {
-          // console.log("📱 Мобильная ошибка, игнорируем:", errorMessage);
           return;
         }
 
         // Специальная обработка для Chrome на мобильных
         if (isChrome && isMobile) {
-          // console.log("📱 Chrome мобильная ошибка, игнорируем:", errorMessage);
           return;
         }
 
         // Специальная обработка для Safari на мобильных
         if (isSafari && isMobile) {
-          // console.log("📱 Safari мобильная ошибка, игнорируем:", errorMessage);
           return;
         }
       }
@@ -168,34 +157,21 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
         );
 
         if (shouldIgnore) {
-          // console.log("📱 Мобильная ошибка промиса, игнорируем:", errorMessage);
           return;
         }
 
         // Специальная обработка для Chrome на мобильных
         if (isChrome && isMobile) {
-          // console.log(
-          //   "📱 Chrome мобильная ошибка промиса, игнорируем:",
-          //   errorMessage
-          // );
           return;
         }
 
         // Специальная обработка для Safari на мобильных
         if (isSafari && isMobile) {
-          // console.log(
-          //   "📱 Safari мобильная ошибка промиса, игнорируем:",
-          //   errorMessage
-          // );
           return;
         }
 
         // Специальная обработка для Chrome на iOS
         if (isChrome && isIOS) {
-          // console.log(
-          //   "📱 Chrome iOS ошибка промиса, игнорируем:",
-          //   errorMessage
-          // );
           return;
         }
       }
@@ -328,28 +304,23 @@ function App() {
       );
 
     if (isChrome && isMobile) {
-      // console.log("🧹 Chrome mobile detected - clearing cache");
-
       // Очищаем localStorage
       try {
         localStorage.clear();
       } catch (e) {
-        // console.log("localStorage clear failed:", e);
+        // Игнорируем ошибки очистки
       }
 
       // Очищаем sessionStorage
       try {
         sessionStorage.clear();
       } catch (e) {
-        // console.log("sessionStorage clear failed:", e);
+        // Игнорируем ошибки очистки
       }
     }
   }, []);
 
-  // Главное сообщение для разработчиков
-  // console.log("🎯 ВЫБРАЛ МАШИНУ?");
-
-  // Забавное сообщение для разработчиков
+  // Забавное сообщение для разработчиков (Easter Egg)
   console.log(
     `
 🚗 %cTERRA RENT CAR 🚗
@@ -373,11 +344,9 @@ function App() {
       `
 🎮 %cEaster Egg найден! 🎮
 %c
-🚗 VROOM VROOM! 🚗
-🏎️ Ты настоящий гонщик! 🏎️
 🏁 Поздравляем с находкой! 🏁
 
-%c💎 Секретный код: TERRA-RENT-ROCKS
+%c💎 Спасибо что выбираете наш сервис!
 %c
       `,
       "color: #ff00ff; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);",

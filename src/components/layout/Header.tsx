@@ -216,22 +216,10 @@ const Header = () => {
               className="flex items-center"
               onClick={(e) => {
                 e.preventDefault();
-                // console.log(
-                //   `
-                // 🎉 %cО ты нашел! 🎉
-                // %c
-                // 🚗 Тогда удачи в выборе машины! 🚗
-                // 🏎️ Надеемся, что ты найдешь свою идеальную! 🏎️
-                // 💫 Удачи в путешествиях! 💫
-                //
-                // %c🎯 Продолжай исследовать сайт!
-                // %c
-                //   `,
-                //   "color: #ff6b35; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);",
-                //   "color: #ffffff; font-size: 14px;",
-                //   "color: #00ff00; font-size: 16px; font-weight: bold;",
-                //   "color: #ffff00; font-size: 14px; font-family: monospace;"
-                // );
+                // Вызываем Easter Egg из глобальной области
+                if (window.terraRentCarEasterEgg) {
+                  window.terraRentCarEasterEgg();
+                }
               }}
               title="🎮 Попробуй кликнуть!"
             >

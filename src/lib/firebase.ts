@@ -14,23 +14,33 @@ import { createSecurePayload } from "./cryptoUtils";
 
 // Конфигурация Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyCnH5K4RB7i5RNgDthSK0wPAiM0wTkYnAE",
-  authDomain: "terrarentcar-f1fda.firebaseapp.com",
-  projectId: "terrarentcar-f1fda",
-  storageBucket: "terrarentcar-f1fda.firebasestorage.app",
-  messagingSenderId: "114261195759",
-  appId: "1:114261195759:web:33356a53fcd35612d2541a",
-  // measurementId: "G-9D32Y58JV2", // Убрано - у клиента нет Google Analytics
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 // Проверяем наличие обязательных переменных окружения
-if (
-  !firebaseConfig.apiKey ||
-  !firebaseConfig.authDomain ||
-  !firebaseConfig.projectId
-) {
+const requiredEnvVars = {
+  VITE_FIREBASE_API_KEY: firebaseConfig.apiKey,
+  VITE_FIREBASE_AUTH_DOMAIN: firebaseConfig.authDomain,
+  VITE_FIREBASE_PROJECT_ID: firebaseConfig.projectId,
+  VITE_FIREBASE_STORAGE_BUCKET: firebaseConfig.storageBucket,
+  VITE_FIREBASE_MESSAGING_SENDER_ID: firebaseConfig.messagingSenderId,
+  VITE_FIREBASE_APP_ID: firebaseConfig.appId,
+};
+
+const missingVars = Object.entries(requiredEnvVars)
+  .filter(([key, value]) => !value)
+  .map(([key]) => key);
+
+if (missingVars.length > 0) {
   throw new Error(
-    "Не все обязательные переменные Firebase не установлены в переменных окружения"
+    `Отсутствуют обязательные переменные окружения Firebase: ${missingVars.join(
+      ", "
+    )}. ` + "Создайте файл .env в корне проекта и добавьте эти переменные."
   );
 }
 
@@ -71,23 +81,11 @@ export async function getFileURL(filePath: string): Promise<string> {
   try {
     // Проверяем, что путь к паспорту
 
-    // Отладочная информация
-    const secureKey = import.meta.env.VITE_FIREBASE_SECRET_TOKEN;
-    // console.log({
-    //   secureKey,
-    //   secureKeyLength: secureKey?.length,
-    //   secureKeyType: typeof secureKey,
-    //   isUndefined: secureKey === undefined,
-    //   isEmpty: secureKey === "",
-    //   envVars: Object.keys(import.meta.env).filter((key) =>
-    //     key.startsWith("VITE_")
-    //   ),
-    // });
+    // Получаем секретный ключ из переменных окружения
+    const secureKey = import.meta.env.VITE_SECURE_KEY;
 
     if (!secureKey) {
-      throw new Error(
-        "VITE_FIREBASE_SECRET_TOKEN не установлен в переменных окружения"
-      );
+      throw new Error("VITE_SECURE_KEY не установлен в переменных окружения");
     }
 
     // Используем callable function вместо hardcoded ссылки

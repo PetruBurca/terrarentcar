@@ -115,7 +115,6 @@ export async function fetchCars(): Promise<FirestoreCar[]> {
 
 export async function fetchAvailableCars(): Promise<FirestoreCar[]> {
   try {
-    // console.log("=== DEBUG: fetchAvailableCars ===");
     const carsRef = collection(db, "cars");
     const q = query(carsRef, where("status", "==", "available"));
     const querySnapshot = await getDocs(q);
@@ -126,13 +125,9 @@ export async function fetchAvailableCars(): Promise<FirestoreCar[]> {
         ...doc.data(),
       } as FirestoreCar;
 
-      // console.log(
-      //   `Фронтенд - Машина: ${carData.name}, ID: ${carData.id}, Категория: ${carData.category}, Статус: ${carData.status}`
-      // );
       return carData;
     });
 
-    // console.log(`Фронтенд - Загружено ${cars.length} доступных машин`);
     return cars;
   } catch (error) {
     console.error("Ошибка загрузки доступных автомобилей:", error);
@@ -173,9 +168,6 @@ export async function createOrder(
         deliveryPrice: orderData.deliveryAmount || "0",
         discountAmount: orderData.discountAmount || "0",
       });
-      // console.log(
-      //   "✅ Notificarea despre cererea nouă a fost trimisă administratorilor"
-      // );
     } catch (notificationError) {
       console.error("❌ Eroare la trimiterea notificării:", notificationError);
       // Nu întrerupem crearea comenzii din cauza erorii de notificare
@@ -258,10 +250,6 @@ export async function createContactRequest(
           createdAt: contactWithTimestamp.createdAt,
         },
       });
-
-      // console.log(
-      //   "✅ Notificarea despre mesajul nou a fost trimisă către administratori"
-      // );
     } catch (notificationError) {
       console.error(
         "❌ Eroare la trimiterea notificării către administratori:",

@@ -29,4 +29,4 @@ Environment variables
 *.njsproj
 *.sln
 *.sw?
-.env
+

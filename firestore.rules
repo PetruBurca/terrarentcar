@@ -1,0 +1,40 @@
+  rules_version = '2';
+
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       
+       // МАШИНЫ - публичное чтение, запись только авторизованным
+       match /cars/{carId} {
+         allow read: if true;
+         allow write, delete: if request.auth != null;
+       }
+       
+       // ЗАЯВКИ - публичное чтение, создание всем, изменение только авторизованным
+       match /orders/{orderId} {
+         allow read, create: if true;
+         allow update, delete: if request.auth != null;
+       }
+       
+       // КОНТАКТЫ/СООБЩЕНИЯ - создание всем, чтение/изменение только авторизованным
+       match /contacts/{contactId} {
+         allow create: if true;
+         allow read, update, delete: if request.auth != null;
+       }
+       
+       // ПОЛЬЗОВАТЕЛИ - только авторизованные
+       match /users/{userId} {
+         allow read, write: if request.auth != null;
+       }
+       
+       // НАСТРОЙКИ - только авторизованные
+       match /settings/{settingId} {
+         allow read, write: if request.auth != null;
+       }
+       
+       // Все остальное - запретить
+       match /{document=**} {
+         allow read, write: if false;
+       }
+     }
+   }
+
