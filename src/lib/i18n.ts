@@ -19,11 +19,11 @@ function detectInitialLanguage(): SupportedLang {
     return DEFAULT_LANGUAGE;
   }
 
-  const preferred =
-    (Array.isArray(navigator.languages) && navigator.languages.length > 0
+  const preferred = (
+    Array.isArray(navigator.languages) && navigator.languages.length > 0
       ? navigator.languages
       : [navigator.language]
-    ).map(normalizeLang);
+  ).map(normalizeLang);
 
   for (const lang of preferred) {
     if (SUPPORTED_LANGS.includes(lang)) {
@@ -51,7 +51,9 @@ const resolvedBase =
   typeof window !== "undefined"
     ? new URL(import.meta.env.BASE_URL ?? "/", window.location.origin).pathname
     : "/";
-const localeBase = resolvedBase.endsWith("/") ? resolvedBase : `${resolvedBase}/`;
+const localeBase = resolvedBase.endsWith("/")
+  ? resolvedBase
+  : `${resolvedBase}/`;
 
 function buildLocaleUrl(lang: SupportedLang) {
   return `${localeBase}locales/${lang}/${lang}.json`;
@@ -80,7 +82,13 @@ export function loadLocale(lang: string | SupportedLang) {
           throw new Error(`Failed to load fallback locale: ${res.status}`);
         }
         const data = await res.json();
-        i18n.addResourceBundle(DEFAULT_LANGUAGE, "translation", data, true, true);
+        i18n.addResourceBundle(
+          DEFAULT_LANGUAGE,
+          "translation",
+          data,
+          true,
+          true
+        );
         i18n.changeLanguage(DEFAULT_LANGUAGE);
         return data;
       } catch (fallbackError) {
