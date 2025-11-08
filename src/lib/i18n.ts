@@ -47,8 +47,11 @@ i18n.use(initReactI18next).init({
   },
 });
 
-const baseUrl = typeof window !== "undefined" ? import.meta.env.BASE_URL ?? "/" : "/";
-const localeBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+const resolvedBase =
+  typeof window !== "undefined"
+    ? new URL(import.meta.env.BASE_URL ?? "/", window.location.origin).pathname
+    : "/";
+const localeBase = resolvedBase.endsWith("/") ? resolvedBase : `${resolvedBase}/`;
 
 function buildLocaleUrl(lang: SupportedLang) {
   return `${localeBase}locales/${lang}/${lang}.json`;
@@ -68,16 +71,22 @@ export function loadLocale(lang: string | SupportedLang) {
       i18n.changeLanguage(targetLang);
       return data;
     })
-    .catch((error) => {
+    .catch(async (error) => {
       console.error(`Error loading locale ${targetLang}:`, error);
       // Загружаем fallback язык
-      return fetch(buildLocaleUrl(DEFAULT_LANGUAGE))
-        .then((res) => res.json())
-        .then((data) => {
-          i18n.addResourceBundle(DEFAULT_LANGUAGE, "translation", data, true, true);
-          i18n.changeLanguage(DEFAULT_LANGUAGE);
-          return data;
-        });
+      try {
+        const res = await fetch(buildLocaleUrl(DEFAULT_LANGUAGE));
+        if (!res.ok) {
+          throw new Error(`Failed to load fallback locale: ${res.status}`);
+        }
+        const data = await res.json();
+        i18n.addResourceBundle(DEFAULT_LANGUAGE, "translation", data, true, true);
+        i18n.changeLanguage(DEFAULT_LANGUAGE);
+        return data;
+      } catch (fallbackError) {
+        console.error("Fallback locale loading failed:", fallbackError);
+        throw fallbackError;
+      }
     });
 }
 
