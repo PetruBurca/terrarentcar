@@ -1,4 +1,4 @@
-import { useState, Suspense, useEffect } from "react";
+import { useState, Suspense, useEffect, useRef } from "react";
 import {
   Car as CarIcon,
   Users,
@@ -7,6 +7,7 @@ import {
   Star,
   Image as ImageIcon,
 } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/utils/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/layout/card";
 import { Badge } from "@/components/ui/feedback/badge";
@@ -15,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { translateCarSpec } from "@/lib/carTranslations";
 import { Car } from "@/types/reservation";
 import logo from "@/assets/logo.webp";
+import { createCarPath, createCarShareUrl, isPathForCar } from "@/lib/carLinks";
 
 export interface CarCardProps {
   id: string;
@@ -77,16 +79,21 @@ const CarCard = ({
   blockToDate,
   status,
 }: CarCardProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAllFeatures, setShowAllFeatures] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const originPathRef = useRef<string | null>(null);
   const safeFeatures = Array.isArray(features) ? features : [];
   const imageUrl =
     images && images.length > 0 && images[0] && images[0].startsWith("http")
       ? images[0]
       : PLACEHOLDER_IMG;
+  const carPath = createCarPath(id, name);
+  const shareUrl = createCarShareUrl(id, name);
+  const isModalOpen = isPathForCar(location.pathname, id, name);
 
   // Лог для проверки загрузки компонента
   // useEffect(() => {
@@ -146,7 +153,10 @@ const CarCard = ({
         onClick={(e) => {
           // Не открывать модалку, если клик был по кнопке бронирования
           if ((e.target as HTMLElement).closest("button")) return;
-          setIsModalOpen(true);
+          if (!isPathForCar(location.pathname, id, name)) {
+            originPathRef.current = `${location.pathname}${location.search}`;
+            navigate(carPath);
+          }
         }}
       >
         <div className="relative overflow-hidden h-[330px] w-full flex items-center justify-center bg-black">
@@ -268,7 +278,10 @@ const CarCard = ({
             className="w-full glow-effect bg-[#a00003d2] hover:bg-[#8b00008e]"
             onClick={(e) => {
               e.stopPropagation();
-              setIsModalOpen(true);
+              if (!isPathForCar(location.pathname, id, name)) {
+                originPathRef.current = `${location.pathname}${location.search}`;
+                navigate(carPath);
+              }
             }}
           >
             <CarIcon className="mr-2 h-4 w-4" />
@@ -280,7 +293,15 @@ const CarCard = ({
       <Suspense fallback={<div>Загрузка...</div>}>
         <CarReservationModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+            const originPath = originPathRef.current;
+            originPathRef.current = null;
+            if (originPath && originPath !== carPath) {
+              navigate(originPath, { replace: true });
+            } else {
+              navigate("/", { replace: true });
+            }
+          }}
           car={
             {
               id,
@@ -311,6 +332,8 @@ const CarCard = ({
               status,
             } as Car
           }
+          shareUrl={shareUrl}
+          shareTitle={name}
         />
       </Suspense>
     </>

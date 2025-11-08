@@ -53,7 +53,65 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
   const [isDragging, setIsDragging] = React.useState(false);
   const [dragOffset, setDragOffset] = React.useState(0);
   const [startIndex, setStartIndex] = React.useState(0);
-  const images = Array.isArray(car.images) ? car.images : [];
+  const images = React.useMemo(
+    () => (Array.isArray(car.images) ? car.images : []),
+    [car.images]
+  );
+
+  const getOptimizedImageUrl = React.useCallback((url: string) => {
+    if (!url || url.includes("placeholder") || !url.startsWith("http")) {
+      return url;
+    }
+
+    if (url.includes("firebasestorage.googleapis.com")) {
+      const params = new URLSearchParams();
+      params.set("w", "900");
+      params.set("h", "auto");
+      params.set("q", "90");
+      params.set("f", "webp");
+      params.set("alt", "media");
+
+      const [base] = url.split("?");
+      return `${base}?${params.toString()}`;
+    }
+
+    return url;
+  }, []);
+
+  const optimizedImages = React.useMemo(
+    () => images.map((img) => getOptimizedImageUrl(img)),
+    [images, getOptimizedImageUrl]
+  );
+
+  React.useEffect(() => {
+    optimizedImages.forEach((img) => {
+      if (!img) return;
+      const image = new Image();
+      image.src = img;
+      if (image.decode) {
+        image.decode().catch(() => {
+          /* ignore */
+        });
+      }
+    });
+  }, [optimizedImages]);
+
+  const [loadedImages, setLoadedImages] = React.useState<
+    Record<number, boolean>
+  >({});
+
+  React.useEffect(() => {
+    setLoadedImages({});
+  }, [optimizedImages]);
+
+  const markLoaded = React.useCallback((index: number) => {
+    setLoadedImages((prev) => {
+      if (prev[index]) {
+        return prev;
+      }
+      return { ...prev, [index]: true };
+    });
+  }, []);
 
   const handlePrev = () =>
     setActiveIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
@@ -181,20 +239,29 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
               : "bg-black rounded-lg"
           }`}
         >
+          {!loadedImages[activeIndex] && (
+            <div className="absolute inset-0 flex items-center justify-center bg-muted/40 animate-pulse rounded-lg" />
+          )}
           <img
-            src={car.images[activeIndex] || logo}
+            src={optimizedImages[activeIndex] || logo}
             alt={car.name}
             className={`transition-all duration-500 ${
               !car.images[activeIndex] || car.images[activeIndex] === logo
                 ? "w-auto h-auto max-w-[250px] max-h-[200px] sm:max-w-[300px] sm:max-h-[250px] md:max-w-[400px] md:max-h-[320px] object-contain p-4 sm:p-6 md:p-8 rounded-lg"
                 : "w-full h-full object-contain"
             }`}
+            loading="eager" // Критическое изображение загружаем сразу
+            decoding="async"
+            fetchPriority="high"
+            onLoad={() => markLoaded(activeIndex)}
+            onError={() => markLoaded(activeIndex)}
             style={{
               objectPosition: "center center",
               minWidth: "100%",
               minHeight: "100%",
+              opacity: loadedImages[activeIndex] ? 1 : 0,
+              transition: "opacity 200ms ease-in-out",
             }}
-            loading="eager" // Критическое изображение загружаем сразу
           />
           {/* Стрелки */}
           {car.images && car.images.length > 1 && (
@@ -270,7 +337,7 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
                     }px)`,
                   }}
                 >
-                  {car.images.map((img, idx) => (
+                  {optimizedImages.map((img, idx) => (
                     <div
                       key={idx}
                       className={`w-16 h-16 sm:w-18 sm:h-18 rounded-lg overflow-hidden cursor-pointer transition-all duration-200 bg-black flex-shrink-0 p-0 m-0.5 ${
@@ -281,10 +348,16 @@ export const ReservationStep1: React.FC<ReservationStep1Props> = ({
                       onClick={() => !isDragging && setActiveIndex(idx)}
                     >
                       <img
-                        src={img}
+                        src={img || logo}
                         alt={`thumb-${idx}`}
-                        className="w-full h-full object-cover rounded-md"
+                        className="w-full h-full object-cover rounded-md transition-opacity duration-150"
                         loading="lazy"
+                        decoding="async"
+                        style={{
+                          opacity: loadedImages[idx] ? 1 : 0,
+                        }}
+                        onLoad={() => markLoaded(idx)}
+                        onError={() => markLoaded(idx)}
                       />
                     </div>
                   ))}

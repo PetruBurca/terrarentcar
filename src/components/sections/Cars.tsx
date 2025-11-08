@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/utils/button";
 import { Badge } from "@/components/ui/feedback/badge";
 import { Skeleton } from "@/components/ui/feedback/skeleton";
@@ -18,6 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchCars, fetchOrders, type FirestoreCar } from "@/lib/firestore";
 import { translateCarSpec } from "@/lib/carTranslations";
 import ContactNumbersModal from "../modals/ContactNumbersModal";
+import { extractCarInfoFromPath } from "@/lib/carLinks";
 
 // Убираем categoryMap, так как в данных уже используются правильные ключи
 
@@ -145,6 +147,7 @@ const Pagination = ({
 
 const Cars = ({ searchDates }) => {
   const { t, i18n } = useTranslation();
+  const location = useLocation();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [showScrollHint, setShowScrollHint] = useState(true);
@@ -429,6 +432,49 @@ const Cars = ({ searchDates }) => {
     (currentPage - 1) * currentCarsPerPage,
     currentPage * currentCarsPerPage
   );
+
+  useEffect(() => {
+    const carInfo = extractCarInfoFromPath(location.pathname);
+    if (!carInfo) {
+      return;
+    }
+
+    const targetIndex = sortedCars.findIndex((car) => car.id === carInfo.id);
+    if (targetIndex === -1) {
+      return;
+    }
+
+    const pageForCar = Math.floor(targetIndex / currentCarsPerPage) + 1;
+    if (pageForCar !== currentPage) {
+      setCurrentPage(pageForCar);
+    }
+  }, [location.pathname, sortedCars, currentCarsPerPage, currentPage]);
+
+  useEffect(() => {
+    const carInfo = extractCarInfoFromPath(location.pathname);
+    if (!carInfo) {
+      return;
+    }
+
+    const waitForCard = () => {
+      const element = document.querySelector(
+        `[data-car-id="${carInfo.id}"]`
+      ) as HTMLElement | null;
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    };
+
+    if (document.readyState === "complete") {
+      setTimeout(waitForCard, 200);
+    } else {
+      window.addEventListener("load", waitForCard, { once: true });
+    }
+
+    return () => {
+      window.removeEventListener("load", waitForCard);
+    };
+  }, [location.pathname, paginatedCars]);
 
   // DEBUG: Логируем пагинацию
   //   "Машины на текущей странице:",

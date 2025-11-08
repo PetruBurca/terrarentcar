@@ -17,8 +17,15 @@ i18n.use(initReactI18next).init({
   },
 });
 
+const baseUrl = typeof window !== "undefined" ? import.meta.env.BASE_URL ?? "/" : "/";
+const localeBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+
+function buildLocaleUrl(lang: string) {
+  return `${localeBase}locales/${lang}/${lang}.json`;
+}
+
 export function loadLocale(lang: string) {
-  return fetch(`./locales/${lang}/${lang}.json`)
+  return fetch(buildLocaleUrl(lang))
     .then((res) => {
       if (!res.ok) {
         throw new Error(`Failed to load locale: ${res.status}`);
@@ -33,7 +40,7 @@ export function loadLocale(lang: string) {
     .catch((error) => {
       console.error(`Error loading locale ${lang}:`, error);
       // Загружаем fallback язык
-      return fetch(`./locales/ro/ro.json`)
+      return fetch(buildLocaleUrl("ro"))
         .then((res) => res.json())
         .then((data) => {
           i18n.addResourceBundle("ro", "translation", data, true, true);
