@@ -732,7 +732,7 @@ const CarReservationModal = ({
             <X size={24} />
           </button>
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">
+            <DialogTitle className="text-2xl font-bold text-center">
               {t("reservation.title")}
             </DialogTitle>
             <DialogDescription className="sr-only">
