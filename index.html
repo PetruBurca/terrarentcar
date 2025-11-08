@@ -137,6 +137,22 @@
       gtag("config", "AW-11315711804");
     </script>
 
+    <script>
+      (function () {
+        if (typeof window === "undefined" || typeof sessionStorage === "undefined") {
+          return;
+        }
+
+        const redirectPath = sessionStorage.getItem("__terra_redirect_path");
+        if (redirectPath) {
+          sessionStorage.removeItem("__terra_redirect_path");
+          if (redirectPath.startsWith("/")) {
+            window.history.replaceState(null, "", redirectPath);
+          }
+        }
+      })();
+    </script>
+
     <!-- Vite dev server will inject scripts here -->
     <script type="module" src="/src/main.tsx"></script>
   </head>
