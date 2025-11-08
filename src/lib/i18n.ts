@@ -1,15 +1,45 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
-const LANGS = ["ru", "en", "ro"];
+const SUPPORTED_LANGS = ["ru", "ro", "en"] as const;
+export type SupportedLang = (typeof SUPPORTED_LANGS)[number];
 
-// Всегда используем "ro" по умолчанию
-const savedLanguage = "ro";
+const DEFAULT_LANGUAGE: SupportedLang = "en";
+
+function normalizeLang(lang: string | undefined | null): SupportedLang {
+  if (!lang) return DEFAULT_LANGUAGE;
+  const shortCode = lang.toLowerCase().split("-")[0];
+  if (shortCode === "ro") return "ro";
+  if (shortCode === "ru") return "ru";
+  return DEFAULT_LANGUAGE;
+}
+
+function detectInitialLanguage(): SupportedLang {
+  if (typeof window === "undefined" || typeof navigator === "undefined") {
+    return DEFAULT_LANGUAGE;
+  }
+
+  const preferred =
+    (Array.isArray(navigator.languages) && navigator.languages.length > 0
+      ? navigator.languages
+      : [navigator.language]
+    ).map(normalizeLang);
+
+  for (const lang of preferred) {
+    if (SUPPORTED_LANGS.includes(lang)) {
+      return lang;
+    }
+  }
+
+  return DEFAULT_LANGUAGE;
+}
+
+export const initialLanguage = detectInitialLanguage();
 
 // Инициализация без ресурсов, всё грузим динамически
 i18n.use(initReactI18next).init({
-  lng: savedLanguage,
-  fallbackLng: "ro",
+  lng: initialLanguage,
+  fallbackLng: DEFAULT_LANGUAGE,
   interpolation: { escapeValue: false },
   resources: {},
   react: {
@@ -20,12 +50,13 @@ i18n.use(initReactI18next).init({
 const baseUrl = typeof window !== "undefined" ? import.meta.env.BASE_URL ?? "/" : "/";
 const localeBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
 
-function buildLocaleUrl(lang: string) {
+function buildLocaleUrl(lang: SupportedLang) {
   return `${localeBase}locales/${lang}/${lang}.json`;
 }
 
-export function loadLocale(lang: string) {
-  return fetch(buildLocaleUrl(lang))
+export function loadLocale(lang: string | SupportedLang) {
+  const targetLang = normalizeLang(lang) as SupportedLang;
+  return fetch(buildLocaleUrl(targetLang))
     .then((res) => {
       if (!res.ok) {
         throw new Error(`Failed to load locale: ${res.status}`);
@@ -33,18 +64,18 @@ export function loadLocale(lang: string) {
       return res.json();
     })
     .then((data) => {
-      i18n.addResourceBundle(lang, "translation", data, true, true);
-      i18n.changeLanguage(lang);
+      i18n.addResourceBundle(targetLang, "translation", data, true, true);
+      i18n.changeLanguage(targetLang);
       return data;
     })
     .catch((error) => {
-      console.error(`Error loading locale ${lang}:`, error);
+      console.error(`Error loading locale ${targetLang}:`, error);
       // Загружаем fallback язык
-      return fetch(buildLocaleUrl("ro"))
+      return fetch(buildLocaleUrl(DEFAULT_LANGUAGE))
         .then((res) => res.json())
         .then((data) => {
-          i18n.addResourceBundle("ro", "translation", data, true, true);
-          i18n.changeLanguage("ro");
+          i18n.addResourceBundle(DEFAULT_LANGUAGE, "translation", data, true, true);
+          i18n.changeLanguage(DEFAULT_LANGUAGE);
           return data;
         });
     });
@@ -53,7 +84,7 @@ export function loadLocale(lang: string) {
 // Автоматически загружаем язык при инициализации
 if (typeof window !== "undefined") {
   // Загружаем язык сразу, не ждем DOMContentLoaded
-  loadLocale(savedLanguage).catch(console.error);
+  loadLocale(initialLanguage).catch(console.error);
 }
 
 export default i18n;

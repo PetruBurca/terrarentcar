@@ -8,7 +8,7 @@ import { FaGlobe } from "react-icons/fa";
 import { FaPhoneSquareAlt } from "react-icons/fa";
 const CallContactsModal = lazy(() => import("../modals/CallContactsModal"));
 import { useTranslation } from "react-i18next";
-import { loadLocale } from "@/lib/i18n";
+import { loadLocale, initialLanguage } from "@/lib/i18n";
 
 // Расширяем window для easter egg
 declare global {
@@ -23,13 +23,21 @@ const LANGS = [
   { code: "en", label: "En" },
 ];
 
+const LANGUAGE_STORAGE_KEY = "terraPreferredLanguage";
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const { t, i18n } = useTranslation();
-  const [currentLang, setCurrentLang] = useState(i18n.language || "ro");
+  const [currentLang, setCurrentLang] = useState(() => {
+    if (typeof window !== "undefined") {
+      const stored = window.localStorage?.getItem(LANGUAGE_STORAGE_KEY);
+      return stored || i18n.language || initialLanguage;
+    }
+    return i18n.language || initialLanguage;
+  });
   const [iconSpin, setIconSpin] = useState<"spin-in" | "spin-out" | "">("");
   const modalRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -67,26 +75,34 @@ const Header = () => {
   };
 
   const handleLangChange = (lang: string) => {
-    setCurrentLang(lang);
     loadLocale(lang);
   };
 
   // Синхронизируем язык при загрузке компонента
   useEffect(() => {
-    const savedLang = "ro";
+    if (typeof window === "undefined") return;
 
-    // Убеждаемся, что язык загружен в i18n
-    if (i18n.language !== savedLang) {
-      loadLocale(savedLang);
+    const storedLang = window.localStorage?.getItem(LANGUAGE_STORAGE_KEY);
+    const preferredLang = storedLang || initialLanguage;
+
+    if (i18n.language !== preferredLang) {
+      loadLocale(preferredLang);
+    } else {
+      setCurrentLang(preferredLang);
     }
-
-    setCurrentLang(savedLang);
   }, []);
 
   // Слушаем изменения языка в i18n
   useEffect(() => {
     const handleLanguageChange = (lng: string) => {
       setCurrentLang(lng);
+      if (typeof window !== "undefined") {
+        try {
+          window.localStorage?.setItem(LANGUAGE_STORAGE_KEY, lng);
+        } catch (error) {
+          console.error("Failed to store language preference:", error);
+        }
+      }
     };
 
     i18n.on("languageChanged", handleLanguageChange);
