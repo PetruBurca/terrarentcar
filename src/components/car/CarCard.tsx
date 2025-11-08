@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import { translateCarSpec } from "@/lib/carTranslations";
 import { Car } from "@/types/reservation";
 import logo from "@/assets/logo.webp";
-import { createCarPath, createCarShareUrl, isPathForCar } from "@/lib/carLinks";
+import { createCarPath, isPathForCar } from "@/lib/carLinks";
 
 export interface CarCardProps {
   id: string;
@@ -92,7 +92,6 @@ const CarCard = ({
       ? images[0]
       : PLACEHOLDER_IMG;
   const carPath = createCarPath(id, name);
-  const shareUrl = createCarShareUrl(id, name);
   const isModalOpen = isPathForCar(location.pathname, id, name);
 
   // Лог для проверки загрузки компонента
@@ -332,8 +331,6 @@ const CarCard = ({
               status,
             } as Car
           }
-          shareUrl={shareUrl}
-          shareTitle={name}
         />
       </Suspense>
     </>

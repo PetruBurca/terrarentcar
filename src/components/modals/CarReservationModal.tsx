@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Share2, Link as LinkIcon } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/utils/button";
 import {
   Dialog,
@@ -36,9 +36,6 @@ interface CarReservationModalProps {
   isOpen: boolean;
   onClose: () => void;
   car: Car;
-  shareUrl: string;
-  shareTitle?: string;
-  shareText?: string;
 }
 
 // Wizard steps
@@ -48,13 +45,9 @@ const CarReservationModal = ({
   isOpen,
   onClose,
   car,
-  shareUrl,
-  shareTitle,
-  shareText,
 }: CarReservationModalProps) => {
   const { t, i18n } = useTranslation();
   const isMobile = useMediaQuery("(max-width: 767px)");
-  const [isSharing, setIsSharing] = useState(false);
 
   // Используем кэшированное состояние с изоляцией по машинам
   const {
@@ -738,115 +731,6 @@ const CarReservationModal = ({
           >
             <X size={24} />
           </button>
-          {!isSubmitting && (
-            <div className="absolute top-3 left-3 md:top-4 md:left-4 flex gap-2">
-              <Button
-                size="icon"
-                variant="ghost"
-                disabled={isSubmitting || isSharing}
-                onClick={async () => {
-                  try {
-                    setIsSharing(true);
-                    if (
-                      navigator.share &&
-                      typeof navigator.share === "function"
-                    ) {
-                      await navigator.share({
-                        title: shareTitle || car.name,
-                        text:
-                          shareText ||
-                          t(
-                            "reservation.shareText",
-                            "Понравилась эта машина? Забронируй её!"
-                          ),
-                        url: shareUrl,
-                      });
-                      setIsSharing(false);
-                      return;
-                    }
-                  } catch (error) {
-                    if (
-                      error instanceof DOMException &&
-                      error.name === "AbortError"
-                    ) {
-                      setIsSharing(false);
-                      return;
-                    }
-                  }
-
-                  try {
-                    if (navigator.clipboard?.writeText) {
-                      await navigator.clipboard.writeText(shareUrl);
-                      toast({
-                        title: t(
-                          "reservation.linkCopiedTitle",
-                          "Ссылка скопирована"
-                        ),
-                        description: t(
-                          "reservation.linkCopiedDesc",
-                          "Отправьте её другу и забронируйте автомобиль вместе."
-                        ),
-                      });
-                    } else {
-                      throw new Error("Clipboard API is not available");
-                    }
-                  } catch (clipboardError) {
-                    console.error("Clipboard error:", clipboardError);
-                    toast({
-                      title: t(
-                        "reservation.linkCopyFallbackTitle",
-                        "Не удалось скопировать автоматически"
-                      ),
-                      description: shareUrl,
-                    });
-                  } finally {
-                    setIsSharing(false);
-                  }
-                }}
-                className="bg-black/20 text-white hover:text-[#B90003] hover:bg-white/10 transition"
-                aria-label={t("reservation.shareLink", "Поделиться ссылкой")}
-              >
-                <Share2 className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                disabled={isSubmitting}
-                onClick={async () => {
-                  try {
-                    if (navigator.clipboard?.writeText) {
-                      await navigator.clipboard.writeText(shareUrl);
-                      toast({
-                        title: t(
-                          "reservation.linkCopiedTitle",
-                          "Ссылка скопирована"
-                        ),
-                        description: t(
-                          "reservation.linkCopiedDesc",
-                          "Отправьте её другу и забронируйте автомобиль вместе."
-                        ),
-                      });
-                    } else {
-                      throw new Error("Clipboard API is not available");
-                    }
-                  } catch (error) {
-                    console.error("Clipboard error:", error);
-                    toast({
-                      title: t(
-                        "reservation.linkCopyFallbackTitle",
-                        "Не удалось скопировать автоматически"
-                      ),
-                      description: shareUrl,
-                    });
-                  }
-                }}
-                className="bg-black/20 text-white hover:text-[#B90003] hover:bg-white/10 transition"
-                aria-label={t("reservation.copyLink", "Скопировать ссылку")}
-              >
-                <LinkIcon className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">
               {t("reservation.title")}

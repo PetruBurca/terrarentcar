@@ -43,16 +43,6 @@ export const createCarPath = (id: string, name: string) => {
   return `/car/${id}-${slug}`;
 };
 
-export const createCarShareUrl = (id: string, name: string) => {
-  const path = createCarPath(id, name);
-
-  if (typeof window === "undefined") {
-    return path;
-  }
-
-  return `${window.location.origin}${path}`;
-};
-
 export const extractCarInfoFromPath = (pathname: string) => {
   if (!pathname || !pathname.startsWith("/car/")) {
     return null;
