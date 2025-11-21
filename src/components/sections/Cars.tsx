@@ -6,7 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/utils/button";
 import { Badge } from "@/components/ui/feedback/badge";
 import { Skeleton } from "@/components/ui/feedback/skeleton";
@@ -145,9 +145,10 @@ const Pagination = ({
   );
 };
 
-const Cars = ({ searchDates }) => {
+const Cars = ({ searchDates, initialCategory = null }) => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [showScrollHint, setShowScrollHint] = useState(true);
@@ -161,6 +162,13 @@ const Cars = ({ searchDates }) => {
   // По умолчанию сортировка по имени по возрастанию
   const [sortBy, setSortBy] = useState<"price" | "name" | null>("name");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  // Устанавливаем категорию из URL при загрузке
+  useEffect(() => {
+    if (initialCategory) {
+      setSelectedCategory(initialCategory);
+    }
+  }, [initialCategory]);
 
   // Проверяем, есть ли сохраненные данные заявки
   useEffect(() => {
@@ -570,6 +578,26 @@ const Cars = ({ searchDates }) => {
                       onClick={() => {
                         setSelectedCategory(cat.key);
                         setCurrentPage(1);
+                        
+                        // Навигация на соответствующий URL
+                        const currentLang = i18n.language;
+                        if (cat.key === "all") {
+                          // Если выбрана категория "all", переходим на главную или на язык
+                          if (currentLang && currentLang !== "en") {
+                            navigate(`/${currentLang}`);
+                          } else {
+                            navigate("/");
+                          }
+                        } else {
+                          // Навигация на /category или /lang/category
+                          // Для "wagon" используем "break" в URL (как указал пользователь)
+                          const urlCategory = cat.key === "wagon" ? "break" : cat.key;
+                          if (currentLang && currentLang !== "en") {
+                            navigate(`/${currentLang}/${urlCategory}`);
+                          } else {
+                            navigate(`/${urlCategory}`);
+                          }
+                        }
                       }}
                       className={`${
                         selectedCategory === cat.key ? "glow-effect" : ""

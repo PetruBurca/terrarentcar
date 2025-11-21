@@ -366,7 +366,28 @@ function App() {
         >
           <Routes>
             <Route path="/" element={<Index />} />
+            {/* Category routes (before language routes to avoid conflicts) */}
+            <Route path="/sedan" element={<Index />} />
+            <Route path="/convertible" element={<Index />} />
+            <Route path="/wagon" element={<Index />} />
+            <Route path="/break" element={<Index />} />
+            <Route path="/crossover" element={<Index />} />
+            <Route path="/suv" element={<Index />} />
+            <Route path="/pickup" element={<Index />} />
+            <Route path="/hatchback" element={<Index />} />
+            {/* Car detail route (before language routes) */}
             <Route path="/car/:carSlug" element={<Index />} />
+            {/* Language routes */}
+            <Route path="/:lang" element={<Index />} />
+            {/* Combined language + category routes */}
+            <Route path="/:lang/sedan" element={<Index />} />
+            <Route path="/:lang/convertible" element={<Index />} />
+            <Route path="/:lang/wagon" element={<Index />} />
+            <Route path="/:lang/break" element={<Index />} />
+            <Route path="/:lang/crossover" element={<Index />} />
+            <Route path="/:lang/suv" element={<Index />} />
+            <Route path="/:lang/pickup" element={<Index />} />
+            <Route path="/:lang/hatchback" element={<Index />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

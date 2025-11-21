@@ -9,6 +9,7 @@ import { FaPhoneSquareAlt } from "react-icons/fa";
 const CallContactsModal = lazy(() => import("../modals/CallContactsModal"));
 import { useTranslation } from "react-i18next";
 import { loadLocale, initialLanguage } from "@/lib/i18n";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // Расширяем window для easter egg
 declare global {
@@ -25,12 +26,17 @@ const LANGS = [
 
 const LANGUAGE_STORAGE_KEY = "terraPreferredLanguage";
 
+const VALID_LANGS = ["ru", "ro", "en"];
+const VALID_CATEGORIES = ["sedan", "convertible", "wagon", "break", "crossover", "suv", "pickup", "hatchback"];
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const { t, i18n } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [currentLang, setCurrentLang] = useState(() => {
     if (typeof window !== "undefined") {
       const stored = window.localStorage?.getItem(LANGUAGE_STORAGE_KEY);
@@ -76,6 +82,26 @@ const Header = () => {
 
   const handleLangChange = (lang: string) => {
     loadLocale(lang);
+    
+    // Обновляем URL с учетом текущей категории
+    const pathParts = location.pathname.split("/").filter(Boolean);
+    let currentCategory: string | null = null;
+    
+    // Определяем текущую категорию из URL
+    if (pathParts.length > 0 && VALID_LANGS.includes(pathParts[0])) {
+      if (pathParts.length > 1 && VALID_CATEGORIES.includes(pathParts[1])) {
+        currentCategory = pathParts[1];
+      }
+    } else if (pathParts.length > 0 && VALID_CATEGORIES.includes(pathParts[0])) {
+      currentCategory = pathParts[0];
+    }
+    
+    // Навигация на новый URL с языком и категорией (если есть)
+    if (currentCategory) {
+      navigate(`/${lang}/${currentCategory}`);
+    } else {
+      navigate(`/${lang}`);
+    }
   };
 
   // Синхронизируем язык при загрузке компонента
