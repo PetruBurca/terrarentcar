@@ -32,6 +32,9 @@ const Index = () => {
 
   // Автоматическое перенаправление на язык при заходе на главную страницу
   useEffect(() => {
+    // Проверяем, что роутер готов
+    if (typeof window === "undefined") return;
+
     const pathParts = location.pathname.split("/").filter(Boolean);
 
     // Пропускаем маршруты /car/:carSlug
@@ -41,11 +44,29 @@ const Index = () => {
 
     // Если пользователь зашел на главную страницу без языка в URL
     if (pathParts.length === 0) {
-      // Определяем язык устройства
-      const deviceLang = initialLanguage;
+      try {
+        // Определяем язык устройства с проверкой
+        let deviceLang: string = "en";
 
-      // Перенаправляем на URL с языком
-      navigate(`/${deviceLang}`, { replace: true });
+        if (initialLanguage && typeof initialLanguage === "string") {
+          deviceLang = initialLanguage;
+        } else if (typeof window !== "undefined" && navigator.language) {
+          const browserLang = navigator.language.toLowerCase().split("-")[0];
+          if (VALID_LANGS.includes(browserLang as "ru" | "ro" | "en")) {
+            deviceLang = browserLang;
+          }
+        }
+
+        // Перенаправляем на URL с языком только если язык определен и валиден
+        if (deviceLang && VALID_LANGS.includes(deviceLang)) {
+          // Используем setTimeout для гарантии, что роутер готов
+          setTimeout(() => {
+            navigate(`/${deviceLang}`, { replace: true });
+          }, 0);
+        }
+      } catch (error) {
+        console.error("Error during language redirect:", error);
+      }
       return;
     }
   }, [location.pathname, navigate]);
@@ -91,18 +112,27 @@ const Index = () => {
   };
 
   // Определяем категорию из URL для передачи в Cars
-  const pathParts = location.pathname.split("/").filter(Boolean);
-  let initialCategory: string | null = null;
+  const getInitialCategory = () => {
+    const pathParts = location.pathname.split("/").filter(Boolean);
+    let category: string | null = null;
 
-  if (pathParts.length > 0 && VALID_LANGS.includes(pathParts[0])) {
-    if (pathParts.length > 1 && VALID_CATEGORIES.includes(pathParts[1])) {
+    if (pathParts.length > 0 && VALID_LANGS.includes(pathParts[0])) {
+      if (pathParts.length > 1 && VALID_CATEGORIES.includes(pathParts[1])) {
+        // Если категория "break", используем "wagon" (так как в данных используется "wagon")
+        category = pathParts[1] === "break" ? "wagon" : pathParts[1];
+      }
+    } else if (
+      pathParts.length > 0 &&
+      VALID_CATEGORIES.includes(pathParts[0])
+    ) {
       // Если категория "break", используем "wagon" (так как в данных используется "wagon")
-      initialCategory = pathParts[1] === "break" ? "wagon" : pathParts[1];
+      category = pathParts[0] === "break" ? "wagon" : pathParts[0];
     }
-  } else if (pathParts.length > 0 && VALID_CATEGORIES.includes(pathParts[0])) {
-    // Если категория "break", используем "wagon" (так как в данных используется "wagon")
-    initialCategory = pathParts[0] === "break" ? "wagon" : pathParts[0];
-  }
+
+    return category;
+  };
+
+  const initialCategory = getInitialCategory();
 
   return (
     <div className="min-h-screen bg-background">
