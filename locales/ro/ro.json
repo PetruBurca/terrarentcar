@@ -143,7 +143,7 @@
     "emailTitle": "Email",
     "emailDesc": "Răspundem în decurs de o oră",
     "addressTitle": "Adresă",
-    "addressDetails": "Chișinău MD, Bulevardul Mircea cel Bătrîn 4",
+    "addressDetails": "Chișinău MD, str. Nicolae Milescu Spătaru 1",
     "addressDesc": "Biroul nostru",
     "hoursTitle": "Program de lucru",
     "hoursDetails1": "Lun-Dum: 24/7",
@@ -219,7 +219,7 @@
     "periodTitle": "Perioada închirierii",
     "periodNotSelected": "Nu este selectat",
     "geoTitle": "Geolocația",
-    "officeAddress": "Orașul Chișinău, Bulevardul Mircea cel Bătrîn 4/4",
+    "officeAddress": "Orașul Chișinău, str. Nicolae Milescu Spătaru 1",
     "airportAddress": "Aeroportul Chișinău, Dacia 80/3",
 
     "rulesTitle": "Regulile de utilizare a automobilului",
